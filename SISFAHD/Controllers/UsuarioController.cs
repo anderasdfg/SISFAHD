@@ -2,11 +2,15 @@
 using Microsoft.AspNetCore.Mvc;
 using SISFAHD.Services;
 using SISFAHD.Entities;
+using System;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace SISFAHD.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class UsuarioController : ControllerBase
     {
         private readonly UsuarioService _usuarioservice;
@@ -15,7 +19,7 @@ namespace SISFAHD.Controllers
             _usuarioservice = usuarioservice;            
         }
 
-        [HttpGet("all")]        
+        [HttpGet("all")]
         public ActionResult<List<Usuario>> GetAll()
         {
             return _usuarioservice.GetAll();

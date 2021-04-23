@@ -22,5 +22,11 @@ namespace SISFAHD.Services
             usuarios = _usuarios.Find(Usuario => true).ToList();
             return usuarios;
         }
+        public Usuario GetByUserNameAndPass(string username, string pass)
+        {
+            Usuario usuario = new Usuario();
+            usuario = _usuarios.Find(usuario => usuario.usuario == username & usuario.clave == pass).FirstOrDefault();
+            return usuario;
+        }
     }
 }
