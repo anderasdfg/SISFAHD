@@ -7,16 +7,16 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace SISFAHD.Entities
 {
-    public class Rol
+    public class Historia
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string id { get; set; }
-
-        [BsonElement("nombre")]
-        public string nombre { get; set; }
-        [BsonElement("descripcion")]
-        public string descripcion { get; set; }
-        
+        [BsonElement("historial")]
+        public string historial { get; set; }
+        [BsonElement("fecha_creacion")]
+        public DateTime? fecha_creacion { get; set; }
+        [BsonElement("numero_historia")]
+        public string numero_historia{ get; set; }
     }
 }
