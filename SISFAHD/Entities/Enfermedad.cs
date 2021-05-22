@@ -10,17 +10,14 @@ using SISFAHD.Services;
 
 namespace SISFAHD.Entities
 {
-    public class Rol
+    public class Enfermedad
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string id { get; set; }
-        [BsonElement("nombre")]
-        public string nombre { get; set; }
+        [BsonElement("codigo_cie")]
+        public string codigo_cie { get; set; }
         [BsonElement("descripcion")]
         public string descripcion { get; set; }
-        [BsonElement("permisos")]
-        public string permisos { get; set; }
-        [BsonElement("tipo_operacion")]
     }
 }
