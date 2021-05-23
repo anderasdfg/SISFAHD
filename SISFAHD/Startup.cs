@@ -61,6 +61,7 @@ namespace SISFAHD
                sp.GetRequiredService<IOptions<SisfahdDatabaseSettings>>().Value);
             //Inyección de dependencias       
             services.AddScoped<UsuarioService>();
+            services.AddScoped<RealizarPagoService>();
             //Injectando dependecia de Azure FileStorage
             services.AddScoped<IFileStorage, AzureFileStorage>();
 
