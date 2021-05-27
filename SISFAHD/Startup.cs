@@ -64,6 +64,8 @@ namespace SISFAHD
             services.AddScoped<RealizarPagoService>();
             services.AddScoped<GestionarInformacionMedicaService>();
             services.AddScoped<TurnoService>();
+            services.AddScoped<EspecialidadService>();
+            services.AddScoped<MedicoService>();
             //Injectando dependecia de Azure FileStorage
             services.AddScoped<IFileStorage, AzureFileStorage>();
 
