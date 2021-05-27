@@ -13,6 +13,7 @@ namespace SISFAHD.Entities
 {
     public class Notificacion
     {
+        //subida de avance del cus chat
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string id { get; set; }
