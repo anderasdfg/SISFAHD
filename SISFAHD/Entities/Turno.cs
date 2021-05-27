@@ -20,9 +20,9 @@ namespace SISFAHD.Entities
         [BsonElement("estado")]
         public string estado { get; set; }
         [BsonElement("fecha_fin")]
-        public DateTime? fecha_fin { get; set; }
+        public DateTime fecha_fin { get; set; }
         [BsonElement("fecha_inicio")]
-        public DateTime? fecha_inicio { get; set; }
+        public DateTime fecha_inicio { get; set; }
         [BsonElement("hora_fin")]
         public string hora_fin { get; set; }
         [BsonElement("hora_inicio")]
@@ -31,14 +31,22 @@ namespace SISFAHD.Entities
         public string id_medico { get; set; }
         [BsonElement("id_tarifa")]
         public string id_tarifa { get; set; }
-        [BsonElement("Cupos")]
-        public string Cupos { get; set; }
+        [BsonElement("cupos")]
+        public List<Cupos> cupos{ get; set; }
     }
     public class EspecialidadT
     {
         public string nombre { get; set; }
 
         public string codigo { get; set; }
+
+    }
+    public class Cupos
+    {
+        public DateTime hora_inicio { get; set; }
+        public string paciente { get; set; }
+        public int ratio { get; set; }
+        public string estado { get; set; }
 
     }
 }
