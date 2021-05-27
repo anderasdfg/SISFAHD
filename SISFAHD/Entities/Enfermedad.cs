@@ -10,6 +10,7 @@ using SISFAHD.Services;
 
 namespace SISFAHD.Entities
 {
+    //hola mundo :D
     public class Enfermedad
     {
         [BsonId]
