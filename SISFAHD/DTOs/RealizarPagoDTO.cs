@@ -16,13 +16,12 @@ namespace SISFAHD.DTOs
         public string estado_atencion { get; set; }
         public string estado_pago { get; set; }
         public DateTime? fecha_cita { get; set; }
-
         public DateTime? fecha_pago { get; set; }
         public string id_paciente { get; set; }
-        public Double precio_neto { get; set; }
+        public double precio_neto { get; set; }
         public string tipo_pago { get; set; }
-        public ContenidoDatosUsuario datos_usuario { get; set; }
-        public ContenidoDatosPaciente datos_paciente { get; set; }
+        public ContenidoDatosUsuario datos_usuario { get; set; } = new ContenidoDatosUsuario();
+        public ContenidoDatosPaciente datos_paciente { get; set; } = new ContenidoDatosPaciente();
     }
     public class ContenidoDatosUsuario
     {
@@ -30,10 +29,10 @@ namespace SISFAHD.DTOs
     }
     public class ContenidoDatosPaciente
     {
-        public DatosPaciente datos { get; set; }
+        public DatosPaciente datos { get; set; } = new DatosPaciente();
         public string usuario { get; set; }
         public string clave { get; set; }
-        public NombreRol nombre_rol { get; set; }
+        public NombreRol nombre_rol { get; set; } = new NombreRol();
     }
     public class DatosPaciente
     {
