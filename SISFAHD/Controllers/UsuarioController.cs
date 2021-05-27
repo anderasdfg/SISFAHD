@@ -24,5 +24,10 @@ namespace SISFAHD.Controllers
         {
             return _usuarioservice.GetAll();
         }
+        [HttpGet("id")]
+        public ActionResult<Usuario> Get([FromQuery] string id)
+        {
+            return _usuarioservice.GetById(id);
+        }
     }
 }

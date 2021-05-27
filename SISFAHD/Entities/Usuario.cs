@@ -24,18 +24,32 @@ namespace SISFAHD.Entities
 
         [BsonElement("rol")]
         public string rol { get; set; }
+        [BsonElement("estado")]
+        public string estado { get; set; }
 
     }
 
     public class Datos
     {
+        [BsonElement("nombre")]
         public string nombre { get; set; }
-        public string apellido { get; set; }
-        public string tipodocumento { get; set; }
+        [BsonElement("apellido_paterno")]
+        public string apellidoPaterno { get; set; }
+        [BsonElement("apellido_materno")]
+        public string apellidoMaterno { get; set; }
+        [BsonElement("tipo_documento")]
+        public string tipoDocumento { get; set; }
+        [BsonElement("telefono")]
         public string telefono { get; set; }
-        public string numerodocumento { get; set; }
+        [BsonElement("numero_documento")]
+        public string numeroDocumento { get; set; }
+        [BsonElement("fecha_nacimiento")]
         public DateTime fechanacimiento { get; set; }
+        [BsonElement("correo")]
         public string correo { get; set; }
+        [BsonElement("sexo")]
         public string sexo { get; set; }
+        [BsonElement("foto")]
+        public string foto { get; set; }
     }
 }

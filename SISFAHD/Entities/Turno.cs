@@ -31,7 +31,7 @@ namespace SISFAHD.Entities
         public string id_medico { get; set; }
         [BsonElement("id_tarifa")]
         public string id_tarifa { get; set; }
-        [BsonElement("Cupos")]
+        [BsonElement("cupos")]
         public string Cupos { get; set; }
     }
     public class EspecialidadT
