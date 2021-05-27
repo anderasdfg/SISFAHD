@@ -62,7 +62,8 @@ namespace SISFAHD
             //Inyección de dependencias       
             services.AddScoped<UsuarioService>();
             services.AddScoped<RealizarPagoService>();
-            services.AddScoped<EspecialidadService>();
+            services.AddScoped<GestionarInformacionMedicaService>();
+            services.AddScoped<TurnoService>();
             //Injectando dependecia de Azure FileStorage
             services.AddScoped<IFileStorage, AzureFileStorage>();
 
@@ -90,7 +91,7 @@ namespace SISFAHD
                 {
                     Version = "version 1.0",
                     Title = "SISFAHD API",
-                    Description = "Aplicación que contiene la descripción , parametros, uso  y otras especificaciones de las APIS del SISFAHD"
+                    Description = "Aplicaci�n que contiene la descripci�n , parametros, uso  y otras especificaciones de las APIS del SISFAHD"
                 });
 
                 g.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme

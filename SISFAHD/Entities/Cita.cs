@@ -34,7 +34,7 @@ namespace SISFAHD.Entities
         [BsonElement("calificacion")]
         public double calificacion { get; set; }
         [BsonElement("observaciones")]
-        public string observaciones { get; set; }
+        public List<String> observaciones { get; set; } = new List<string>();
         [BsonElement("tipo_pago")]
         public string tipo_pago { get; set; }
         [BsonElement("id_turno")]

@@ -27,5 +27,11 @@ namespace SISFAHD.Controllers
         {
             return await _realizarpagoservice.GetAll();
         }
+
+        [HttpGet("id")]
+        public async Task<ActionResult<RealizarPagoDTO>> GetById([FromQuery] string id)
+        {
+            return await _realizarpagoservice.GetById(id);
+        }
     }
 }
