@@ -16,7 +16,7 @@ namespace SISFAHD.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public string id { get; set; }
         [BsonElement("turnos")]
-        public Turnos turnos { get; set; }
+        public List<Turnos> turnos { get; set; }
         [BsonElement("suscripcion")]
         public Suscripcion suscripcion { get; set; }
         [BsonElement("datos_basicos")]
