@@ -10,10 +10,10 @@ using SISFAHD.Entities;
 
 namespace SISFAHD.Services
 {
-    public class GestionarInformacionMedicaService
+    public class PacienteService
     {
         private readonly IMongoCollection<Paciente> _PacienteCollection;
-        public GestionarInformacionMedicaService(ISisfahdDatabaseSettings settings)
+        public PacienteService(ISisfahdDatabaseSettings settings)
         {
             var paciente = new MongoClient(settings.ConnectionString);
             var database = paciente.GetDatabase(settings.DatabaseName);

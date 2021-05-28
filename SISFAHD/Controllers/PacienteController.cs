@@ -14,32 +14,32 @@ namespace SISFAHD.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class GestionarInformacionMedicaController : ControllerBase
+    public class PacienteController : ControllerBase
     {
-        private readonly GestionarInformacionMedicaService _gestionarinformacionmedicaService;
-        public GestionarInformacionMedicaController(GestionarInformacionMedicaService gestionarinformacionmedicaService)
+        private readonly PacienteService _pacienteService;
+        public PacienteController(PacienteService pacienteService)
         {
-            _gestionarinformacionmedicaService = gestionarinformacionmedicaService;
+            _pacienteService = pacienteService;
         }
         [HttpGet("all")]
         public ActionResult<List<Paciente>> GetAll()
         {
-            return _gestionarinformacionmedicaService.GetAll();
+            return _pacienteService.GetAll();
         }
         [HttpGet("")]
         public ActionResult<Paciente> GetById([FromQuery] string id)
         {
-            return _gestionarinformacionmedicaService.GetById(id);
+            return _pacienteService.GetById(id);
         }
         [HttpPost("")]
         public async Task<ActionResult<Paciente>> CreatePaciente(Paciente paciente)
         {
-            return await _gestionarinformacionmedicaService.CreatePaciente(paciente);
+            return await _pacienteService.CreatePaciente(paciente);
         }
         [HttpPut("")]
         public async Task<ActionResult<Paciente>> UpdatePaciente(Paciente paciente)
         {
-            return await _gestionarinformacionmedicaService.ModifyPaciente(paciente);
+            return await _pacienteService.ModifyPaciente(paciente);
         }
     }
 }

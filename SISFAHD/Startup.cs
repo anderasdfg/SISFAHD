@@ -62,7 +62,7 @@ namespace SISFAHD
             //Inyección de dependencias       
             services.AddScoped<UsuarioService>();
             services.AddScoped<CitaService>();
-            services.AddScoped<GestionarInformacionMedicaService>();
+            services.AddScoped<PacienteService>();
             services.AddScoped<TurnoService>();
             services.AddScoped<EspecialidadService>();
             services.AddScoped<MedicoService>();
