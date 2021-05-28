@@ -94,33 +94,32 @@ namespace SISFAHD.Services
                                                     })))));
             var project = new BsonDocument("$project",
                             new BsonDocument
+                            {
+                                { "_id", 1 },
+                                { "estado_atencion", 1 },
+                                { "estado_pago", 1 },
+                                { "fecha_cita", 1 },
+                                { "fecha_pago", 1 },
+                                { "id_paciente", 1 },
+                                { "precio_neto", 1 },
+                                { "tipo_pago", 1 },
+                                { "datos_usuario.id_usuario", 1 },
+                                { "datos_paciente",
+                        new BsonDocument
                                 {
-                                    { "_id", 1 },
-                                    { "estado_atencion", 1 },
-                                    { "estado_pago", 1 },
-                                    { "fecha_cita", 1 },
-                                    { "fecha_pago", 1 },
-                                    { "id_paciente", 1 },
-                                    { "precio_neto", 1 },
-                                    { "tipo_pago", 1 },
-                                    { "datos_usuario.id_usuario", 1 },
-                                    { "datos_paciente",
-                            new BsonDocument
+                                    { "datos",
+                        new BsonDocument
                                     {
-                                        { "datos",
-                            new BsonDocument
-                                        {
-                                            { "nombre", 1 },
-                                            { "apellido", 1 },
-                                            { "correo", 1 }
-                                        } },
-                                        { "usuario", 1 },
-                                        { "clave", 1 },
-                                        { "nombre_rol",
-                            new BsonDocument("nombre", 1) }
+                                        { "nombre", 1 },
+                                        { "apellido", 1 },
+                                        { "correo", 1 }
                                     } },
-                                    { "apellido", 1 }
-                                });
+                                    { "usuario", 1 },
+                                    { "clave", 1 },
+                                    { "nombre_rol",
+                        new BsonDocument("nombre", 1) }
+                                } }
+                            });
             PagoDTO = await _cita.Aggregate()
                                 .AppendStage<dynamic>(addfields1)
                                 .AppendStage<dynamic>(lookup1)
@@ -208,34 +207,33 @@ namespace SISFAHD.Services
                                                     })))));
             var project = new BsonDocument("$project",
                             new BsonDocument
+                            {
+                                { "_id", 1 },
+                                { "estado_atencion", 1 },
+                                { "estado_pago", 1 },
+                                { "fecha_cita", 1 },
+                                { "fecha_pago", 1 },
+                                { "id_paciente", 1 },
+                                { "precio_neto", 1 },
+                                { "tipo_pago", 1 },
+                                { "datos_usuario.id_usuario", 1 },
+                                { "datos_paciente",
+                        new BsonDocument
                                 {
-                                    { "_id", 1 },
-                                    { "estado_atencion", 1 },
-                                    { "estado_pago", 1 },
-                                    { "fecha_cita", 1 },
-                                    { "fecha_pago", 1 },
-                                    { "id_paciente", 1 },
-                                    { "precio_neto", 1 },
-                                    { "tipo_pago", 1 },
-                                    { "datos_usuario.id_usuario", 1 },
-                                    { "datos_paciente",
-                            new BsonDocument
+                                    { "datos",
+                        new BsonDocument
                                     {
-                                        { "datos",
-                            new BsonDocument
-                                        {
-                                            { "nombre", 1 },
-                                            { "apellido", 1 },
-                                            { "correo", 1 }
-                                        } },
-                                        { "usuario", 1 },
-                                        { "clave", 1 },
-                                        { "nombre_rol",
-                            new BsonDocument("nombre", 1) }
+                                        { "nombre", 1 },
+                                        { "apellido", 1 },
+                                        { "correo", 1 }
                                     } },
-                                    { "apellido", 1 }
-                                });
-            var match = new BsonDocument("$match",
+                                    { "usuario", 1 },
+                                    { "clave", 1 },
+                                    { "nombre_rol",
+                        new BsonDocument("nombre", 1) }
+                                } }
+                            });
+        var match = new BsonDocument("$match",
                         new BsonDocument("_id",
                         new ObjectId(id)));
 
