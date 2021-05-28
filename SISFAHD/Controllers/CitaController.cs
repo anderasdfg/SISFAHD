@@ -14,22 +14,22 @@ using System.Web.Http.Cors;
 namespace SISFAHD.Controllers
 {
     [Route("api/[controller]")]
-    public class RealizarPagoController : Controller
+    public class CitaController : Controller
     {
-        private readonly RealizarPagoService _realizarpagoservice;
-        public RealizarPagoController(RealizarPagoService residenteservice, IFileStorage fileStorage)
+        private readonly CitaService _realizarpagoservice;
+        public CitaController(CitaService residenteservice)
         {
             _realizarpagoservice = residenteservice;
         }
 
         [HttpGet("all")]
-        public async Task<ActionResult<List<RealizarPagoDTO>>> GetAll()
+        public async Task<ActionResult<List<CitaDTO>>> GetAll()
         {
             return await _realizarpagoservice.GetAll();
         }
 
         [HttpGet("id")]
-        public async Task<ActionResult<RealizarPagoDTO>> GetById([FromQuery] string id)
+        public async Task<ActionResult<CitaDTO>> GetById([FromQuery] string id)
         {
             return await _realizarpagoservice.GetById(id);
         }
