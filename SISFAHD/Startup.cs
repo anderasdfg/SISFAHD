@@ -61,7 +61,7 @@ namespace SISFAHD
                sp.GetRequiredService<IOptions<SisfahdDatabaseSettings>>().Value);
             //Inyección de dependencias       
             services.AddScoped<UsuarioService>();
-            services.AddScoped<RealizarPagoService>();
+            services.AddScoped<CitaService>();
             services.AddScoped<GestionarInformacionMedicaService>();
             services.AddScoped<TurnoService>();
             services.AddScoped<EspecialidadService>();

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SISFAHD.DTOs
 {
-    public class RealizarPagoDTO
+    public class CitaDTO
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
@@ -37,8 +37,8 @@ namespace SISFAHD.DTOs
     public class DatosPaciente
     {
         public string nombre { get; set; }
-        public string apellido { get; set; }
         public string correo { get; set; }
+        public string apellido { get; set; }
     }
     public class NombreRol
     {

@@ -10,19 +10,19 @@ using System.Threading.Tasks;
 
 namespace SISFAHD.Services
 {
-    public class RealizarPagoService
+    public class CitaService
     {
         private readonly IMongoCollection<Cita> _cita;
 
-        public RealizarPagoService(ISisfahdDatabaseSettings settings)
+        public CitaService(ISisfahdDatabaseSettings settings)
         {
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
             _cita = database.GetCollection<Cita>("citas");
         }
-        public async Task<List<RealizarPagoDTO>> GetAll()
+        public async Task<List<CitaDTO>> GetAll()
         {
-            List<RealizarPagoDTO> PagoDTO = new List<RealizarPagoDTO>();
+            List<CitaDTO> PagoDTO = new List<CitaDTO>();
 
             var addfields1 = new BsonDocument("$addFields",
                             new BsonDocument("id_paciente_pro",
@@ -81,8 +81,19 @@ namespace SISFAHD.Services
                                     { "path", "$datos_paciente.nombre_rol" },
                                     { "preserveNullAndEmptyArrays", true }
                                 });
+            var addFields4 = new BsonDocument("$addFields",
+                                new BsonDocument("datos_paciente",
+                                new BsonDocument("datos",
+                                new BsonDocument("apellido",
+                                new BsonDocument("$concat",
+                                new BsonArray
+                                                    {
+                                                        "$datos_paciente.datos.apellido_paterno",
+                                                        " ",
+                                                        "$datos_paciente.datos.apellido_materno"
+                                                    })))));
             var project = new BsonDocument("$project",
-                        new BsonDocument
+                            new BsonDocument
                             {
                                 { "_id", 1 },
                                 { "estado_atencion", 1 },
@@ -119,11 +130,12 @@ namespace SISFAHD.Services
                                 .AppendStage<dynamic>(addfields3)
                                 .AppendStage<dynamic>(lookup3)
                                 .AppendStage<dynamic>(unwind3)
-                                .AppendStage<RealizarPagoDTO>(project)
+                                .AppendStage<dynamic>(addFields4)
+                                .AppendStage<CitaDTO>(project)
                                 .ToListAsync();
             return PagoDTO;
         }
-        public async Task<RealizarPagoDTO> GetById(string id)
+        public async Task<CitaDTO> GetById(string id)
         {
             var addfields1 = new BsonDocument("$addFields",
                             new BsonDocument("id_paciente_pro",
@@ -182,8 +194,19 @@ namespace SISFAHD.Services
                                     { "path", "$datos_paciente.nombre_rol" },
                                     { "preserveNullAndEmptyArrays", true }
                                 });
+            var addFields4 = new BsonDocument("$addFields",
+                                new BsonDocument("datos_paciente",
+                                new BsonDocument("datos",
+                                new BsonDocument("apellido",
+                                new BsonDocument("$concat",
+                                new BsonArray
+                                                    {
+                                                        "$datos_paciente.datos.apellido_paterno",
+                                                        " ",
+                                                        "$datos_paciente.datos.apellido_materno"
+                                                    })))));
             var project = new BsonDocument("$project",
-                        new BsonDocument
+                            new BsonDocument
                             {
                                 { "_id", 1 },
                                 { "estado_atencion", 1 },
@@ -210,11 +233,11 @@ namespace SISFAHD.Services
                         new BsonDocument("nombre", 1) }
                                 } }
                             });
-            var match = new BsonDocument("$match",
+        var match = new BsonDocument("$match",
                         new BsonDocument("_id",
                         new ObjectId(id)));
 
-            RealizarPagoDTO pago = new RealizarPagoDTO();
+            CitaDTO pago = new CitaDTO();
             pago = await _cita.Aggregate()
                                 .AppendStage<dynamic>(addfields1)
                                 .AppendStage<dynamic>(lookup1)
@@ -225,8 +248,9 @@ namespace SISFAHD.Services
                                 .AppendStage<dynamic>(addfields3)
                                 .AppendStage<dynamic>(lookup3)
                                 .AppendStage<dynamic>(unwind3)
+                                .AppendStage<dynamic>(addFields4)
                                 .AppendStage<dynamic>(project)
-                                .AppendStage<RealizarPagoDTO>(match)
+                                .AppendStage<CitaDTO>(match)
                                 .FirstAsync();
             return pago;
         }
