@@ -16,22 +16,34 @@ namespace SISFAHD.Controllers
     [Route("api/[controller]")]
     public class CitaController : Controller
     {
-        private readonly CitaService _realizarpagoservice;
-        public CitaController(CitaService residenteservice)
+        private readonly CitaService _pagocita;
+        public CitaController(CitaService pagoservicio)
         {
-            _realizarpagoservice = residenteservice;
+            _pagocita = pagoservicio;
         }
 
         [HttpGet("all")]
         public async Task<ActionResult<List<CitaDTO>>> GetAll()
         {
-            return await _realizarpagoservice.GetAll();
+            return await _pagocita.GetAll();
         }
 
         [HttpGet("id")]
         public async Task<ActionResult<CitaDTO>> GetById([FromQuery] string id)
         {
-            return await _realizarpagoservice.GetById(id);
+            return await _pagocita.GetById(id);
+        }
+
+        [HttpPut("")]
+        public async Task<ActionResult<Cita>> PutEstadoPago([FromBody] Cita cita)
+        {            
+            return await _pagocita.ModifyEstadoPagoCita(cita);
+        }
+
+        [HttpPost("")]
+        public async Task<ActionResult<Venta>> PostSesionesEducativas([FromBody] Venta pagorealizado)
+        {
+            return await _pagocita.CreateUnNuevoPagoRealizado(pagorealizado);
         }
     }
 }
