@@ -65,13 +65,21 @@ namespace SISFAHD.Entities
     }
     public class Psicosociales
     {
-        public List<String> educacion { get; set; } = new List<String>();
-        public List<String> laborales { get; set; } = new List<String>();
-        public List<String> habitos_nocivos { get; set; } = new List<String>();
-        public List<String> medicacion_habitual { get; set; } = new List<String>();
-        public List<String> habitos_generales { get; set; } = new List<String>();
-        public List<String> sociales { get; set; } = new List<String>();
+        //public List<String> educacion { get; set; } = new List<String>();
+        public List<Habito> educacion { get; set; }
+        public List<Habito> laborales { get; set; }
+        public List<Habito> habitos_nocivos { get; set; } 
+        public List<Habito> medicacion_habitual { get; set; }
+        public List<Habito> habitos_generales { get; set; }
+        public List<Habito> sociales { get; set; }
     }
+
+    public class Habito
+    {
+        public string habito { get; set; }
+        public List<String> observaciones { get; set; } = new List<String>();
+    }
+
     public class Sexuales
     {
         public Espermarquia espermarquia { get; set; } 
