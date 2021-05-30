@@ -421,5 +421,12 @@ namespace SISFAHD.Services
             _venta.InsertOne(pagorealizado);
             return pagorealizado;
         }
+
+        //public async Task<CitaDTO> GetCitasbyMedicoFecha(string turno)
+        //{
+            //calcula la fecha actual
+            //obtener el mes: 29 abril -> abril
+            //2 fechas -primer dia del mes 01 abril 00:00, -ultimo dia del mes 31 abril 24:00
+        //}
     }
 }
