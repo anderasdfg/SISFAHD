@@ -41,6 +41,8 @@ namespace SISFAHD.Entities
         public string id_turno { get; set; }
         [BsonElement("id_acto_medico")]
         public string id_acto_medico { get; set; }
+        [BsonElement("fecha_cita_fin")]
+        public DateTime? fecha_cita_fin { get; set; }
 
     }
 }

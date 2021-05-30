@@ -45,5 +45,11 @@ namespace SISFAHD.Controllers
         {
             return await _pagocita.CreateUnNuevoPagoRealizado(pagorealizado);
         }
+
+        [HttpGet("listacitas/{turno}/{month}/{year}")]
+        public async Task<ActionResult<List<Cita>>> GetListaFechas(string turno, int month, int year)
+        {
+            return await _pagocita.GetCitasbyMedicoFecha(turno, month, year);
+        }
     }
 }

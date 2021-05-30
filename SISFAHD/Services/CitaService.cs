@@ -422,11 +422,35 @@ namespace SISFAHD.Services
             return pagorealizado;
         }
 
-        //public async Task<CitaDTO> GetCitasbyMedicoFecha(string turno)
-        //{
+        public async Task<List<Cita>> GetCitasbyMedicoFecha(string turno, int month, int year)
+        {
+            List<Cita> citas = new List<Cita>();
+            DateTime firstDate = new DateTime(year, month, 1,0,0,0);
+            DateTime lastDate = firstDate.AddMonths(1).AddDays(-1);
+            lastDate.AddHours(23);
+            lastDate.AddMinutes(59);
+            lastDate.AddSeconds(59);
+
+            var match = new BsonDocument("$match",
+                                new BsonDocument("$and",
+                                new BsonArray
+                                        {
+                                            new BsonDocument("fecha_cita",
+                                            new BsonDocument("$gte",firstDate)),
+                                            new BsonDocument("fecha_cita_fin",
+                                            new BsonDocument("$lte",lastDate)),
+                                            new BsonDocument("id_turno", turno)
+                                        }));
+
+            citas = await _cita.Aggregate()
+                .AppendStage<Cita>(match)
+                .ToListAsync();
+
+            return citas;
+
             //calcula la fecha actual
             //obtener el mes: 29 abril -> abril
             //2 fechas -primer dia del mes 01 abril 00:00, -ultimo dia del mes 31 abril 24:00
-        //}
+        }
     }
 }
