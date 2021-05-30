@@ -13,11 +13,13 @@ namespace SISFAHD.Services
     public class PacienteService
     {
         private readonly IMongoCollection<Paciente> _PacienteCollection;
+        private readonly IMongoCollection<Usuario> _UsuarioCollection;
         public PacienteService(ISisfahdDatabaseSettings settings)
         {
             var paciente = new MongoClient(settings.ConnectionString);
             var database = paciente.GetDatabase(settings.DatabaseName);
             _PacienteCollection = database.GetCollection<Paciente>("pacientes");
+            _UsuarioCollection = database.GetCollection<Usuario>("usuarios");
         }
         public List<Paciente> GetAll()
         {
@@ -34,6 +36,12 @@ namespace SISFAHD.Services
         public async Task<Paciente> CreatePaciente(Paciente p)
         {
             _PacienteCollection.InsertOne(p);
+            Usuario u = new Usuario();
+            u = _UsuarioCollection.Find(user => user.id == p.idUsuario).FirstOrDefault();
+            var filter = Builders<Usuario>.Filter.Eq("id", u.id);
+            var update = Builders<Usuario>.Update
+                .Set("rol", "607f37c1cb41a8de70be1df3");
+            _UsuarioCollection.UpdateOne(filter, update);
             return p;
         }
         public async Task<Paciente> ModifyPaciente(Paciente p)
