@@ -47,6 +47,7 @@ namespace SISFAHD.Entities
         public string paciente { get; set; }
         public int ratio { get; set; }
         public string estado { get; set; }
+        public string id_cita { get; set; }
 
     }
 }

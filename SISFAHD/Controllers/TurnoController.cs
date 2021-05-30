@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SISFAHD.DTOs;
 using SISFAHD.Entities;
 using SISFAHD.Services;
 using System;
@@ -42,6 +43,11 @@ namespace SISFAHD.Controllers
         {
             await _turnoservice.DeleteTurno(id);
             return $"se elimin el turno {id}";
+        }
+        [HttpGet("turnos")]
+        public async Task<ActionResult<List<TurnoDTO>>> GetByEspecialidadYFecha([FromQuery] string idEspecialidad, [FromQuery] DateTime fecha)
+        {
+            return await _turnoservice.GetCuposByEspecialidadAndFecha(idEspecialidad, fecha);
         }
     }
 }

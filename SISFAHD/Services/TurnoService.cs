@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
+using SISFAHD.DTOs;
 using SISFAHD.Entities;
 using System;
 using System.Collections.Generic;
@@ -59,6 +60,102 @@ namespace SISFAHD.Services
         {
             FilterDefinition<Turno> filtro = Builders<Turno>.Filter.Eq("id", id);
             await _turnos.DeleteOneAsync(filtro);
+        }
+
+        public async Task<List<TurnoDTO>> GetCuposByEspecialidadAndFecha(string idEspecialidad, DateTime fecha)
+        {            
+            int year = fecha.Year;
+            int day = fecha.Day;
+            int month = fecha.Month;
+
+
+            var match = new BsonDocument("$match",
+                        new BsonDocument("$and",
+                        new BsonArray
+                                {
+                                    new BsonDocument("especialidad.codigo", idEspecialidad),
+                                    new BsonDocument("cupos.hora_inicio",
+                                    new BsonDocument("$lte",
+                                    new DateTime(year, month, day, 23, 59, 59))),
+                                    new BsonDocument("cupos.hora_inicio",
+                                    new BsonDocument("$gte",
+                                    new DateTime(year, month, day, 0, 0, 0)))
+                                }));
+
+            var addFields = new BsonDocument("$addFields",
+                            new BsonDocument("id_medico_obj",
+                            new BsonDocument("$toObjectId", "$id_medico")));
+
+            var lookup = new BsonDocument("$lookup",
+                         new BsonDocument
+                            {
+                                { "from", "medicos" },
+                                { "localField", "id_medico_obj" },
+                                { "foreignField", "_id" },
+                                { "as", "datos_medico" }
+                            });
+            var unwind = new BsonDocument("$unwind",
+                         new BsonDocument
+                            {
+                                { "path", "$datos_medico" },
+                                { "preserveNullAndEmptyArrays", true }
+                            });
+
+            var addFields2 = new BsonDocument("$addFields",
+                             new BsonDocument("id_usuario_obj",
+                             new BsonDocument("$toObjectId", "$datos_medico.id_usuario")));
+            var lookup2 = new BsonDocument("$lookup",
+                          new BsonDocument
+                            {
+                                { "from", "usuarios" },
+                                { "localField", "id_usuario_obj" },
+                                { "foreignField", "_id" },
+                                { "as", "datosUsuario" }
+                            });
+
+            var unwind2 = new BsonDocument("$unwind",
+                          new BsonDocument
+                            {
+                                { "path", "$datosUsuario" },
+                                { "preserveNullAndEmptyArrays", true }
+                            });
+            var project =   new BsonDocument("$project",
+                            new BsonDocument
+                                {
+                                    { "_id", 1 },
+                                    { "especialidad", 1 },
+                                    { "estado", 1 },
+                                    { "fecha_fin", 1 },
+                                    { "fecha_inicio", 1 },
+                                    { "hora_fin", 1 },
+                                    { "id_medico", 1 },
+                                    { "nombre_medico",
+                            new BsonDocument("$concat",
+                            new BsonArray
+                                        {
+                                            "$datosUsuario.datos.nombre",
+                                            " ",
+                                            "$datosUsuario.datos.apellido_paterno",
+                                            "$datosUsuario.datos.apellido_materno"
+                                        }) },
+                                    { "id_tarifa", 1 },
+                                    { "cupos", 1 }
+                                });
+
+            List<TurnoDTO> turnos = new List<TurnoDTO>();
+
+            turnos = await _turnos.Aggregate()
+                           .AppendStage<dynamic>(match)
+                           .AppendStage<dynamic>(addFields)
+                           .AppendStage<dynamic>(lookup)
+                           .AppendStage<dynamic>(unwind)
+                           .AppendStage<dynamic>(addFields2)
+                           .AppendStage<dynamic>(lookup2)
+                           .AppendStage<dynamic>(unwind2)
+                           .AppendStage<TurnoDTO>(project).ToListAsync();
+
+            return turnos;
+
         }
     }
 }
