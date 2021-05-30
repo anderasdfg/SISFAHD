@@ -19,8 +19,8 @@ namespace SISFAHD.Entities
         [BsonElement("datos")]
         public Datos datos { get; set; }
 
-        [BsonElement("fechacreacion")]
-        public DateTime fechaCreacion { get; set; }
+        [BsonElement("fecha_creacion")]
+        public DateTime? fecha_Creacion { get; set; }
 
         [BsonElement("rol")]
         public string rol { get; set; }
@@ -34,17 +34,17 @@ namespace SISFAHD.Entities
         [BsonElement("nombre")]
         public string nombre { get; set; }
         [BsonElement("apellido_paterno")]
-        public string apellidoPaterno { get; set; }
+        public string apellido_Paterno { get; set; }
         [BsonElement("apellido_materno")]
-        public string apellidoMaterno { get; set; }
+        public string apellido_Materno { get; set; }
         [BsonElement("tipo_documento")]
-        public string tipoDocumento { get; set; }
+        public string tipo_Documento { get; set; }
         [BsonElement("telefono")]
         public string telefono { get; set; }
         [BsonElement("numero_documento")]
-        public string numeroDocumento { get; set; }
+        public string numero_Documento { get; set; }
         [BsonElement("fecha_nacimiento")]
-        public DateTime fechanacimiento { get; set; }
+        public DateTime fechana_cimiento { get; set; }
         [BsonElement("correo")]
         public string correo { get; set; }
         [BsonElement("sexo")]
