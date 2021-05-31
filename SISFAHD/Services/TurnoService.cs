@@ -135,6 +135,27 @@ namespace SISFAHD.Services
                                 { "path", "$datosUsuario" },
                                 { "preserveNullAndEmptyArrays", true }
                             });
+
+            var addFieldsTarifa = new BsonDocument("$addFields",
+                                  new BsonDocument("id_tarifa_obj",
+                                  new BsonDocument("$toObjectId", "$id_tarifa")));
+
+            var lookupTarifa = new BsonDocument("$lookup",
+                                new BsonDocument
+                                    {
+                                        { "from", "tarifas" },
+                                        { "localField", "id_tarifa_obj" },
+                                        { "foreignField", "_id" },
+                                        { "as", "datosTarifa" }
+                                    });
+
+            var unwindTarifa = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$datosTarifa" },
+                                    { "preserveNullAndEmptyArrays", true }
+                                });
+
             var project =   new BsonDocument("$project",
                             new BsonDocument
                                 {
@@ -155,7 +176,8 @@ namespace SISFAHD.Services
                                             "$datosUsuario.datos.apellido_materno"
                                         }) },
                                     { "id_tarifa", 1 },
-                                    { "cupos", 1 }
+                                    { "cupos", 1 },
+                                    { "precio", "$datosTarifa.precio_final" }
                                 });
 
             List<TurnoDTO> turnos = new List<TurnoDTO>();
@@ -168,6 +190,9 @@ namespace SISFAHD.Services
                            .AppendStage<dynamic>(addFields2)
                            .AppendStage<dynamic>(lookup2)
                            .AppendStage<dynamic>(unwind2)
+                           .AppendStage<dynamic>(addFieldsTarifa)
+                           .AppendStage<dynamic>(lookupTarifa)
+                           .AppendStage<dynamic>(unwindTarifa)
                            .AppendStage<TurnoDTO>(project).ToListAsync();
 
             return turnos;

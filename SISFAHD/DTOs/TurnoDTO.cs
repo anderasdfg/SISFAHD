@@ -21,6 +21,7 @@ namespace SISFAHD.DTOs
         public string id_tarifa { get; set; }
         public List<Cupos> cupos { get; set;  }
         public string nombre_medico { get; set; }
+        public double precio{ get; set; }
     }
 
         
