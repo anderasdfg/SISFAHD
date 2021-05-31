@@ -13,6 +13,7 @@ using System.Web.Http.Cors;
 
 namespace SISFAHD.Controllers
 {
+    [ApiController]
     [Route("api/[controller]")]
     public class CitaController : Controller
     {
@@ -60,7 +61,7 @@ namespace SISFAHD.Controllers
             return await _actoMedico.GetAll();
         }
         [HttpPost("cita")]
-        public Cita CreateCita(Cita cita)
+        public Cita CreateCita([FromBody] Cita cita)
         {
             return _pagocita.CreateCita(cita);
         }
