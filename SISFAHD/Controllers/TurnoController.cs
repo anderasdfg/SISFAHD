@@ -23,10 +23,10 @@ namespace SISFAHD.Controllers
         {
             return _turnoservice.GetAll();
         }
-        [HttpGet("idmedico")]
-        public async Task<ActionResult<List<Turno>>> GetByIdMedico([FromQuery] string idMedico)
+        [HttpGet("listaturnos/{idMedico}/{month}/{year}")]
+        public async Task<ActionResult<List<Turno>>> GetByIdMedico(string idMedico, int month, int year)
         {
-            return await _turnoservice.GetByMedico(idMedico);
+            return await _turnoservice.GetByMedico(idMedico, month, year);
         }
         [HttpPost("")]
         public ActionResult<Turno> CreateTurno(Turno turno)

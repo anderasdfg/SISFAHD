@@ -24,15 +24,31 @@ namespace SISFAHD.Services
             turnos = _turnos.Find(Turnos => true).ToList();
             return turnos;
         }
-        public async Task<List<Turno>> GetByMedico(string idMedico)
+        public async Task<List<Turno>> GetByMedico(string idMedico, int month, int year)
         {
+            List<Turno> turnos = new List<Turno>();
+            DateTime firstDate = new DateTime(year, month, 1, 0, 0, 0);
+            DateTime lastDate = firstDate.AddMonths(1).AddDays(-1);
+            lastDate.AddHours(23);
+            lastDate.AddMinutes(59);
+            lastDate.AddSeconds(59);
+
             var match = new BsonDocument("$match",
-                        new BsonDocument("id_medico", idMedico));
-            List<Turno> turno = new List<Turno>();
-            turno = await _turnos.Aggregate()
-                            .AppendStage<Turno>(match)
-                            .ToListAsync();
-            return turno;
+                                new BsonDocument("$and",
+                                new BsonArray
+                                        {
+                                            new BsonDocument("fecha_inicio",
+                                            new BsonDocument("$gte",firstDate)),
+                                            new BsonDocument("fecha_fin",
+                                            new BsonDocument("$lte",lastDate)),
+                                            new BsonDocument("id_medico", idMedico)
+                                        }));
+
+            turnos = await _turnos.Aggregate()
+                .AppendStage<Turno>(match)
+                .ToListAsync();
+
+            return turnos;
         }
         public Turno CreateTurno(Turno turno)
         {
