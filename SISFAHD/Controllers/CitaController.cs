@@ -17,11 +17,11 @@ namespace SISFAHD.Controllers
     public class CitaController : Controller
     {
         private readonly CitaService _pagocita;
-        private readonly ActoMedicoService _actoMedico;
-        public CitaController(CitaService pagoservicio, ActoMedicoService actoMedico)
+        private readonly ActoMedicoService _actoMedico;        
+        public CitaController(CitaService citaService, ActoMedicoService actoMedico)
         {
-            _pagocita = pagoservicio;
-            _actoMedico = actoMedico;
+            _pagocita = citaService;
+            _actoMedico = actoMedico;            
         }
 
         [HttpGet("all")]
@@ -58,6 +58,11 @@ namespace SISFAHD.Controllers
         public async Task<ActionResult<List<ActoMedico>>> GetAllActoMedico()
         {
             return await _actoMedico.GetAll();
+        }
+        [HttpPost("cita")]
+        public Cita CreateCita(Cita cita)
+        {
+            return _pagocita.CreateCita(cita);
         }
     }
 }

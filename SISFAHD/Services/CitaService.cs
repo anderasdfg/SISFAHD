@@ -526,5 +526,11 @@ namespace SISFAHD.Services
             //obtener el mes: 29 abril -> abril
             //2 fechas -primer dia del mes 01 abril 00:00, -ultimo dia del mes 31 abril 24:00
         }
+
+        public Cita CreateCita(Cita cita)
+        {
+            _cita.InsertOne(cita);
+            return cita;
+        }
     }
 }
