@@ -12,13 +12,25 @@ namespace SISFAHD.DTOs
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string id { get; set; }        
-        public List<Turnos> turnos { get; set; }        
-        public Suscripcion suscripcion { get; set; }       
-        public Datos_basicos datos_basicos { get; set; }        
-        public string id_especialidad { get; set; }        
+        public string id { get; set; }
+        public List<Turnos> turnos { get; set; }
+        public Suscripcion suscripcion { get; set; }
+        public Datos_basicos datos_basicos { get; set; }
+        public string id_especialidad { get; set; }
         public string id_usuario { get; set; }
         public string nombrecompleto { get; set; }
 
     }
+    public class MedicoDTOEspcialidad{
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string id { get; set; }
+        public string id_usuario { get; set; }
+        public EspcialidadMeditoDTO especialidad { get; set;}
+    }
+    public class EspcialidadMeditoDTO {
+        public string nombre { get; set; }
+        public string codigo { get; set; }
+    }
+
 }

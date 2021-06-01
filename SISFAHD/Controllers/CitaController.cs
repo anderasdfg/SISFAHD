@@ -13,13 +13,16 @@ using System.Web.Http.Cors;
 
 namespace SISFAHD.Controllers
 {
+    [ApiController]
     [Route("api/[controller]")]
     public class CitaController : Controller
     {
         private readonly CitaService _pagocita;
-        public CitaController(CitaService pagoservicio)
+        private readonly ActoMedicoService _actoMedico;        
+        public CitaController(CitaService citaService, ActoMedicoService actoMedico)
         {
-            _pagocita = pagoservicio;
+            _pagocita = citaService;
+            _actoMedico = actoMedico;            
         }
 
         [HttpGet("all")]
@@ -47,9 +50,20 @@ namespace SISFAHD.Controllers
         }
 
         [HttpGet("listacitas/{turno}/{month}/{year}")]
-        public async Task<ActionResult<List<Cita>>> GetListaFechas(string turno, int month, int year)
+        public async Task<ActionResult<List<CitaDTO2>>> GetListaFechas(string turno, int month, int year)
         {
             return await _pagocita.GetCitasbyMedicoFecha(turno, month, year);
+        }
+
+        [HttpGet("actomedico")]
+        public async Task<ActionResult<List<ActoMedico>>> GetAllActoMedico()
+        {
+            return await _actoMedico.GetAll();
+        }
+        [HttpPost("cita")]
+        public Cita CreateCita([FromBody] Cita cita)
+        {
+            return _pagocita.CreateCita(cita);
         }
     }
 }

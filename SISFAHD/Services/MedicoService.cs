@@ -83,7 +83,46 @@ namespace SISFAHD.Services
 
             return medicos;
 
-        }       
+        }
+        public async Task<MedicoDTOEspcialidad> GetMedicosAndEspecialidad(string idMedico)
+        {
+            var match = new BsonDocument("$match",
+                        new BsonDocument("_id",
+                        new ObjectId(idMedico)));
+            var addfields = new BsonDocument("$addFields",
+                            new BsonDocument("id_especialidad",
+                            new BsonDocument("$toObjectId", "$id_especialidad")));
+            var lookup = new BsonDocument("$lookup",
+                         new BsonDocument
+                         {
+                            { "from", "especialidades" },
+                            { "localField", "id_especialidad" },
+                            { "foreignField", "_id" },
+                            { "as", "especialidad" }
+                         });
+            var unwind = new BsonDocument("$unwind",
+                         new BsonDocument
+                         {
+                            { "path", "$especialidad" },
+                            { "preserveNullAndEmptyArrays", true }
+                         });
+            var project = new BsonDocument("$project",
+                          new BsonDocument
+                          {
+                            { "_id", 1 },
+                            { "id_usuario", 1 },
+                            { "especialidad.nombre", 1 },
+                            { "especialidad.codigo", 1 }
+                           });
+            MedicoDTOEspcialidad medico = new MedicoDTOEspcialidad();
+            medico = await _medicos.Aggregate()
+                     .AppendStage<dynamic>(match)
+                     .AppendStage<dynamic>(addfields)
+                     .AppendStage<dynamic>(lookup)
+                     .AppendStage<dynamic>(unwind)
+                     .AppendStage<MedicoDTOEspcialidad>(project).FirstOrDefaultAsync();
+            return medico;
+        }
 
     }
 }

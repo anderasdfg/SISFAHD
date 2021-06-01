@@ -24,15 +24,31 @@ namespace SISFAHD.Services
             turnos = _turnos.Find(Turnos => true).ToList();
             return turnos;
         }
-        public async Task<List<Turno>> GetByMedico(string idMedico)
+        public async Task<List<Turno>> GetByMedico(string idMedico, int month, int year)
         {
+            List<Turno> turnos = new List<Turno>();
+            DateTime firstDate = new DateTime(year, month, 1, 0, 0, 0);
+            DateTime lastDate = firstDate.AddMonths(1).AddDays(-1);
+            lastDate.AddHours(23);
+            lastDate.AddMinutes(59);
+            lastDate.AddSeconds(59);
+
             var match = new BsonDocument("$match",
-                        new BsonDocument("id_medico", idMedico));
-            List<Turno> turno = new List<Turno>();
-            turno = await _turnos.Aggregate()
-                            .AppendStage<Turno>(match)
-                            .ToListAsync();
-            return turno;
+                                new BsonDocument("$and",
+                                new BsonArray
+                                        {
+                                            new BsonDocument("fecha_inicio",
+                                            new BsonDocument("$gte",firstDate)),
+                                            new BsonDocument("fecha_fin",
+                                            new BsonDocument("$lte",lastDate)),
+                                            new BsonDocument("id_medico", idMedico)
+                                        }));
+
+            turnos = await _turnos.Aggregate()
+                .AppendStage<Turno>(match)
+                .ToListAsync();
+
+            return turnos;
         }
         public Turno CreateTurno(Turno turno)
         {
@@ -76,10 +92,10 @@ namespace SISFAHD.Services
                                     new BsonDocument("especialidad.codigo", idEspecialidad),
                                     new BsonDocument("cupos.hora_inicio",
                                     new BsonDocument("$lte",
-                                    new DateTime(year, month, day, 23, 59, 59))),
+                                    new DateTime(year, month, 31, 23, 59, 59))),
                                     new BsonDocument("cupos.hora_inicio",
                                     new BsonDocument("$gte",
-                                    new DateTime(year, month, day, 0, 0, 0)))
+                                    new DateTime(year, month, 1, 0, 0, 0)))
                                 }));
 
             var addFields = new BsonDocument("$addFields",
@@ -119,6 +135,27 @@ namespace SISFAHD.Services
                                 { "path", "$datosUsuario" },
                                 { "preserveNullAndEmptyArrays", true }
                             });
+
+            var addFieldsTarifa = new BsonDocument("$addFields",
+                                  new BsonDocument("id_tarifa_obj",
+                                  new BsonDocument("$toObjectId", "$id_tarifa")));
+
+            var lookupTarifa = new BsonDocument("$lookup",
+                                new BsonDocument
+                                    {
+                                        { "from", "tarifas" },
+                                        { "localField", "id_tarifa_obj" },
+                                        { "foreignField", "_id" },
+                                        { "as", "datosTarifa" }
+                                    });
+
+            var unwindTarifa = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$datosTarifa" },
+                                    { "preserveNullAndEmptyArrays", true }
+                                });
+
             var project =   new BsonDocument("$project",
                             new BsonDocument
                                 {
@@ -139,7 +176,8 @@ namespace SISFAHD.Services
                                             "$datosUsuario.datos.apellido_materno"
                                         }) },
                                     { "id_tarifa", 1 },
-                                    { "cupos", 1 }
+                                    { "cupos", 1 },
+                                    { "precio", "$datosTarifa.precio_final" }
                                 });
 
             List<TurnoDTO> turnos = new List<TurnoDTO>();
@@ -152,6 +190,9 @@ namespace SISFAHD.Services
                            .AppendStage<dynamic>(addFields2)
                            .AppendStage<dynamic>(lookup2)
                            .AppendStage<dynamic>(unwind2)
+                           .AppendStage<dynamic>(addFieldsTarifa)
+                           .AppendStage<dynamic>(lookupTarifa)
+                           .AppendStage<dynamic>(unwindTarifa)
                            .AppendStage<TurnoDTO>(project).ToListAsync();
 
             return turnos;
