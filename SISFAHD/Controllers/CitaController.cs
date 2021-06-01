@@ -17,42 +17,29 @@ namespace SISFAHD.Controllers
     [Route("api/[controller]")]
     public class CitaController : Controller
     {
-        private readonly CitaService _pagocita;
+        private readonly CitaService _cita;
         private readonly ActoMedicoService _actoMedico;        
         public CitaController(CitaService citaService, ActoMedicoService actoMedico)
         {
-            _pagocita = citaService;
+            _cita = citaService;
             _actoMedico = actoMedico;            
         }
-
         [HttpGet("all")]
         public async Task<ActionResult<List<CitaDTO>>> GetAll()
         {
-            return await _pagocita.GetAll();
+            return await _cita.GetAllCitaPagadasNoPagadas();
         }
 
         [HttpGet("id")]
         public async Task<ActionResult<CitaDTO>> GetById([FromQuery] string id)
         {
-            return await _pagocita.GetById(id);
-        }
-
-        [HttpPut("")]
-        public async Task<ActionResult<Cita>> PutEstadoPago([FromBody] Cita cita)
-        {            
-            return await _pagocita.ModifyEstadoPagoCita(cita);
-        }
-
-        [HttpPost("")]
-        public async Task<ActionResult<Venta>> PostSesionesEducativas([FromBody] Venta pagorealizado)
-        {
-            return await _pagocita.CreateUnNuevoPagoRealizado(pagorealizado);
+            return await _cita.GetByIdCitasPagadasNoPagadas(id);
         }
 
         [HttpGet("listacitas/{turno}/{month}/{year}")]
         public async Task<ActionResult<List<CitaDTO2>>> GetListaFechas(string turno, int month, int year)
         {
-            return await _pagocita.GetCitasbyMedicoFecha(turno, month, year);
+            return await _cita.GetCitasbyMedicoFecha(turno, month, year);
         }
 
         [HttpGet("actomedico")]
@@ -63,7 +50,7 @@ namespace SISFAHD.Controllers
         [HttpPost("cita")]
         public Cita CreateCita([FromBody] Cita cita)
         {
-            return _pagocita.CreateCita(cita);
+            return _cita.CreateCita(cita);
         }
     }
 }

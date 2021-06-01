@@ -7,32 +7,57 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-
 namespace SISFAHD.Services
 {
-    public class CitaService
+    public class VentaService
     {
+        private readonly IMongoCollection<Venta> _venta;
         private readonly IMongoCollection<Cita> _cita;
-        private readonly IMongoCollection<Turno> _turnos;
-        private readonly TurnoService _turnoservice;
+        private readonly CitaService _citaservice;
 
-
-        public CitaService(ISisfahdDatabaseSettings settings, TurnoService turnoService)
+        public VentaService(ISisfahdDatabaseSettings settings, CitaService citaservice)
         {
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
+            _venta = database.GetCollection<Venta>("ventas");
             _cita = database.GetCollection<Cita>("citas");
-            _turnos = database.GetCollection<Turno>("turnos");
-            _turnoservice = turnoService;
+            _citaservice = citaservice;
         }
-        public async Task<List<CitaDTO>> GetAllCitaPagadasNoPagadas()
-        {
-            List<CitaDTO> PagoDTO = new List<CitaDTO>();
 
+        public async Task<List<VentaDTO>> GetAllVentas()
+        {
+            List<VentaDTO> PagoDTO = new List<VentaDTO>();
+
+            //Transformar codigo_referencia en un toObjectId
             var addfields1 = new BsonDocument("$addFields",
-                                new BsonDocument("id_paciente_pro",
-                                new BsonDocument("$toObjectId", "$id_paciente")));
+                                new BsonDocument("id_cita",
+                                new BsonDocument("$toObjectId", "$codigo_referencia")));
+
+            //Traer los datos de la entidad citas a la de ventas
             var lookup1 = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "citas" },
+                                    { "localField", "id_cita" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_cita" }
+                                });
+
+            //Transformar array datos_cita en un object
+            var unwind1 = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$datos_cita" },
+                                    { "preserveNullAndEmptyArrays", true }
+                                });
+
+            //Transformar datos_cita.id_paciente en toObjectId
+            var addfields2 = new BsonDocument("$addFields",
+                                new BsonDocument("id_paciente_pro",
+                                new BsonDocument("$toObjectId", "$datos_cita.id_paciente")));
+
+            //Traer los datos de la entidad pacientes a traves del toObjectId id_paciente_pro
+            var lookup2 = new BsonDocument("$lookup",
                             new BsonDocument
                                 {
                                     { "from", "pacientes" },
@@ -40,16 +65,22 @@ namespace SISFAHD.Services
                                     { "foreignField", "_id" },
                                     { "as", "datos_usuario" }
                                 });
-            var unwind1 = new BsonDocument("$unwind",
+
+            //Transformar array datos_usuario en un object
+            var unwind2 = new BsonDocument("$unwind",
                             new BsonDocument
                                 {
                                     { "path", "$datos_usuario" },
                                     { "preserveNullAndEmptyArrays", true }
                                 });
-            var addfields2 = new BsonDocument("$addFields",
+
+            //Transformar datos_usuario.id_usuario en toObjectId
+            var addfields3 = new BsonDocument("$addFields",
                                 new BsonDocument("id_usuariopro",
                                 new BsonDocument("$toObjectId", "$datos_usuario.id_usuario")));
-            var lookup2 = new BsonDocument("$lookup",
+
+            //Traer los datos de la entidad usuarios a traves del toObjectId id_usuariopro
+            var lookup3 = new BsonDocument("$lookup",
                             new BsonDocument
                                 {
                                     { "from", "usuarios" },
@@ -57,30 +88,40 @@ namespace SISFAHD.Services
                                     { "foreignField", "_id" },
                                     { "as", "datos_paciente" }
                                 });
-            var unwind2 = new BsonDocument("$unwind",
+
+            //Transformar array datos_paciente en un object
+            var unwind3 = new BsonDocument("$unwind",
                             new BsonDocument
                                 {
                                     { "path", "$datos_paciente" },
                                     { "preserveNullAndEmptyArrays", true }
                                 });
-            var addfields3 = new BsonDocument("$addFields",
-                                new BsonDocument("id_rol",
+
+            //Transformar datos_paciente.rol en toObjectId
+            var addfields4 = new BsonDocument("$addFields",
+                                new BsonDocument("id_rol_pro",
                                 new BsonDocument("$toObjectId", "$datos_paciente.rol")));
-            var lookup3 = new BsonDocument("$lookup",
+
+            //Traer los datos de la entidad roles a traves del toObjectId id_rol_pro
+            var lookup4 = new BsonDocument("$lookup",
                             new BsonDocument
                                 {
                                     { "from", "roles" },
-                                    { "localField", "id_rol" },
+                                    { "localField", "id_rol_pro" },
                                     { "foreignField", "_id" },
                                     { "as", "datos_paciente.nombre_rol" }
                                 });
-            var unwind3 = new BsonDocument("$unwind",
+
+            //Transformar array datos_paciente.nombre_rol en un object
+            var unwind4 = new BsonDocument("$unwind",
                             new BsonDocument
                                 {
                                     { "path", "$datos_paciente.nombre_rol" },
                                     { "preserveNullAndEmptyArrays", true }
                                 });
-            var addfields4 = new BsonDocument("$addFields",
+
+            //Juntar nombre-apellido paterno-apellido materno del paciente
+            var addfields5 = new BsonDocument("$addFields",
                                 new BsonDocument("datos_paciente",
                                 new BsonDocument("datos",
                                 new BsonDocument("nombre_apellido_paciente",
@@ -93,58 +134,78 @@ namespace SISFAHD.Services
                                                         " ",
                                                         "$datos_paciente.datos.apellido_materno"
                                                     })))));
-            var addfields5 = new BsonDocument("$addFields",
+
+            //Transformar datos_cita.id_turno en toObjectId
+            var addfields6 = new BsonDocument("$addFields",
                                 new BsonDocument("id_turno_pro",
-                                new BsonDocument("$toObjectId", "$id_turno")));
-            var lookup4 = new BsonDocument("$lookup",
-                                new BsonDocument
-                                    {
-                                        { "from", "turnos" },
-                                        { "localField", "id_turno_pro" },
-                                        { "foreignField", "_id" },
-                                        { "as", "datos_turno" }
-                                    });
-            var unwind4 = new BsonDocument("$unwind",
+                                new BsonDocument("$toObjectId", "$datos_cita.id_turno")));
+
+            //Traer los datos de la entidad turnos a traves del toObjectId id_turno_pro
+            var lookup5 = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "turnos" },
+                                    { "localField", "id_turno_pro" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_turno" }
+                                });
+
+            //Transformar array datos_turno en un object
+            var unwind5 = new BsonDocument("$unwind",
                             new BsonDocument
                                 {
                                     { "path", "$datos_turno" },
                                     { "preserveNullAndEmptyArrays", true }
                                 });
-            var addfields6 = new BsonDocument("$addFields",
+
+            //Transformar datos_turno.id_medico en toObjectId
+            var addfields7 = new BsonDocument("$addFields",
                                 new BsonDocument("id_medico_pro",
                                 new BsonDocument("$toObjectId", "$datos_turno.id_medico")));
-            var lookup5 = new BsonDocument("$lookup",
-                                new BsonDocument
-                                    {
-                                        { "from", "medicos" },
-                                        { "localField", "id_medico_pro" },
-                                        { "foreignField", "_id" },
-                                        { "as", "datos_medico" }
-                                    });
-            var unwind5 = new BsonDocument("$unwind",
+
+            //Traer los datos de la entidad medicos a traves del toObjectId id_medico_pro
+            var lookup6 = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "medicos" },
+                                    { "localField", "id_medico_pro" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_medico" }
+                                });
+
+            //Transformar array datos_medico en un object
+            var unwind6 = new BsonDocument("$unwind",
                             new BsonDocument
                                 {
                                     { "path", "$datos_medico" },
                                     { "preserveNullAndEmptyArrays", true }
                                 });
-            var addfields7 = new BsonDocument("$addFields",
+
+            //Transformar datos_medico.id_usuario en toObjectId
+            var addfields8 = new BsonDocument("$addFields",
                                 new BsonDocument("id_usuario_medico",
                                 new BsonDocument("$toObjectId", "$datos_medico.id_usuario")));
-            var lookup6 = new BsonDocument("$lookup",
-                                new BsonDocument
-                                    {
-                                        { "from", "usuarios" },
-                                        { "localField", "id_usuario_medico" },
-                                        { "foreignField", "_id" },
-                                        { "as", "datos_turno.datos_medico" }
-                                    });
-            var unwind6 = new BsonDocument("$unwind",
+
+            //Traer los datos de la entidad usuarios a traves del toObjectId id_usuario_medico
+            var lookup7 = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "usuarios" },
+                                    { "localField", "id_usuario_medico" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_turno.datos_medico" }
+                                });
+
+            //Transformar array datos_turno.datos_medico en un object
+            var unwind7 = new BsonDocument("$unwind",
                             new BsonDocument
                                 {
                                     { "path", "$datos_turno.datos_medico" },
                                     { "preserveNullAndEmptyArrays", true }
                                 });
-            var addfields8 = new BsonDocument("$addFields",
+
+            //Juntar nombre-apellido paterno-apellido materno del médico
+            var addfields9 = new BsonDocument("$addFields",
                                 new BsonDocument("datos_turno",
                                 new BsonDocument("datos_medico",
                                 new BsonDocument("nombre_apellido_medico",
@@ -157,17 +218,33 @@ namespace SISFAHD.Services
                                                         " ",
                                                         "$datos_turno.datos_medico.datos.apellido_materno"
                                                     })))));
+
+            //Mapeo final para DTO
             var project = new BsonDocument("$project",
                             new BsonDocument
                                 {
                                     { "_id", 1 },
-                                    { "estado_atencion", 1 },
-                                    { "estado_pago", 1 },
-                                    { "fecha_cita", 1 },
-                                    { "fecha_pago", 1 },
-                                    { "id_paciente", 1 },
-                                    { "precio_neto", 1 },
+                                    { "codigo_orden", 1 },
+                                    { "estado", 1 },
+                                    { "detalle_estado", 1 },
+                                    { "tipo_operacion", 1 },
                                     { "tipo_pago", 1 },
+                                    { "monto", 1 },
+                                    { "titular", 1 },
+                                    { "fecha_pago", 1 },
+                                    { "moneda", 1 },
+                                    { "codigo_referencia", 1 },
+                                    { "datos_cita",
+                            new BsonDocument
+                                    {
+                                        { "estado_atencion", 1 },
+                                        { "estado_pago", 1 },
+                                        { "fecha_cita", 1 },
+                                        { "fecha_pago", 1 },
+                                        { "id_paciente", 1 },
+                                        { "precio_neto", 1 },
+                                        { "tipo_pago", 1 }
+                                    } },
                                     { "datos_paciente",
                             new BsonDocument
                                     {
@@ -191,7 +268,7 @@ namespace SISFAHD.Services
                             new BsonDocument("nombre_apellido_medico", 1) }
                                     } }
                                 });
-            PagoDTO = await _cita.Aggregate()
+            PagoDTO = await _venta.Aggregate()
                                 .AppendStage<dynamic>(addfields1)
                                 .AppendStage<dynamic>(lookup1)
                                 .AppendStage<dynamic>(unwind1)
@@ -202,9 +279,9 @@ namespace SISFAHD.Services
                                 .AppendStage<dynamic>(lookup3)
                                 .AppendStage<dynamic>(unwind3)
                                 .AppendStage<dynamic>(addfields4)
-                                .AppendStage<dynamic>(addfields5)
                                 .AppendStage<dynamic>(lookup4)
                                 .AppendStage<dynamic>(unwind4)
+                                .AppendStage<dynamic>(addfields5)
                                 .AppendStage<dynamic>(addfields6)
                                 .AppendStage<dynamic>(lookup5)
                                 .AppendStage<dynamic>(unwind5)
@@ -212,16 +289,48 @@ namespace SISFAHD.Services
                                 .AppendStage<dynamic>(lookup6)
                                 .AppendStage<dynamic>(unwind6)
                                 .AppendStage<dynamic>(addfields8)
-                                .AppendStage<CitaDTO>(project)
+                                .AppendStage<dynamic>(lookup7)
+                                .AppendStage<dynamic>(unwind7)
+                                .AppendStage<dynamic>(addfields9)
+                                .AppendStage<VentaDTO>(project)
                                 .ToListAsync();
             return PagoDTO;
         }
-        public async Task<CitaDTO> GetByIdCitasPagadasNoPagadas(string id)
+        //BUSQUEDA POR ID
+        public async Task<VentaDTO> GetById(string id)
         {
+            VentaDTO PagoDTO = new VentaDTO();
+
+            //Transformar codigo_referencia en un toObjectId
             var addfields1 = new BsonDocument("$addFields",
-                                new BsonDocument("id_paciente_pro",
-                                new BsonDocument("$toObjectId", "$id_paciente")));
+                                new BsonDocument("id_cita",
+                                new BsonDocument("$toObjectId", "$codigo_referencia")));
+
+            //Traer los datos de la entidad citas a la de ventas
             var lookup1 = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "citas" },
+                                    { "localField", "id_cita" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_cita" }
+                                });
+
+            //Transformar array datos_cita en un object
+            var unwind1 = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$datos_cita" },
+                                    { "preserveNullAndEmptyArrays", true }
+                                });
+
+            //Transformar datos_cita.id_paciente en toObjectId
+            var addfields2 = new BsonDocument("$addFields",
+                                new BsonDocument("id_paciente_pro",
+                                new BsonDocument("$toObjectId", "$datos_cita.id_paciente")));
+
+            //Traer los datos de la entidad pacientes a traves del toObjectId id_paciente_pro
+            var lookup2 = new BsonDocument("$lookup",
                             new BsonDocument
                                 {
                                     { "from", "pacientes" },
@@ -229,16 +338,22 @@ namespace SISFAHD.Services
                                     { "foreignField", "_id" },
                                     { "as", "datos_usuario" }
                                 });
-            var unwind1 = new BsonDocument("$unwind",
+
+            //Transformar array datos_usuario en un object
+            var unwind2 = new BsonDocument("$unwind",
                             new BsonDocument
                                 {
                                     { "path", "$datos_usuario" },
                                     { "preserveNullAndEmptyArrays", true }
                                 });
-            var addfields2 = new BsonDocument("$addFields",
+
+            //Transformar datos_usuario.id_usuario en toObjectId
+            var addfields3 = new BsonDocument("$addFields",
                                 new BsonDocument("id_usuariopro",
                                 new BsonDocument("$toObjectId", "$datos_usuario.id_usuario")));
-            var lookup2 = new BsonDocument("$lookup",
+
+            //Traer los datos de la entidad usuarios a traves del toObjectId id_usuariopro
+            var lookup3 = new BsonDocument("$lookup",
                             new BsonDocument
                                 {
                                     { "from", "usuarios" },
@@ -246,30 +361,40 @@ namespace SISFAHD.Services
                                     { "foreignField", "_id" },
                                     { "as", "datos_paciente" }
                                 });
-            var unwind2 = new BsonDocument("$unwind",
+
+            //Transformar array datos_paciente en un object
+            var unwind3 = new BsonDocument("$unwind",
                             new BsonDocument
                                 {
                                     { "path", "$datos_paciente" },
                                     { "preserveNullAndEmptyArrays", true }
                                 });
-            var addfields3 = new BsonDocument("$addFields",
-                                new BsonDocument("id_rol",
+
+            //Transformar datos_paciente.rol en toObjectId
+            var addfields4 = new BsonDocument("$addFields",
+                                new BsonDocument("id_rol_pro",
                                 new BsonDocument("$toObjectId", "$datos_paciente.rol")));
-            var lookup3 = new BsonDocument("$lookup",
+
+            //Traer los datos de la entidad roles a traves del toObjectId id_rol_pro
+            var lookup4 = new BsonDocument("$lookup",
                             new BsonDocument
                                 {
                                     { "from", "roles" },
-                                    { "localField", "id_rol" },
+                                    { "localField", "id_rol_pro" },
                                     { "foreignField", "_id" },
                                     { "as", "datos_paciente.nombre_rol" }
                                 });
-            var unwind3 = new BsonDocument("$unwind",
+
+            //Transformar array datos_paciente.nombre_rol en un object
+            var unwind4 = new BsonDocument("$unwind",
                             new BsonDocument
                                 {
                                     { "path", "$datos_paciente.nombre_rol" },
                                     { "preserveNullAndEmptyArrays", true }
                                 });
-            var addfields4 = new BsonDocument("$addFields",
+
+            //Juntar nombre-apellido paterno-apellido materno del paciente
+            var addfields5 = new BsonDocument("$addFields",
                                 new BsonDocument("datos_paciente",
                                 new BsonDocument("datos",
                                 new BsonDocument("nombre_apellido_paciente",
@@ -282,58 +407,78 @@ namespace SISFAHD.Services
                                                         " ",
                                                         "$datos_paciente.datos.apellido_materno"
                                                     })))));
-            var addfields5 = new BsonDocument("$addFields",
+
+            //Transformar datos_cita.id_turno en toObjectId
+            var addfields6 = new BsonDocument("$addFields",
                                 new BsonDocument("id_turno_pro",
-                                new BsonDocument("$toObjectId", "$id_turno")));
-            var lookup4 = new BsonDocument("$lookup",
-                                new BsonDocument
-                                    {
-                                        { "from", "turnos" },
-                                        { "localField", "id_turno_pro" },
-                                        { "foreignField", "_id" },
-                                        { "as", "datos_turno" }
-                                    });
-            var unwind4 = new BsonDocument("$unwind",
+                                new BsonDocument("$toObjectId", "$datos_cita.id_turno")));
+
+            //Traer los datos de la entidad turnos a traves del toObjectId id_turno_pro
+            var lookup5 = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "turnos" },
+                                    { "localField", "id_turno_pro" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_turno" }
+                                });
+
+            //Transformar array datos_turno en un object
+            var unwind5 = new BsonDocument("$unwind",
                             new BsonDocument
                                 {
                                     { "path", "$datos_turno" },
                                     { "preserveNullAndEmptyArrays", true }
                                 });
-            var addfields6 = new BsonDocument("$addFields",
+
+            //Transformar datos_turno.id_medico en toObjectId
+            var addfields7 = new BsonDocument("$addFields",
                                 new BsonDocument("id_medico_pro",
                                 new BsonDocument("$toObjectId", "$datos_turno.id_medico")));
-            var lookup5 = new BsonDocument("$lookup",
-                                new BsonDocument
-                                    {
-                                        { "from", "medicos" },
-                                        { "localField", "id_medico_pro" },
-                                        { "foreignField", "_id" },
-                                        { "as", "datos_medico" }
-                                    });
-            var unwind5 = new BsonDocument("$unwind",
+
+            //Traer los datos de la entidad medicos a traves del toObjectId id_medico_pro
+            var lookup6 = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "medicos" },
+                                    { "localField", "id_medico_pro" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_medico" }
+                                });
+
+            //Transformar array datos_medico en un object
+            var unwind6 = new BsonDocument("$unwind",
                             new BsonDocument
                                 {
                                     { "path", "$datos_medico" },
                                     { "preserveNullAndEmptyArrays", true }
                                 });
-            var addfields7 = new BsonDocument("$addFields",
+
+            //Transformar datos_medico.id_usuario en toObjectId
+            var addfields8 = new BsonDocument("$addFields",
                                 new BsonDocument("id_usuario_medico",
                                 new BsonDocument("$toObjectId", "$datos_medico.id_usuario")));
-            var lookup6 = new BsonDocument("$lookup",
-                                new BsonDocument
-                                    {
-                                        { "from", "usuarios" },
-                                        { "localField", "id_usuario_medico" },
-                                        { "foreignField", "_id" },
-                                        { "as", "datos_turno.datos_medico" }
-                                    });
-            var unwind6 = new BsonDocument("$unwind",
+
+            //Traer los datos de la entidad usuarios a traves del toObjectId id_usuario_medico
+            var lookup7 = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "usuarios" },
+                                    { "localField", "id_usuario_medico" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_turno.datos_medico" }
+                                });
+
+            //Transformar array datos_turno.datos_medico en un object
+            var unwind7 = new BsonDocument("$unwind",
                             new BsonDocument
                                 {
                                     { "path", "$datos_turno.datos_medico" },
                                     { "preserveNullAndEmptyArrays", true }
                                 });
-            var addfields8 = new BsonDocument("$addFields",
+
+            //Juntar nombre-apellido paterno-apellido materno del médico
+            var addfields9 = new BsonDocument("$addFields",
                                 new BsonDocument("datos_turno",
                                 new BsonDocument("datos_medico",
                                 new BsonDocument("nombre_apellido_medico",
@@ -346,17 +491,33 @@ namespace SISFAHD.Services
                                                         " ",
                                                         "$datos_turno.datos_medico.datos.apellido_materno"
                                                     })))));
+
+            //Mapeo final para DTO
             var project = new BsonDocument("$project",
                             new BsonDocument
                                 {
                                     { "_id", 1 },
-                                    { "estado_atencion", 1 },
-                                    { "estado_pago", 1 },
-                                    { "fecha_cita", 1 },
+                                    { "codigo_orden", 1 },
+                                    { "estado", 1 },
+                                    { "detalle_estado", 1 },
+                                    { "tipo_operacion", 1 },
+                                    { "tipo_pago", 1 },
+                                    { "monto", 1 },
+                                    { "titular", 1 },
                                     { "fecha_pago", 1 },
-                                    { "id_paciente", 1 },
-                                    { "precio_neto", 1 },
-                                    { "tipo_pago", 1 },  
+                                    { "moneda", 1 },
+                                    { "codigo_referencia", 1 },
+                                    { "datos_cita",
+                            new BsonDocument
+                                    {
+                                        { "estado_atencion", 1 },
+                                        { "estado_pago", 1 },
+                                        { "fecha_cita", 1 },
+                                        { "fecha_pago", 1 },
+                                        { "id_paciente", 1 },
+                                        { "precio_neto", 1 },
+                                        { "tipo_pago", 1 }
+                                    } },
                                     { "datos_paciente",
                             new BsonDocument
                                     {
@@ -383,9 +544,7 @@ namespace SISFAHD.Services
             var match = new BsonDocument("$match",
                         new BsonDocument("_id",
                         new ObjectId(id)));
-
-            CitaDTO pago = new CitaDTO();
-            pago = await _cita.Aggregate()
+            PagoDTO = await _venta.Aggregate()
                                 .AppendStage<dynamic>(addfields1)
                                 .AppendStage<dynamic>(lookup1)
                                 .AppendStage<dynamic>(unwind1)
@@ -396,9 +555,9 @@ namespace SISFAHD.Services
                                 .AppendStage<dynamic>(lookup3)
                                 .AppendStage<dynamic>(unwind3)
                                 .AppendStage<dynamic>(addfields4)
-                                .AppendStage<dynamic>(addfields5)
                                 .AppendStage<dynamic>(lookup4)
                                 .AppendStage<dynamic>(unwind4)
+                                .AppendStage<dynamic>(addfields5)
                                 .AppendStage<dynamic>(addfields6)
                                 .AppendStage<dynamic>(lookup5)
                                 .AppendStage<dynamic>(unwind5)
@@ -406,155 +565,27 @@ namespace SISFAHD.Services
                                 .AppendStage<dynamic>(lookup6)
                                 .AppendStage<dynamic>(unwind6)
                                 .AppendStage<dynamic>(addfields8)
+                                .AppendStage<dynamic>(lookup7)
+                                .AppendStage<dynamic>(unwind7)
+                                .AppendStage<dynamic>(addfields9)
                                 .AppendStage<dynamic>(project)
-                                .AppendStage<CitaDTO>(match)
+                                .AppendStage<VentaDTO>(match)
                                 .FirstAsync();
-            return pago;
+            return PagoDTO;
         }
-        public Cita GetById(string id)
+        public async Task<Venta> CreateUnNuevoPagoRealizado(Venta pagorealizado)
         {
-            Cita cita = new Cita();
-            cita = _cita.Find(cita => cita.id == id).FirstOrDefault();
-            return cita;
-        }
-        public async Task<Cita> ModifyEstadoPagoCita(Cita pagorealizado)
-        {
-            var filter = Builders<Cita>.Filter.Eq("id", pagorealizado.id);
-            var update = Builders<Cita>.Update
-                .Set("estado_pago", pagorealizado.estado_pago);
-            _cita.UpdateOne(filter, update);
-            return pagorealizado;
-        } 
-        public async Task<List<CitaDTO2>> GetCitasbyMedicoFecha(string turno, int month, int year)
-        {
-            List<CitaDTO2> citas = new List<CitaDTO2>();
-            DateTime firstDate = new DateTime(year, month, 1,0,0,0);
-            DateTime lastDate = firstDate.AddMonths(1).AddDays(-1);
-            lastDate.AddHours(23);
-            lastDate.AddMinutes(59);
-            lastDate.AddSeconds(59);
+            _venta.InsertOne(pagorealizado);
+            Cita cita = _citaservice.GetById(pagorealizado.codigo_referencia);
 
-            var match = new BsonDocument("$match",
-                                new BsonDocument("$and",
-                                new BsonArray
-                                        {
-                                            new BsonDocument("fecha_cita",
-                                            new BsonDocument("$gte",firstDate)),
-                                            new BsonDocument("fecha_cita_fin",
-                                            new BsonDocument("$lte",lastDate)),
-                                            new BsonDocument("id_turno", turno)
-                                        }));
-            var lookUpActoMedico = new BsonDocument("$lookup",
-                                            new BsonDocument
-                                                {
-                                                    { "from", "acto_medico" },
-                                                    { "let",
-                                            new BsonDocument("actoMedicoID", "$id_acto_medico") },
-                                                    { "pipeline",
-                                            new BsonArray
-                                                    {
-                                                        new BsonDocument("$match",
-                                                        new BsonDocument("$expr",
-                                                        new BsonDocument("$eq",
-                                                        new BsonArray
-                                                                    {
-                                                                        new BsonDocument("$toObjectId", "$$actoMedicoID"),
-                                                                        "$_id"
-                                                                    })))
-                                                    } },
-                                                    { "as", "acto_medico" }
-                                                });
+            var filter = Builders<Cita>.Filter.Eq("id", cita.id);
+            var update = Builders<Cita>.Update.Set("estado_pago", cita.estado_pago);
 
-            var lookUpPaciente = new BsonDocument("$lookup",
-                                        new BsonDocument
-                                            {
-                                                { "from", "pacientes" },
-                                                { "let",
-                                        new BsonDocument("pacienteID", "$id_paciente") },
-                                                { "pipeline",
-                                        new BsonArray
-                                                {
-                                                    new BsonDocument("$match",
-                                                    new BsonDocument("$expr",
-                                                    new BsonDocument("$eq",
-                                                    new BsonArray
-                                                                {
-                                                                    new BsonDocument("$toObjectId", "$$pacienteID"),
-                                                                    "$_id"
-                                                                })))
-                                                } },
-                                                { "as", "paciente" }
-                                            });
-            var project = new BsonDocument("$project",
-                                    new BsonDocument
-                                        {
-                                            { "_id", "$_id" },
-                                            { "estado_atencion", "$estado_atencion" },
-                                            { "estado_pago", "$estado_pago" },
-                                            { "fecha_cita", "$fecha_cita" },
-                                            { "fecha_reserva", "$fecha_reserva" },
-                                            { "datos_paciente",
-                                    new BsonDocument("$arrayElemAt",
-                                    new BsonArray
-                                                {
-                                                    "$paciente",
-                                                    0
-                                                }) },
-                                            { "enlace_cita", "$enlace_cita" },
-                                            { "precio_neto", "$precio_neto" },
-                                            { "calificacion", "$calificacion" },
-                                            { "observaciones", "$observaciones" },
-                                            { "tipo_pago", "$tipo_pago" },
-                                            { "id_turno", "$id_turno" },
-                                            { "datos_acto_medico",
-                                    new BsonDocument("$arrayElemAt",
-                                    new BsonArray
-                                                {
-                                                    "$acto_medico",
-                                                    0
-                                                }) },
-                                            { "fecha_cita_fin", "$fecha_cita_fin" }
-                                        });
-
-            citas = await _cita.Aggregate()
-                .AppendStage<dynamic>(match)
-                .AppendStage<dynamic>(lookUpActoMedico)
-                .AppendStage<dynamic>(lookUpPaciente)
-                .AppendStage<CitaDTO2>(project)
-                .ToListAsync();
-
-            return citas;
-
-            //calcula la fecha actual
-            //obtener el mes: 29 abril -> abril
-            //2 fechas -primer dia del mes 01 abril 00:00, -ultimo dia del mes 31 abril 24:00
-        }
-
-        public Cita CreateCita(Cita cita)
-        {
-            _cita.InsertOne(cita);
-
-            Turno turno = _turnoservice.GetById(cita.id_turno);
-
-            for (int i = 0; i < turno.cupos.Count; i++)
-            {
-                if (turno.cupos[i].hora_inicio == cita.fecha_cita)
-                {
-                    turno.cupos[i].estado = "ocupado";
-                    turno.cupos[i].paciente = cita.id_paciente;
-                    turno.cupos[i].id_cita = cita.id;
-                }
-            }
-
-            var filter = Builders<Turno>.Filter.Eq("id", turno.id);
-            var update = Builders<Turno>.Update.Set("cupos", turno.cupos);
-
-            turno = _turnos.FindOneAndUpdate<Turno>(filter, update, new FindOneAndUpdateOptions<Turno>
+            cita = _cita.FindOneAndUpdate<Cita>(filter, update, new FindOneAndUpdateOptions<Cita>
             {
                 ReturnDocument = ReturnDocument.After
             });
-
-            return cita;
+            return pagorealizado;
         }
     }
 }
