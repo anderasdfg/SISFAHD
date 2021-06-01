@@ -14,13 +14,18 @@ namespace SISFAHD.Services
     {
         private readonly IMongoCollection<Cita> _cita;
         private readonly IMongoCollection<Venta> _venta;
+        private readonly IMongoCollection<Turno> _turnos;
+        private readonly TurnoService _turnoservice;
 
-        public CitaService(ISisfahdDatabaseSettings settings)
+
+        public CitaService(ISisfahdDatabaseSettings settings, TurnoService turnoService)
         {
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
             _cita = database.GetCollection<Cita>("citas");
             _venta = database.GetCollection<Venta>("ventas");
+            _turnos = database.GetCollection<Turno>("turnos");
+            _turnoservice = turnoService;
         }
         public async Task<List<CitaDTO>> GetAll()
         {
@@ -530,6 +535,27 @@ namespace SISFAHD.Services
         public Cita CreateCita(Cita cita)
         {
             _cita.InsertOne(cita);
+
+            Turno turno = _turnoservice.GetById(cita.id_turno);
+
+            for (int i = 0; i < turno.cupos.Count; i++)
+            {
+                if (turno.cupos[i].hora_inicio == cita.fecha_cita)
+                {
+                    turno.cupos[i].estado = "ocupado";
+                    turno.cupos[i].paciente = cita.id_paciente;
+                    turno.cupos[i].id_cita = cita.id;
+                }
+            }
+
+            var filter = Builders<Turno>.Filter.Eq("id", turno.id);
+            var update = Builders<Turno>.Update.Set("cupos", turno.cupos);
+
+            turno = _turnos.FindOneAndUpdate<Turno>(filter, update, new FindOneAndUpdateOptions<Turno>
+            {
+                ReturnDocument = ReturnDocument.After
+            });
+
             return cita;
         }
     }

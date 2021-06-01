@@ -92,7 +92,7 @@ namespace SISFAHD.Services
                                     new BsonDocument("especialidad.codigo", idEspecialidad),
                                     new BsonDocument("cupos.hora_inicio",
                                     new BsonDocument("$lte",
-                                    new DateTime(year, month, 31, 23, 59, 59))),
+                                    new DateTime(year, month, 30, 23, 59, 59))),
                                     new BsonDocument("cupos.hora_inicio",
                                     new BsonDocument("$gte",
                                     new DateTime(year, month, 1, 0, 0, 0)))
@@ -197,6 +197,12 @@ namespace SISFAHD.Services
 
             return turnos;
 
+        }
+        public Turno GetById(string id)
+        {
+            Turno turno = new Turno();
+            turno = _turnos.Find(turno => turno.id == id).FirstOrDefault();
+            return turno;
         }
     }
 }
