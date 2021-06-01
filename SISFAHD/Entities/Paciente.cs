@@ -69,7 +69,6 @@ namespace SISFAHD.Entities
         public List<Habito> educacion { get; set; }
         public List<Habito> laborales { get; set; }
         public List<Habito> habitos_nocivos { get; set; } 
-        public List<Habito> medicacion_habitual { get; set; }
         public List<Habito> habitos_generales { get; set; }
         public List<Habito> sociales { get; set; }
     }
