@@ -32,7 +32,7 @@ namespace SISFAHD.Controllers
             return _pacienteService.GetById(id);
         }
         [HttpPost("")]
-        public async Task<ActionResult<Paciente>> CreatePaciente(Paciente paciente,[FromQuery]bool lleno)
+        public async Task<ActionResult<Paciente>> CreatePaciente([FromQuery]bool lleno,Paciente paciente)
         {
             if (lleno)
             {

@@ -20,9 +20,9 @@ namespace SISFAHD.Entities
         [BsonElement("antecedentes")]
         public Antecedentes antecedentes { get; set; }
         [BsonElement("id_historia")]
-        public string idHistoria { get; set; }
+        public string id_historia { get; set; }
         [BsonElement("id_usuario")]
-        public string idUsuario { get; set; }
+        public string id_usuario { get; set; }
         [BsonElement("archivos")]
         public List<Archivos> archivos { get; set; }        
     }
@@ -91,7 +91,7 @@ namespace SISFAHD.Entities
     public class Uso_metodos_anticonceptivos
     {
         public List<Metodos> metodos { get; set; }
-        public bool estado { get; set; }
+        public bool? estado { get; set; }
         public List<String> observaciones { get; set; } = new List<String>();
     }
 
@@ -106,28 +106,28 @@ namespace SISFAHD.Entities
     public class Percepcion_libido
     {
         public string estado_percepcion { get; set; }
-        public bool estado { get; set; }
+        public bool? estado { get; set; }
         public List<String> observaciones { get; set; } = new List<String>();
     }
 
     public class Parejas_sexuales
     {
-        public int cantidad { get; set; }
-        public bool parejas_simultaneas { get; set; }
-        public bool estado { get; set; }
+        public int? cantidad { get; set; }
+        public bool? parejas_simultaneas { get; set; }
+        public bool? estado { get; set; }
         public List<String> observaciones { get; set; } = new List<String>();
     }
 
     public class Inicio_actividad_sexual
     {
-        public int edad { get; set; }
-        public bool estado { get; set; }
+        public int? edad { get; set; }
+        public bool? estado { get; set; }
         public List<String> observaciones { get; set; } = new List<String>();
     }
 
     public class Espermarquia
     {
-        public bool estado { get; set; }
+        public bool? estado { get; set; }
         public List<String> observaciones { get; set; } = new List<String>();
     }
     public class Datos_Paciente
