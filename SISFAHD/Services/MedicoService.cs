@@ -90,30 +90,31 @@ namespace SISFAHD.Services
                         new BsonDocument("_id",
                         new ObjectId(idMedico)));
             var addfields = new BsonDocument("$addFields",
-                            new BsonDocument("id_especialidad",
+                            new BsonDocument("id_especialidad_m",
                             new BsonDocument("$toObjectId", "$id_especialidad")));
             var lookup = new BsonDocument("$lookup",
                          new BsonDocument
                          {
                             { "from", "especialidades" },
-                            { "localField", "id_especialidad" },
+                            { "localField", "id_especialidad_m" },
                             { "foreignField", "_id" },
                             { "as", "especialidad" }
-                         });
+                          });
             var unwind = new BsonDocument("$unwind",
                          new BsonDocument
                          {
-                            { "path", "$especialidad" },
-                            { "preserveNullAndEmptyArrays", true }
+                             { "path", "$especialidad" },
+                             { "preserveNullAndEmptyArrays", true }
                          });
             var project = new BsonDocument("$project",
-                          new BsonDocument
-                          {
-                            { "_id", 1 },
-                            { "id_usuario", 1 },
-                            { "especialidad.nombre", 1 },
-                            { "especialidad.codigo", 1 }
-                           });
+                            new BsonDocument
+                            {
+                                { "_id", 1 },
+                                { "id_usuario", 1 },
+                                { "especialidad.nombre", 1 },
+                                { "especialidad.codigo", 1 },
+                                { "id_especialidad", 1 }
+                            });
             MedicoDTOEspcialidad medico = new MedicoDTOEspcialidad();
             medico = await _medicos.Aggregate()
                      .AppendStage<dynamic>(match)

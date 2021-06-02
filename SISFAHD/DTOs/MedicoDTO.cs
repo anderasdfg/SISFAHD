@@ -25,6 +25,7 @@ namespace SISFAHD.DTOs
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string id { get; set; }
+        public string id_especialidad { get; set; }
         public string id_usuario { get; set; }
         public EspcialidadMeditoDTO especialidad { get; set;}
     }
