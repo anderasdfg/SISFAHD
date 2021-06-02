@@ -37,7 +37,7 @@ namespace SISFAHD.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult<Venta>> PostSesionesEducativas([FromBody] Venta pagorealizado)
+        public async Task<ActionResult<Venta>> PostCrearVenta([FromBody] Venta pagorealizado)
         {
             return await _pagocita.CrearVenta(pagorealizado);
         }

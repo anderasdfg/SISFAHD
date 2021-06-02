@@ -592,21 +592,21 @@ namespace SISFAHD.Services
             _venta.InsertOne(venta);
             return venta;
         }
-        public async Task<Venta> ConcretandoTransaccion(Venta venta,string idcita)
+        public async Task<Venta> ConcretandoTransaccion(Venta venta,string id_cita)
         {
             TransaccionDTO transaccion = new TransaccionDTO();
-            var filter = Builders<Venta>.Filter.Eq("codigo_referencia", venta.codigo_referencia = idcita);
-            transaccion = JsonConvert.DeserializeObject<TransaccionDTO>(idcita);
+            var filter = Builders<Venta>.Filter.Eq("codigo_referencia", venta.codigo_referencia = id_cita);
+            transaccion = JsonConvert.DeserializeObject<TransaccionDTO>(id_cita);
             var update = Builders<Venta>.Update
                 .Set("estado", venta.estado) //cambio de estado a pendiente
                 .Set("pago", venta.pago);
             _venta.UpdateOne(filter, update);
             return venta;
         }
-        /*public async Task<Venta> SuccessfulResponse(Venta venta,string body)
+        public async Task<Venta> SuccessfulResponse(Venta venta,string body)
         {
 
-        }*/
+        }
 
     }
 }
