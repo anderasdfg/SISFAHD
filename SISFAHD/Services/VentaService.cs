@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace SISFAHD.Services
 {
@@ -573,19 +574,39 @@ namespace SISFAHD.Services
                                 .FirstAsync();
             return PagoDTO;
         }
-        public async Task<Venta> CreateUnNuevoPagoRealizado(Venta pagorealizado)
+        /*
+        public  async Task<Venta> PostHtml (string html)
         {
-            _venta.InsertOne(pagorealizado);
-            Cita cita = _citaservice.GetById(pagorealizado.codigo_referencia);
 
-            var filter = Builders<Cita>.Filter.Eq("id", cita.id);
-            var update = Builders<Cita>.Update.Set("estado_pago", cita.estado_pago);
+                PagoRechazadoDTO pagoRechazadoDTO = new PagoRechazadoDTO();
+                pagoRechazadoDTO = JsonConvert.DeserializeObject<PagoRechazadoDTO>(html);
+            
 
-            cita = _cita.FindOneAndUpdate<Cita>(filter, update, new FindOneAndUpdateOptions<Cita>
-            {
-                ReturnDocument = ReturnDocument.After
-            });
-            return pagorealizado;
+                PagoProcesadoDTO pagoProcesadoDTO = new PagoProcesadoDTO();
+                pagoProcesadoDTO = JsonConvert.DeserializeObject<PagoProcesadoDTO>(html);
+            
         }
+        */
+        public async Task<Venta> CrearVenta(Venta venta)
+        {
+            _venta.InsertOne(venta);
+            return venta;
+        }
+        public async Task<Venta> ConcretandoTransaccion(Venta venta,string id_cita)
+        {
+            TransaccionDTO transaccion = new TransaccionDTO();
+            var filter = Builders<Venta>.Filter.Eq("codigo_referencia", venta.codigo_referencia = id_cita);
+            transaccion = JsonConvert.DeserializeObject<TransaccionDTO>(id_cita);
+            var update = Builders<Venta>.Update
+                .Set("estado", venta.estado) //cambio de estado a pendiente
+                .Set("pago", venta.pago);
+            _venta.UpdateOne(filter, update);
+            return venta;
+        }
+        public async Task<Venta> SuccessfulResponse(Venta venta,string body)
+        {
+
+        }
+
     }
 }

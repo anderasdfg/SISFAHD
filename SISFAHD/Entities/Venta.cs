@@ -35,5 +35,12 @@ namespace SISFAHD.Entities
         public string moneda { get; set; }
         [BsonElement("codigo_referencia")]
         public string codigo_referencia { get; set; }
+        [BsonElement("pago")]
+        public DatosPago pago { get; set; } = new DatosPago();
+    }
+    public class DatosPago
+    {
+        public string token { get; set; }
+        public string sessionkey { get; set; }
     }
 }
