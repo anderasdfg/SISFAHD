@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using System.Net.Http;
+using System.Text;
 
 namespace SISFAHD.Services
 {
@@ -592,21 +594,41 @@ namespace SISFAHD.Services
             _venta.InsertOne(venta);
             return venta;
         }
-        public async Task<Venta> ConcretandoTransaccion(Venta venta,string id_cita)
+        public async Task<Venta> ConcretandoTransaccion(string id_cita)
         {
+            Venta venta = new Venta();
+            venta = _venta.Find(venta => venta.codigo_referencia == id_cita).FirstOrDefault();
             TransaccionDTO transaccion = new TransaccionDTO();
-            var filter = Builders<Venta>.Filter.Eq("codigo_referencia", venta.codigo_referencia = id_cita);
+                            transaccion.antifraud = null;
+                            transaccion.captureType = "manual";
+                            transaccion.channel = "web";
+                            transaccion.countable = true;
+                            transaccion.order.amount = venta.monto;
+                            transaccion.order.currency = venta.moneda;
+                            transaccion.order.purchaseNumber = id_cita;
+                            transaccion.order.tokenId = venta.pago.token;
+                            transaccion.terminalId = "1";
+                            transaccion.terminalUnattended = false;
+            /*var filter = Builders<Venta>.Filter.Eq("codigo_referencia", venta.codigo_referencia = id_cita);
             transaccion = JsonConvert.DeserializeObject<TransaccionDTO>(id_cita);
             var update = Builders<Venta>.Update
-                .Set("estado", venta.estado) //cambio de estado a pendiente
                 .Set("pago", venta.pago);
-            _venta.UpdateOne(filter, update);
+            _venta.UpdateOne(filter, update);*/
+            var url = "https://apitestenv.vnforapps.com/api.authorization/v3/authorization/ecommerce/";
+            HttpClient client = new HttpClient();
+            var content = new StringContent(JsonConvert.SerializeObject(transaccion), Encoding.UTF8, "application/json");
+            var result = client.PostAsync(url, content);
+            Console.Write(result);
             return venta;
         }
-        public async Task<Venta> SuccessfulResponse(Venta venta,string body)
+        /*public async Task<Venta> SuccessfulResponse(string body)
         {
-
-        }
+               
+                Venta venta = new Venta();
+                PagoProcesadoDTO pagoProcesado = new PagoProcesadoDTO();
+                pagoProcesado = JsonConvert.DeserializeObject<PagoProcesadoDTO>(body);
+                return venta;        
+        }*/
 
     }
 }

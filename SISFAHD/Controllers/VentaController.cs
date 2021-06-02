@@ -42,15 +42,15 @@ namespace SISFAHD.Controllers
             return await _pagocita.CrearVenta(pagorealizado);
         }
         [HttpPost("/responsevisa/:purchase")]
-        public async Task<ActionResult<Venta>> PostTransaccion([FromBody] Venta pagorealizado,string id_cita)
+        public async Task<ActionResult<Venta>> PostTransaccion([FromBody] string id_cita)
         {
-            return await _pagocita.ConcretandoTransaccion(pagorealizado,id_cita);
+            return await _pagocita.ConcretandoTransaccion(id_cita);
         }
-        /*
+      /*  
         [HttpPost("responsevisa/{id_cita}")]
-        public string  PostHtml([FromBody] string html)
+        public string SuccessfulResponse([FromBody] string body)
         {
-            return _pagocita.PostHtml(html);
+            return _pagocita.SuccessfulResponse(body);
         }*/
     }
 }

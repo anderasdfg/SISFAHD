@@ -14,7 +14,7 @@ namespace SISFAHD.DTOs
         public string captureType { get; set; }
 
         public string channel { get; set; }
-        public string countable { get; set; }
+        public bool countable { get; set; }
         public TransaccionOrder order { get; set; }
         public string terminalId { get; set; }
         public bool terminalUnattended { get; set; }
@@ -26,5 +26,9 @@ namespace SISFAHD.DTOs
         public string currency { get; set; }
         public string purchaseNumber { get; set; }
         public string tokenId { get; set; }
+    }
+    public class ParametrosInsert
+    {
+        public string sessionkey { get; set; }
     }
 }
