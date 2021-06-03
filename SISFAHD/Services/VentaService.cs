@@ -26,6 +26,7 @@ namespace SISFAHD.Services
             _venta = database.GetCollection<Venta>("ventas");
             _cita = database.GetCollection<Cita>("citas");
         }
+        
 
         public async Task<List<VentaDTO>> GetAllVentas()
         {
@@ -602,15 +603,15 @@ namespace SISFAHD.Services
         }
 
         
-        public async Task<Venta> ConcretandoTransaccion(string id_cita)
+        public async Task<PagoProcesadoDTO> ConcretandoTransaccion(string id_cita, ResponsePost responsePost)
         {
 
             Venta venta = new Venta();
-            venta = await GetByCita(id_cita);
+            venta = _venta.Find(venta => venta.codigo_referencia == id_cita).FirstOrDefault();
             string monto = String.Format("{0:0.00}", venta.monto);
             string moneda = venta.moneda;
             string token = venta.pago.token;
-            //venta = _venta.Find(venta => venta.codigo_referencia == id_cita).FirstOrDefault();
+            //
             TransaccionDTO transaccion = new TransaccionDTO();
             transaccion.order = new TransaccionOrder();
 
@@ -621,7 +622,7 @@ namespace SISFAHD.Services
                             transaccion.order.amount = monto;
                             transaccion.order.currency = "PEN";
                             transaccion.order.purchaseNumber = 123;
-                            transaccion.order.tokenId = token;
+                            transaccion.order.tokenId = responsePost.transactionToken;
             
             var url = "https://apitestenv.vnforapps.com/api.authorization/v3/authorization/ecommerce/522591303";
             PagoProcesadoDTO pagoProcesado = null;
@@ -638,6 +639,7 @@ namespace SISFAHD.Services
 
                 if (result.IsSuccessStatusCode)
                 {
+                    
                     pagoProcesado = System.Text.Json.JsonSerializer.Deserialize<PagoProcesadoDTO>(response);
                 }
                 else
@@ -654,8 +656,8 @@ namespace SISFAHD.Services
 
             }
 
+            return pagoProcesado;
 
-            return venta;
         }
 
 
