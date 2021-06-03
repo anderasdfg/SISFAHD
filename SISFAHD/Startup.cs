@@ -70,6 +70,7 @@ namespace SISFAHD
             services.AddScoped<TarifaService>();
             services.AddScoped<ActoMedicoService>();
             services.AddScoped<VentaService>();
+            
             //Injectando dependecia de Azure FileStorage
             services.AddScoped<IFileStorage, AzureFileStorage>();
 
@@ -99,7 +100,7 @@ namespace SISFAHD
                 {
                     Version = "version 1.0",
                     Title = "SISFAHD API",
-                    Description = "Aplicaci�n que contiene la descripci�n , parametros, uso  y otras especificaciones de las APIS del SISFAHD"
+                    Description = "Aplicación que contiene la descripci�n , parametros, uso  y otras especificaciones de las APIS del SISFAHD"
                 });
 
                 g.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -125,6 +126,10 @@ namespace SISFAHD
                 });
 
             });
+
+            services.AddMvc();
+            //services.AddM
+            //MvcOptions.EnabledEndpointRouting = false;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -160,6 +165,20 @@ namespace SISFAHD
             {
                 endpoints.MapControllers();
             });
+
+            
+
+            //app.UseMvc(routes =>
+            //{
+            //    // You can add all the routes you need here
+
+            //    // And the default route :
+            //    routes.MapRoute(
+            //         name: "default_route",
+            //         template: "{controller}/{action}/{id?}",
+            //         defaults: new { controller = "Home", action = "Index" }
+            //    );
+            //});
         }
     }
 }

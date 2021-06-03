@@ -41,11 +41,11 @@ namespace SISFAHD.Controllers
         {
             return _pagocita.CrearVenta(pagorealizado);
         }
-        [HttpPost("/responsevisa/{id_cita}")]
-        public async Task<ActionResult<Venta>> PostTransaccion(String id_cita)
-        {
-            return await _pagocita.ConcretandoTransaccion(id_cita);
-        }
+        //[HttpPost("/responsevisa/{id_cita}")]
+        //public async Task<ActionResult<Venta>> PostTransaccion(String id_cita, [FromForm] ResponsePost response)
+        //{
+        //    return await _pagocita.ConcretandoTransaccion(id_cita, response);
+        //}
         [HttpPut("token")]
         public ActionResult<Venta> PutVentaToken(Venta venta)
         {
