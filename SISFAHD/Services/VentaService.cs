@@ -607,7 +607,7 @@ namespace SISFAHD.Services
 
             Venta venta = new Venta();
             venta = await GetByCita(id_cita);
-            string monto = venta.monto.ToString();
+            string monto = String.Format("{0:0.00}", venta.monto);
             string moneda = venta.moneda;
             string token = venta.pago.token;
             //venta = _venta.Find(venta => venta.codigo_referencia == id_cita).FirstOrDefault();
@@ -620,10 +620,8 @@ namespace SISFAHD.Services
                             transaccion.countable = true;
                             transaccion.order.amount = monto;
                             transaccion.order.currency = "PEN";
-                            transaccion.order.purchaseNumber = id_cita;
+                            transaccion.order.purchaseNumber = 123;
                             transaccion.order.tokenId = token;
-                            transaccion.terminalId = "1";
-                            transaccion.terminalUnattended = false;
             
             var url = "https://apitestenv.vnforapps.com/api.authorization/v3/authorization/ecommerce/522591303";
             PagoProcesadoDTO pagoProcesado = null;
