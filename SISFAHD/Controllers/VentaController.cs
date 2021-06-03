@@ -51,6 +51,13 @@ namespace SISFAHD.Controllers
         {
             return _pagocita.ModifyTokenVenta(venta);
         }
+
+        [HttpGet]
+        [Route("[action]")]
+        public IActionResult Test()
+        {
+            return View();
+        }
         /*  
           [HttpPost("responsevisa/{id_cita}")]
           public string SuccessfulResponse([FromBody] string body)

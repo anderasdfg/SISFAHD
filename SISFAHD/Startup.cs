@@ -90,6 +90,8 @@ namespace SISFAHD
                   ClockSkew = TimeSpan.Zero
               });
 
+            services.AddRazorPages();
+
             // Se encarga de registrar el generador del swagger
             services.AddSwaggerGen(g =>
             {
@@ -151,6 +153,8 @@ namespace SISFAHD
             //Autorizacion y auntenticacion mediante tokens JWT
             app.UseAuthentication();
             app.UseAuthorization();
+
+
 
             app.UseEndpoints(endpoints =>
             {
