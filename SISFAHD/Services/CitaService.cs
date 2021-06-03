@@ -444,26 +444,26 @@ namespace SISFAHD.Services
                                             new BsonDocument("$lte",lastDate)),
                                             new BsonDocument("id_turno", turno)
                                         }));
-            var lookUpActoMedico = new BsonDocument("$lookup",
-                                            new BsonDocument
-                                                {
-                                                    { "from", "acto_medico" },
-                                                    { "let",
-                                            new BsonDocument("actoMedicoID", "$id_acto_medico") },
-                                                    { "pipeline",
-                                            new BsonArray
-                                                    {
-                                                        new BsonDocument("$match",
-                                                        new BsonDocument("$expr",
-                                                        new BsonDocument("$eq",
-                                                        new BsonArray
-                                                                    {
-                                                                        new BsonDocument("$toObjectId", "$$actoMedicoID"),
-                                                                        "$_id"
-                                                                    })))
-                                                    } },
-                                                    { "as", "acto_medico" }
-                                                });
+            var lookUpTurno = new BsonDocument("$lookup",
+                                    new BsonDocument
+                                        {
+                                            { "from", "turnos" },
+                                            { "let",
+                                    new BsonDocument("turnoID", "$id_turno") },
+                                            { "pipeline",
+                                    new BsonArray
+                                            {
+                                                new BsonDocument("$match",
+                                                new BsonDocument("$expr",
+                                                new BsonDocument("$eq",
+                                                new BsonArray
+                                                            {
+                                                                new BsonDocument("$toObjectId", "$$turnoID"),
+                                                                "$_id"
+                                                            })))
+                                            } },
+                                            { "as", "turno" }
+                                        });
 
             var lookUpPaciente = new BsonDocument("$lookup",
                                         new BsonDocument
@@ -486,39 +486,39 @@ namespace SISFAHD.Services
                                                 { "as", "paciente" }
                                             });
             var project = new BsonDocument("$project",
-                                    new BsonDocument
-                                        {
-                                            { "_id", "$_id" },
-                                            { "estado_atencion", "$estado_atencion" },
-                                            { "estado_pago", "$estado_pago" },
-                                            { "fecha_cita", "$fecha_cita" },
-                                            { "fecha_reserva", "$fecha_reserva" },
-                                            { "datos_paciente",
-                                    new BsonDocument("$arrayElemAt",
-                                    new BsonArray
-                                                {
-                                                    "$paciente",
-                                                    0
-                                                }) },
-                                            { "enlace_cita", "$enlace_cita" },
-                                            { "precio_neto", "$precio_neto" },
-                                            { "calificacion", "$calificacion" },
-                                            { "observaciones", "$observaciones" },
-                                            { "tipo_pago", "$tipo_pago" },
-                                            { "id_turno", "$id_turno" },
-                                            { "datos_acto_medico",
-                                    new BsonDocument("$arrayElemAt",
-                                    new BsonArray
-                                                {
-                                                    "$acto_medico",
-                                                    0
-                                                }) },
-                                            { "fecha_cita_fin", "$fecha_cita_fin" }
-                                        });
+                                        new BsonDocument
+                                            {
+                                                { "_id", "$_id" },
+                                                { "estado_atencion", "$estado_atencion" },
+                                                { "estado_pago", "$estado_pago" },
+                                                { "fecha_cita", "$fecha_cita" },
+                                                { "fecha_reserva", "$fecha_reserva" },
+                                                { "datos_paciente",
+                                        new BsonDocument("$arrayElemAt",
+                                        new BsonArray
+                                                    {
+                                                        "$paciente",
+                                                        0
+                                                    }) },
+                                                { "enlace_cita", "$enlace_cita" },
+                                                { "precio_neto", "$precio_neto" },
+                                                { "calificacion", "$calificacion" },
+                                                { "observaciones", "$observaciones" },
+                                                { "tipo_pago", "$tipo_pago" },
+                                                { "id_turno", "$id_turno" },
+                                                { "turno",
+                                        new BsonDocument("$arrayElemAt",
+                                        new BsonArray
+                                                    {
+                                                        "$turno",
+                                                        0
+                                                    }) },
+                                                { "fecha_cita_fin", "$fecha_cita_fin" }
+                                            });
 
             citas = await _cita.Aggregate()
                 .AppendStage<dynamic>(match)
-                .AppendStage<dynamic>(lookUpActoMedico)
+                .AppendStage<dynamic>(lookUpTurno)
                 .AppendStage<dynamic>(lookUpPaciente)
                 .AppendStage<CitaDTO2>(project)
                 .ToListAsync();

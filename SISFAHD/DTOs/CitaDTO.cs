@@ -42,6 +42,7 @@ namespace SISFAHD.DTOs
         public List<String> observaciones { get; set; } = new List<string>();
         public string tipo_pago { get; set; }
         public string id_turno { get; set; }
+        public Turno turno { get; set; }
         public ActoMedico datos_acto_medico { get; set; }
         public DateTime? fecha_cita_fin { get; set; }
     }
