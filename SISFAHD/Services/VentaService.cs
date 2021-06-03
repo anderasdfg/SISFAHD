@@ -6,25 +6,25 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using System.Net.Http;
-using System.Text;
+using System.Text.Json;
+using System.Net.Http.Headers;
+using System.Net;
+using System.IO;
 
 namespace SISFAHD.Services
 {
     public class VentaService
     {
         private readonly IMongoCollection<Venta> _venta;
-        private readonly IMongoCollection<Cita> _cita;
-        private readonly CitaService _citaservice;
+        private readonly IMongoCollection<Cita> _cita;        
 
-        public VentaService(ISisfahdDatabaseSettings settings, CitaService citaservice)
+        public VentaService(ISisfahdDatabaseSettings settings )
         {
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
             _venta = database.GetCollection<Venta>("ventas");
             _cita = database.GetCollection<Cita>("citas");
-            _citaservice = citaservice;
         }
 
         public async Task<List<VentaDTO>> GetAllVentas()
@@ -576,51 +576,91 @@ namespace SISFAHD.Services
                                 .FirstAsync();
             return PagoDTO;
         }
-        /*
-        public  async Task<Venta> PostHtml (string html)
+
+        public async Task<Venta> GetByCita(string citaId)
         {
-
-                PagoRechazadoDTO pagoRechazadoDTO = new PagoRechazadoDTO();
-                pagoRechazadoDTO = JsonConvert.DeserializeObject<PagoRechazadoDTO>(html);
-            
-
-                PagoProcesadoDTO pagoProcesadoDTO = new PagoProcesadoDTO();
-                pagoProcesadoDTO = JsonConvert.DeserializeObject<PagoProcesadoDTO>(html);
-            
+            Venta venta = new Venta();
+            venta = _venta.Find(venta => venta.codigo_referencia == citaId).FirstOrDefault();
+            return venta;
         }
-        */
-        public async Task<Venta> CrearVenta(Venta venta)
+
+        public Venta CrearVenta(Venta venta)
         {
             _venta.InsertOne(venta);
             return venta;
         }
+
+        public Venta ModifyTokenVenta(Venta venta)
+        {
+            var filter = Builders<Venta>.Filter.Eq("codigo_referencia", venta.codigo_referencia);
+            var update = Builders<Venta>.Update
+                .Set("pago.token", venta.pago.token)
+                .Set("pago.sessionkey", venta.pago.sessionkey);          
+
+            _venta.UpdateOne(filter, update);
+            return venta;
+        }
+
+        
         public async Task<Venta> ConcretandoTransaccion(string id_cita)
         {
+
             Venta venta = new Venta();
-            venta = _venta.Find(venta => venta.codigo_referencia == id_cita).FirstOrDefault();
+            venta = await GetByCita(id_cita);
+            string monto = venta.monto.ToString();
+            string moneda = venta.moneda;
+            string token = venta.pago.token;
+            //venta = _venta.Find(venta => venta.codigo_referencia == id_cita).FirstOrDefault();
             TransaccionDTO transaccion = new TransaccionDTO();
+            transaccion.order = new TransaccionOrder();
+
                             transaccion.antifraud = null;
                             transaccion.captureType = "manual";
                             transaccion.channel = "web";
                             transaccion.countable = true;
-                            transaccion.order.amount = venta.monto;
-                            transaccion.order.currency = venta.moneda;
+                            transaccion.order.amount = monto;
+                            transaccion.order.currency = "PEN";
                             transaccion.order.purchaseNumber = id_cita;
-                            transaccion.order.tokenId = venta.pago.token;
+                            transaccion.order.tokenId = token;
                             transaccion.terminalId = "1";
                             transaccion.terminalUnattended = false;
-            /*var filter = Builders<Venta>.Filter.Eq("codigo_referencia", venta.codigo_referencia = id_cita);
-            transaccion = JsonConvert.DeserializeObject<TransaccionDTO>(id_cita);
-            var update = Builders<Venta>.Update
-                .Set("pago", venta.pago);
-            _venta.UpdateOne(filter, update);*/
-            var url = "https://apitestenv.vnforapps.com/api.authorization/v3/authorization/ecommerce/";
-            HttpClient client = new HttpClient();
-            var content = new StringContent(JsonConvert.SerializeObject(transaccion), Encoding.UTF8, "application/json");
-            var result = client.PostAsync(url, content);
-            Console.Write(result);
+            
+            var url = "https://apitestenv.vnforapps.com/api.authorization/v3/authorization/ecommerce/522591303";
+            PagoProcesadoDTO pagoProcesado = null;
+            PagoRechazadoDTO pagoRechazado = null;
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(token);
+                
+                var result = await client.PostAsync(url, new StringContent(JsonSerializer.Serialize(transaccion), System.Text.Encoding.UTF8, "application/json"));
+
+                String response = result.Content.ReadAsStringAsync().Result;
+
+                if (result.IsSuccessStatusCode)
+                {
+                    pagoProcesado = System.Text.Json.JsonSerializer.Deserialize<PagoProcesadoDTO>(response);
+                }
+                else
+                {
+                    try
+                    {
+                        pagoRechazado = System.Text.Json.JsonSerializer.Deserialize<PagoRechazadoDTO>(response);
+                    }
+                    catch (Exception e)
+                    {
+                        //
+                    }
+                }
+
+            }
+
+
             return venta;
         }
+
+
         /*public async Task<Venta> SuccessfulResponse(string body)
         {
                

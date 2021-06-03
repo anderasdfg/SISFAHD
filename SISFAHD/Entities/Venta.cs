@@ -26,7 +26,7 @@ namespace SISFAHD.Entities
         [BsonElement("tipo_pago")]
         public string tipo_pago { get; set; }
         [BsonElement("monto")]
-        public string monto { get; set; }
+        public double monto { get; set; }
         [BsonElement("titular")]
         public string titular { get; set; }
         [BsonElement("fecha_pago")]

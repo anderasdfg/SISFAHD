@@ -13,17 +13,20 @@ namespace SISFAHD.Services
     public class CitaService
     {
         private readonly IMongoCollection<Cita> _cita;
-        private readonly IMongoCollection<Turno> _turnos;
+        private readonly IMongoCollection<Turno> _turnos;        
         private readonly TurnoService _turnoservice;
+        private readonly VentaService _ventaservice;
 
 
-        public CitaService(ISisfahdDatabaseSettings settings, TurnoService turnoService)
+
+        public CitaService(ISisfahdDatabaseSettings settings, TurnoService turnoService, VentaService ventaService)
         {
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
             _cita = database.GetCollection<Cita>("citas");
             _turnos = database.GetCollection<Turno>("turnos");
             _turnoservice = turnoService;
+            _ventaservice = ventaService;
         }
         public async Task<List<CitaDTO>> GetAllCitaPagadasNoPagadas()
         {
@@ -531,9 +534,9 @@ namespace SISFAHD.Services
         }
 
         public Cita CreateCita(Cita cita)
-        {
-            _cita.InsertOne(cita);
+        {            
 
+            //Ocupa el turno disponible
             Turno turno = _turnoservice.GetById(cita.id_turno);
 
             for (int i = 0; i < turno.cupos.Count; i++)
@@ -553,6 +556,24 @@ namespace SISFAHD.Services
             {
                 ReturnDocument = ReturnDocument.After
             });
+
+            //Inserta la cita
+            _cita.InsertOne(cita);
+
+            //Crea la venta en pendiente para esa cita
+            Venta venta = new Venta();
+            venta.codigo_orden = "";
+            venta.codigo_referencia = cita.id;
+            venta.monto = cita.precio_neto;
+            venta.tipo_pago = "Niubiz";
+            venta.estado = "";
+            venta.detalle_estado = "";
+            venta.tipo_operacion = "";
+            venta.titular = "";
+            venta.moneda = "";            
+
+
+            _ventaservice.CrearVenta(venta);
 
             return cita;
         }
