@@ -52,10 +52,13 @@ namespace SISFAHD.Controllers
             return _pagocita.ModifyTokenVenta(venta);
         }
 
-        [HttpGet]
-        [Route("[action]")]
-        public IActionResult Test()
+        [HttpPost]
+        [Route("[action]/{id_cita}")]
+        public async Task<IActionResult> Test(String id_cita, [FromForm] ResponsePost response)
         {
+            PagoProcesadoDTO pagoProcesado = new PagoProcesadoDTO();
+            pagoProcesado = await _pagocita.ConcretandoTransaccion(id_cita, response);
+
             return View();
         }
         /*  

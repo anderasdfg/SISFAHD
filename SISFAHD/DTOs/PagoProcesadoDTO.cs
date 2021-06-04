@@ -5,6 +5,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using System.Linq;
 using System.Threading.Tasks;
 using SISFAHD.Entities;
+using System.Numerics;
 
 namespace SISFAHD.DTOs
 {
@@ -17,7 +18,7 @@ namespace SISFAHD.DTOs
     public class Header
     {
         public string ecoreTransactionUUID { get; set; }
-        public int ecoreTransactionDate { get; set; }
+        public long ecoreTransactionDate { get; set; }
         public int millis { get; set; }
     }
     public class Order
