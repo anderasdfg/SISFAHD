@@ -28,5 +28,30 @@ namespace SISFAHD.Services
             especialidad = _especialidades.Find(especialidad => especialidad.nombre == nombre).FirstOrDefault();
             return especialidad;
         }
+        public Especialidad GetByID(string id)
+        {
+            Especialidad especialidad = new Especialidad();
+            especialidad = _especialidades.Find(especialidad => especialidad.id == id).FirstOrDefault();
+            return especialidad;
+
+        }
+        public Especialidad ModifyEspecialidad(Especialidad especialidad) {
+
+            var filter = Builders<Especialidad>.Filter.Eq("id", especialidad.id);
+            var update = Builders<Especialidad>.Update
+                .Set("nombre", especialidad.nombre)
+                .Set("codigo", especialidad.codigo)
+                .Set("descripcion", especialidad.descripcion);
+            especialidad = _especialidades.FindOneAndUpdate<Especialidad>(filter, update, new FindOneAndUpdateOptions<Especialidad>
+            {
+                ReturnDocument = ReturnDocument.After
+            });
+            return especialidad;
+        }
+        public Especialidad CreateEspecialidad(Especialidad especialidad)
+        {
+            _especialidades.InsertOne(especialidad);
+            return especialidad;
+        }
     }
 }

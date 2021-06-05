@@ -23,5 +23,33 @@ namespace SISFAHD.Controllers
         {
             return _especialidadeservice.GetAll();
         }
+
+        [HttpGet("Nombre")]
+        public ActionResult<Especialidad> Get([FromQuery] string nombre)
+        {
+            return _especialidadeservice.GetByNombre(nombre);
+        }
+
+        [HttpGet("Id")]
+        public ActionResult<Especialidad> GetActionResult([FromQuery] string id)
+        {
+            return _especialidadeservice.GetByID(id);
+        }
+
+        [HttpPut("Modificar")]
+
+        public ActionResult<Especialidad> ModificarUsuario([FromQuery] Especialidad id)
+        {
+            Especialidad especialidad = _especialidadeservice.ModifyEspecialidad(id);
+            return especialidad;
+        }
+
+        [HttpPost("Registrar")]
+        public ActionResult<Especialidad> CreateEspecialidad(Especialidad especialidad)
+        {
+            Especialidad objetoespecialidad = _especialidadeservice.CreateEspecialidad(especialidad);
+            return objetoespecialidad;
+        }
+
     }
 }
