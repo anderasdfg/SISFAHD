@@ -5,6 +5,8 @@ using SISFAHD.Entities;
 using System;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Threading.Tasks;
+using SISFAHD.DTOs;
 
 namespace SISFAHD.Controllers
 {
@@ -28,6 +30,12 @@ namespace SISFAHD.Controllers
         public ActionResult<Usuario> Get([FromQuery] string id)
         {
             return _usuarioservice.GetById(id);
+        }
+
+        [HttpGet("allUsuario")]
+        public async Task<ActionResult<List<UsuarioDTO>>> GetAllUsuarios()
+        {
+            return await _usuarioservice.GetAllUsuarios();
         }
     }
 }

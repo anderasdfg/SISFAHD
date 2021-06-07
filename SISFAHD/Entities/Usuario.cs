@@ -44,7 +44,7 @@ namespace SISFAHD.Entities
         [BsonElement("numero_documento")]
         public string numero_Documento { get; set; }
         [BsonElement("fecha_nacimiento")]
-        public DateTime fechana_cimiento { get; set; }
+        public DateTime fecha_nacimiento { get; set; }
         [BsonElement("correo")]
         public string correo { get; set; }
         [BsonElement("sexo")]
