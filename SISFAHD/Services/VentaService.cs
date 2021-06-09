@@ -609,6 +609,7 @@ namespace SISFAHD.Services
             Venta venta = new Venta();
             venta = _venta.Find(venta => venta.codigo_referencia == id_cita).FirstOrDefault();
             string monto = String.Format("{0:0.00}", venta.monto);
+
             string moneda = venta.moneda;
             string token = venta.pago.token;
             //
