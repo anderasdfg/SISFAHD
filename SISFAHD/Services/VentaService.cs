@@ -601,8 +601,9 @@ namespace SISFAHD.Services
             _venta.UpdateOne(filter, update);
             return venta;
         }
+       
 
-        
+
         public async Task<PagoProcesadoDTO> ConcretandoTransaccion(string id_cita, ResponsePost responsePost)
         {
 
@@ -640,14 +641,16 @@ namespace SISFAHD.Services
 
                 if (result.IsSuccessStatusCode)
                 {
-                    
                     pagoProcesado = System.Text.Json.JsonSerializer.Deserialize<PagoProcesadoDTO>(response);
+                    
+
                 }
                 else
                 {
                     try
                     {
                         pagoRechazado = System.Text.Json.JsonSerializer.Deserialize<PagoRechazadoDTO>(response);
+                        
                     }
                     catch (Exception e)
                     {
@@ -656,7 +659,7 @@ namespace SISFAHD.Services
                 }
 
             }
-
+            Console.WriteLine("esta kgada " + pagoRechazado + pagoProcesado);
             return pagoProcesado;
 
         }

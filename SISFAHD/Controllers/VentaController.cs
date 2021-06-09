@@ -51,6 +51,7 @@ namespace SISFAHD.Controllers
         {
             return _pagocita.ModifyTokenVenta(venta);
         }
+        
 
         [HttpPost]
         [Route("[action]/{id_cita}")]
@@ -59,6 +60,7 @@ namespace SISFAHD.Controllers
             PagoProcesadoDTO pagoProcesado = new PagoProcesadoDTO();
             pagoProcesado = await _pagocita.ConcretandoTransaccion(id_cita, response);
 
+            ViewData["datos"] = pagoProcesado;
             return View();
         }
         /*  
