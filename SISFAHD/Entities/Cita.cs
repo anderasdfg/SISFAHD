@@ -43,6 +43,10 @@ namespace SISFAHD.Entities
         public string id_acto_medico { get; set; }
         [BsonElement("fecha_cita_fin")]
         public DateTime? fecha_cita_fin { get; set; }
+        [BsonElement("motivo_consulta")]
+        public string motivo_consulta { get; set; }
+        [BsonElement("id_medico")]
+        public string id_medico { get; set; }
 
     }
 }
