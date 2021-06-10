@@ -37,10 +37,11 @@ namespace SISFAHD.Controllers
         }
 
         [HttpPut("Modificar")]
-        public ActionResult<Usuario> ModificarUsuario([FromQuery] Usuario id)
+        public ActionResult<Usuario> ModificarUsuario(Usuario id)
         {
             Usuario usuario = _usuarioservice.ModificarUsuario(id);
-            return usuario;
+            return _usuarioservice.ModificarUsuario(id);
+
         }
     }
 }
