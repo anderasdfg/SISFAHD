@@ -57,10 +57,8 @@ namespace SISFAHD.Services
                 .Set("nro de telefono", usuario.datos.telefono)
                 .Set("sexo", usuario.datos.sexo);
 
-            usuario = _usuarios.FindOneAndUpdate<Usuario>(filter, update, new FindOneAndUpdateOptions<Usuario>
-            {
-                ReturnDocument = ReturnDocument.After
-            });
+            _usuarios.UpdateOne(filter, update);
+
             return usuario;
         }
 
