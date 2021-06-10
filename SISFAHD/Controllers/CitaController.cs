@@ -36,10 +36,10 @@ namespace SISFAHD.Controllers
             return await _cita.GetByIdCitasPagadasNoPagadas(id);
         }
 
-        [HttpGet("listacitas/{turno}/{month}/{year}")]
-        public async Task<ActionResult<List<CitaDTO2>>> GetListaFechas(string turno, int month, int year)
+        [HttpGet("listacitas/{medico}/{month}/{year}")]
+        public async Task<ActionResult<List<CitaDTO2>>> GetListaCitasPorFechaMedico(string medico, int month, int year)
         {
-            return await _cita.GetCitasbyMedicoFecha(turno, month, year);
+            return await _cita.GetCitasbyMedicoFecha(medico, month, year);
         }
 
         [HttpGet("actomedico")]
