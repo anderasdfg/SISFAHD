@@ -32,10 +32,6 @@ namespace SISFAHD.Controllers
             return _usuarioservice.GetById(id);
         }
 
-        [HttpGet("allUsuario")]
-        public async Task<ActionResult<List<UsuarioDTO>>> GetAllUsuarios()
-        {
-            return await _usuarioservice.GetAllUsuarios();
-        }
+        
     }
 }

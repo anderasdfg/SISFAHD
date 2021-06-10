@@ -42,6 +42,7 @@ namespace SISFAHD.Services
                 .Set("nombre", especialidad.nombre)
                 .Set("codigo", especialidad.codigo)
                 .Set("descripcion", especialidad.descripcion);
+            // .Set("url", especialidad.url);
             especialidad = _especialidades.FindOneAndUpdate<Especialidad>(filter, update, new FindOneAndUpdateOptions<Especialidad>
             {
                 ReturnDocument = ReturnDocument.After
