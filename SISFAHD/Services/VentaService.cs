@@ -664,7 +664,31 @@ namespace SISFAHD.Services
 
         }
 
-
+        public Venta ModifyVenta(Venta venta)
+        {
+            var filter = Builders<Venta>.Filter.Eq("codigo_referencia", venta.codigo_referencia);
+            var update = Builders<Venta>.Update
+                .Set("codigo_orden", venta.codigo_orden)
+                .Set("estado", venta.estado)
+                .Set("detalle_estado", venta.detalle_estado)
+                .Set("tipo_operacion", venta.tipo_operacion)
+                .Set("tipo_pago", venta.tipo_pago)
+                .Set("monto", venta.monto)
+                .Set("titular", venta.titular)
+                .Set("fecha_pago", venta.fecha_pago)
+                .Set("moneda", venta.moneda);
+            _venta.UpdateOne(filter, update);
+            return venta;
+        }
+        public Cita ModifyEstadoPagoCita(Venta venta)
+        {
+            var filter = Builders<Cita>.Filter.Eq("id", ObjectId.Parse(venta.codigo_referencia));
+            Cita cita = new Cita();
+                var update = Builders<Cita>.Update
+                    .Set("estado_pago", "pagado");
+                _cita.UpdateOne(filter, update);
+            return cita;
+        }
         /*public async Task<Venta> SuccessfulResponse(string body)
         {
                
