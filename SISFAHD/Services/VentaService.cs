@@ -641,16 +641,39 @@ namespace SISFAHD.Services
 
                 if (result.IsSuccessStatusCode)
                 {
+                    Cita cita = new Cita();
+                    cita = _cita.Find(cita => cita.id == id_cita).FirstOrDefault();
                     pagoProcesado = System.Text.Json.JsonSerializer.Deserialize<PagoProcesadoDTO>(response);
-                    
-
+                    venta.codigo_orden = pagoProcesado.dataMap.TRANSACTION_ID;
+                    venta.estado = "Aprobado";
+                    venta.detalle_estado = pagoProcesado.dataMap.ACTION_DESCRIPTION;
+                    venta.tipo_operacion = "Pago de Cita";
+                    venta.tipo_pago = pagoProcesado.dataMap.BRAND;
+                    venta.monto = pagoProcesado.order.amount;
+                    venta.titular =cita.id_paciente;
+                    venta.fecha_pago = pagoProcesado.order.transactionDate;
+                    venta.moneda = pagoProcesado.order.currency;
+                    ModifyVenta(id_cita, venta);
+                    ModifyEstadoPagoCita(id_cita);
                 }
                 else
                 {
                     try
                     {
                         pagoRechazado = System.Text.Json.JsonSerializer.Deserialize<PagoRechazadoDTO>(response);
-                        
+                        Cita cita = new Cita();
+                        cita = _cita.Find(cita => cita.id == id_cita).FirstOrDefault();
+                        pagoProcesado = System.Text.Json.JsonSerializer.Deserialize<PagoProcesadoDTO>(response);
+                        venta.codigo_orden = pagoProcesado.dataMap.TRANSACTION_ID;
+                        venta.estado = "Aprobado";
+                        venta.detalle_estado = pagoProcesado.dataMap.ACTION_DESCRIPTION;
+                        venta.tipo_operacion = "Pago de Cita";
+                        venta.tipo_pago = pagoProcesado.dataMap.BRAND;
+                        venta.monto = pagoProcesado.order.amount;
+                        venta.titular = cita.id_paciente;
+                        venta.fecha_pago = pagoProcesado.order.transactionDate;
+                        venta.moneda = pagoProcesado.order.currency;
+                        ModifyVenta(id_cita, venta);
                     }
                     catch (Exception e)
                     {
@@ -664,9 +687,10 @@ namespace SISFAHD.Services
 
         }
 
-        public Venta ModifyVenta(Venta venta)
+        public Venta ModifyVenta(string idcita,Venta venta)
         {
-            var filter = Builders<Venta>.Filter.Eq("codigo_referencia", venta.codigo_referencia);
+           //Venta venta = new Venta();
+            var filter = Builders<Venta>.Filter.Eq("codigo_referencia", idcita);
             var update = Builders<Venta>.Update
                 .Set("codigo_orden", venta.codigo_orden)
                 .Set("estado", venta.estado)
@@ -680,9 +704,9 @@ namespace SISFAHD.Services
             _venta.UpdateOne(filter, update);
             return venta;
         }
-        public Cita ModifyEstadoPagoCita(Venta venta)
+        public Cita ModifyEstadoPagoCita(string idcita)
         {
-            var filter = Builders<Cita>.Filter.Eq("id", ObjectId.Parse(venta.codigo_referencia));
+            var filter = Builders<Cita>.Filter.Eq("id", ObjectId.Parse(idcita));
             Cita cita = new Cita();
                 var update = Builders<Cita>.Update
                     .Set("estado_pago", "pagado");

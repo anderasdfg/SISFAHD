@@ -52,14 +52,14 @@ namespace SISFAHD.Controllers
             return _pagocita.ModifyTokenVenta(venta);
         }
         [HttpPut("")]
-        public ActionResult<Venta> PutVenta(Venta venta)
+        public ActionResult<Venta> PutVenta(string idcita, Venta venta)
         {
-            return _pagocita.ModifyVenta(venta);
+            return _pagocita.ModifyVenta(idcita,venta);
         }
         [HttpPut("estado")]
-        public ActionResult<Cita> PutEstadoCita(Venta venta)
+        public ActionResult<Cita> PutEstadoCita(string idcita)
         {
-            return _pagocita.ModifyEstadoPagoCita(venta);
+            return _pagocita.ModifyEstadoPagoCita(idcita);
         }
         [HttpPost]
         [Route("[action]/{id_cita}")]
@@ -69,6 +69,8 @@ namespace SISFAHD.Controllers
             pagoProcesado = await _pagocita.ConcretandoTransaccion(id_cita, response);
 
             ViewData["datos"] = pagoProcesado;
+
+            
             return View();
         }
         /*  
