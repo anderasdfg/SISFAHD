@@ -671,7 +671,7 @@ namespace SISFAHD.Services
                         venta.tipo_pago = pagoProcesado.dataMap.BRAND;
                         venta.monto = pagoProcesado.order.amount;
                         venta.titular = cita.id_paciente;
-                        venta.fecha_pago = pagoProcesado.order.transactionDate;
+                        venta.fecha_pago = DateTime.Now;
                         venta.moneda = pagoProcesado.order.currency;
                         ModifyVenta(id_cita, venta);
                     }
@@ -708,7 +708,10 @@ namespace SISFAHD.Services
         {
             var filter = Builders<Cita>.Filter.Eq("id", ObjectId.Parse(idcita));
             Cita cita = new Cita();
+            Venta venta = new Venta();
                 var update = Builders<Cita>.Update
+                    .Set("tipo_pago","Niubiz")
+                    .Set("fecha_pago",venta.fecha_pago)
                     .Set("estado_pago", "pagado");
                 _cita.UpdateOne(filter, update);
             return cita;
