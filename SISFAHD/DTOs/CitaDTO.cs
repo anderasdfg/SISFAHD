@@ -47,4 +47,14 @@ namespace SISFAHD.DTOs
         public DateTime? fecha_cita_fin { get; set; }
         public ActoMedico datos_acto_medico { get; set; }
     }
+    public class CitaActoMedioDTO
+    {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string id { get; set; }
+        public DateTime? fecha_cita { get; set; }
+        public string id_acto_medico { get; set; }
+        public string motivo_consulta { get; set; }
+        public ActoMedicoDTO acto_medico { get; set; }
+    }
 }
