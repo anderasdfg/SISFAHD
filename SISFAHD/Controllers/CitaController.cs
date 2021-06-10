@@ -52,5 +52,10 @@ namespace SISFAHD.Controllers
         {
             return _cita.CreateCita(cita);
         }
+        [HttpGet("citaactomedico")]
+        public async Task<CitaActoMedioDTO> GetCitaAndActoMedico([FromQuery] string idCita)
+        {
+            return await _cita.GetCitaAndActoMedico(idCita);
+        }
     }
 }
