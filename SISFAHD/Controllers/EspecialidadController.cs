@@ -2,8 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using SISFAHD.Services;
 using SISFAHD.Entities;
+using SISFAHD.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SISFAHD.Controllers
 {
@@ -13,6 +17,7 @@ namespace SISFAHD.Controllers
     public class EspecialidadController : ControllerBase
     {
         private readonly EspecialidadService _especialidadeservice;
+     //   private readonly IFileStorage fileStorage;
         public EspecialidadController(EspecialidadService especialidadeservice)
         {
             _especialidadeservice = especialidadeservice;
@@ -38,7 +43,7 @@ namespace SISFAHD.Controllers
 
         [HttpPut("Modificar")]
 
-        public ActionResult<Especialidad> ModificarUsuario([FromQuery] Especialidad id)
+        public ActionResult<Especialidad> ModificarEspecialidad(Especialidad id)
         {
             Especialidad especialidad = _especialidadeservice.ModifyEspecialidad(id);
             return especialidad;
@@ -51,5 +56,34 @@ namespace SISFAHD.Controllers
             return objetoespecialidad;
         }
 
+        /* Para luego xd
+         [HttpPost("Registrar")]
+       public async Task<ActionResult<Especialidad>> CreateEspecialidad(Especialidad especialidad)
+       {
+          if (!string.IsNullOrWhiteSpace(especialidad.url))
+           {
+               var profileimg = Convert.FromBase64String(especialidad.url);
+               especialidad.url = await _fileStorage.SaveFile(profileimg, "jpg", "usuarios");
+           }
+           Especialidad objetoespecialidad = _especialidadeservice.CreateEspecialidad(especialidad);
+           return objetoespecialidad;
+       }
+
+          [HttpPost("Modificar")]
+       public async Task<ActionResult<Especialidad>> ModificarEspecialidad(Especialidad id)
+       {
+           Especialidad especialidadbd = new Especialidad();
+           especialidadbd = _especialidadeservice.GetByID(id.id);
+
+           if (!string.IsNullOrWhiteSpace(especialidad.url))
+           {
+               var profileimg = Convert.FromBase64String(especialidad.url);
+               especialidad.url = await _fileStorage.EditFile(profileimg, "jpg", "usuarios", especialidadbd.url);
+           }
+           Especialidad objetoespecialidad = _especialidadeservice.CreateEspecialidad(especialidad);
+           return objetoespecialidad;
+       }
+
+        */
     }
 }
