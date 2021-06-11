@@ -601,8 +601,13 @@ namespace SISFAHD.Services
             _venta.UpdateOne(filter, update);
             return venta;
         }
-       
 
+        public DateTime UnixTimeToDateTime(string unixtime)
+        {
+            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+            dtDateTime = dtDateTime.AddMilliseconds(Convert.ToDouble(unixtime)).ToLocalTime();
+            return dtDateTime;
+        }
 
         public async Task<PagoProcesadoDTO> ConcretandoTransaccion(string id_cita, ResponsePost responsePost)
         {
@@ -651,7 +656,7 @@ namespace SISFAHD.Services
                     venta.tipo_pago = pagoProcesado.dataMap.BRAND;
                     venta.monto = pagoProcesado.order.amount;
                     venta.titular =cita.id_paciente;
-                    //venta.fecha_pago = pagoProcesado.order.transactionDate;
+                    venta.fecha_pago = UnixTimeToDateTime(pagoProcesado.order.transactionDate);
                     venta.moneda = pagoProcesado.order.currency;
                     ModifyVenta(id_cita, venta);
                     ModifyEstadoPagoCita(id_cita);
@@ -671,7 +676,7 @@ namespace SISFAHD.Services
                         venta.tipo_pago = pagoProcesado.dataMap.BRAND;
                         venta.monto = pagoProcesado.order.amount;
                         venta.titular = cita.id_paciente;
-                        venta.fecha_pago = DateTime.Now;
+                        venta.fecha_pago = UnixTimeToDateTime(pagoProcesado.order.transactionDate);
                         venta.moneda = pagoProcesado.order.currency;
                         ModifyVenta(id_cita, venta);
                     }
