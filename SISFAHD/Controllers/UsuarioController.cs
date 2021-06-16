@@ -31,7 +31,10 @@ namespace SISFAHD.Controllers
         {
             return _usuarioservice.GetById(id);
         }
-
-        
+        [HttpGet("")]
+        public ActionResult<Usuario> GetbyUsernameAndPassword([FromQuery] string username, string pass)
+        {
+            return _usuarioservice.GetByUserNameAndPass(username,pass);
+        }
     }
 }
