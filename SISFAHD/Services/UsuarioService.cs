@@ -45,21 +45,26 @@ namespace SISFAHD.Services
             return usuario;
         }
 
-        public Usuario CreateUsuarioMedico(UsuarioMedico usuario)
+        public  async Task<Usuario> CreateUsuarioMedico(UsuarioMedico usuario)
         {
             //Pasando los datos del usuariomedico a una clase usuario
             Usuario miusuario = new Usuario();
             miusuario.usuario = usuario.usuario;
-            //Completar chicas, sino hay castigo
-            //
-            _usuarios.InsertOne(miusuario);
+            miusuario.clave = usuario.clave;
+            miusuario.datos = usuario.datos;
+            miusuario.rol = usuario.rol;
+            miusuario.estado = "activo";
+            miusuario.fecha_Creacion = new System.DateTime();
+            
+            await _usuarios.InsertOneAsync(miusuario);
             //Ya se inserto el usuario
             Medico mimedico = new Medico();
             //FALTA EL ID DEL USUARIO
             mimedico.id_especialidad = usuario.id_especialidad;
-            //Completar chicas, sino hay castigo
-            //
-            _medico.InsertOne(mimedico);
+            mimedico.id_usuario = miusuario.id;
+            mimedico.datos_basicos = usuario.datos_basicos;
+          
+            await _medico.InsertOneAsync(mimedico);
 
             return miusuario;
         }
