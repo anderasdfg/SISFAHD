@@ -59,7 +59,7 @@ namespace SISFAHD.Controllers
             claims.Add(new Claim(ClaimTypes.Role, rol));
 
             var key = new SymmetricSecurityKey
-                (Encoding.UTF8.GetBytes(_configuration["JWT:key"]));
+                (Encoding.UTF8.GetBytes(_configuration["jwt:key"]));
             var creds = new SigningCredentials(key,
                 SecurityAlgorithms.HmacSha256);
 

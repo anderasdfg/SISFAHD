@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using SISFAHD.Entities;
-
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace SISFAHD.Services
 {
@@ -42,17 +43,43 @@ namespace SISFAHD.Services
                 .Set("nombre", especialidad.nombre)
                 .Set("codigo", especialidad.codigo)
                 .Set("descripcion", especialidad.descripcion);
-            // .Set("url", especialidad.url);
             especialidad = _especialidades.FindOneAndUpdate<Especialidad>(filter, update, new FindOneAndUpdateOptions<Especialidad>
             {
                 ReturnDocument = ReturnDocument.After
             });
             return especialidad;
         }
-        public Especialidad CreateEspecialidad(Especialidad especialidad)
+        
+       //  Para luego xdx
+
+           public async Task<Especialidad> ModificarEspecialidad(Especialidad especialidad) {
+
+              var filter = Builders<Especialidad>.Filter.Eq("id", especialidad.id);
+              var update = Builders<Especialidad>.Update
+                  .Set("nombre", especialidad.nombre)
+                  .Set("codigo", especialidad.codigo)
+                  .Set("descripcion", especialidad.descripcion)
+                  .Set("url",especialidad.url);
+            var resultado = await _especialidades.FindOneAndUpdateAsync<Especialidad>(filter, update, new FindOneAndUpdateOptions<Especialidad>
+              {
+                  ReturnDocument = ReturnDocument.After
+              });
+              return resultado;
+          }
+        
+
+             public async Task<ActionResult<Especialidad>> CreateEspecialidad(Especialidad especialidad)
+          {
+             await _especialidades.InsertOneAsync(especialidad);
+              return especialidad;
+          }
+         
+
+       /* public Especialidad CreateEspecialidad(Especialidad especialidad)
         {
             _especialidades.InsertOne(especialidad);
             return especialidad;
-        }
+        }*/
+        
     }
 }

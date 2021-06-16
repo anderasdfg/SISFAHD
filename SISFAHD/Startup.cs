@@ -87,7 +87,7 @@ namespace SISFAHD
                   ValidateIssuerSigningKey = true,
                   IssuerSigningKey = new SymmetricSecurityKey(
                  //llave secreta que dice si el token es valido
-                 Encoding.UTF8.GetBytes(Configuration["jwt:key"])),
+                 Encoding.UTF8.GetBytes(Configuration.GetSection("jwt:key").Value)),
                   ClockSkew = TimeSpan.Zero
               });
 
