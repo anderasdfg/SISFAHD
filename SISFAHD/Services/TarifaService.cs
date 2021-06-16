@@ -32,8 +32,7 @@ namespace SISFAHD.Services
         public async Task<List<Tarifa>> GetAllTarifas()
         {
             List<Tarifa> listTarifas;
-                              
-          /*     var lookupMedico = new BsonDocument("$lookup", new BsonDocument
+               var lookupMedico = new BsonDocument("$lookup", new BsonDocument
                {
                    {"from","medicos"},
                    {"let", new BsonDocument("idmedico","$id_medico")},
@@ -50,23 +49,17 @@ namespace SISFAHD.Services
                                    }
                    },
                    {"as","medico" }
-               });*/
-
+               });
             var projectTarifa = new BsonDocument("$project", new BsonDocument
             {
                 {"descripcion",1 },
                 {"impuesto",1 },
                 {"subtotal",1 },
                 {"precio_final",1 },
-                {"id_medico", new BsonDocument("$concat",
-                              new BsonArray{
-                                    "$id_medico.id"
-                              })
-                }
+                {"id_medico", 1 }
             });
-
             listTarifas = await _tarifas.Aggregate()
-                             //  .AppendStage<dynamic>(lookupMedico)
+                               .AppendStage<dynamic>(lookupMedico)
                                .AppendStage<Tarifa>(projectTarifa).ToListAsync();
 
             return listTarifas;
