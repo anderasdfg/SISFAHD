@@ -35,6 +35,12 @@ namespace SISFAHD.Controllers
             Usuario objetousuario = _usuarioservice.CreateUsuario(usuario);
             return objetousuario;
         }
+        [HttpPost("RegistrarUsuarioMedico")]
+        public ActionResult<Usuario> CreateUsuarioMedico(UsuarioMedico usuario)
+        {
+            Usuario objetousuario = _usuarioservice.CreateUsuarioMedico(usuario);
+            return objetousuario;
+        }
 
         [HttpPut("Modificar")]
         public ActionResult<Usuario> ModificarUsuario(Usuario id)
