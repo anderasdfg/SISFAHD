@@ -60,25 +60,38 @@ namespace SISFAHD.Controllers
 
      //Para luego xd
          [HttpPost("Registrar")]
-       public async Task<ActionResult<Especialidad>> CrearEspecialidad(Especialidad especialidad)
-       {
-            try
-            {
+        // Tipo 2
+        public async Task<ActionResult<Especialidad>> CrearEspecialidad(Especialidad especialidad)
+        {
                 if (!string.IsNullOrWhiteSpace(especialidad.url))
                 {
                     var profileimg = Convert.FromBase64String(especialidad.url);
                     especialidad.url = await _fileStorage.SaveFile(profileimg, "jpg", "especialidad");
                 }
+            Especialidad objetoespecialdiad = _especialidadeservice.CrearEspecialdiad2(especialidad);
+            return objetoespecialdiad;
+        }
+        /* Tipo 1 de crear
+         * 
+         * public async Task<ActionResult<Especialidad>> CrearEspecialidad(Especialidad especialidad)
+          {
+               try
+               {
+                   if (!string.IsNullOrWhiteSpace(especialidad.url))
+                   {
+                       var profileimg = Convert.FromBase64String(especialidad.url);
+                       especialidad.url = await _fileStorage.SaveFile(profileimg, "jpg", "especialidad");
+                   }
 
-                return await _especialidadeservice.CreateEspecialidad(especialidad);
-            }
-            catch(Exception ex)
-            {
-                 return StatusCode(StatusCodes.Status500InternalServerError, ex);
-            }
-       }
+                   return await _especialidadeservice.CreateEspecialidad(especialidad);
+               }
+               catch(Exception ex)
+               {
+                    return StatusCode(StatusCodes.Status500InternalServerError, ex);
+               }
+          }*/
 
-          [HttpPost("Modificar")]
+        [HttpPost("Modificar")]
        public async Task<ActionResult<Especialidad>> ModificarEspecialidad(Especialidad id)
        {
            Especialidad especialidadbd = new Especialidad();
@@ -88,7 +101,7 @@ namespace SISFAHD.Controllers
                 if (!string.IsNullOrWhiteSpace(id.url))
                 {
                     var profileimg = Convert.FromBase64String(id.url);
-                    id.url = await _fileStorage.EditFile(profileimg, "jpg", "usuarios", especialidadbd.url);
+                    id.url = await _fileStorage.EditFile(profileimg, "jpg", "especialidad", especialidadbd.url);
                 }
 
                 Especialidad objetoespecialidadbd = await _especialidadeservice.ModificarEspecialidad(especialidadbd);
