@@ -25,8 +25,9 @@ namespace SISFAHD.Entities
         [BsonElement("descripcion")]
         public string descripcion {get; set;}
 
-     /*   [BsonElement("url")]
+        [BsonElement("url")]
         public string url { get; set; }
-     */
+      
     }
+
 }

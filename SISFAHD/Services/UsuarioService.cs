@@ -11,11 +11,13 @@ namespace SISFAHD.Services
     public class UsuarioService
     {
         private readonly IMongoCollection<Usuario> _usuarios;
+        private readonly IMongoCollection<Medico> _medico;
         public UsuarioService(ISisfahdDatabaseSettings settings)
         {
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
-            _usuarios = database.GetCollection<Usuario>("usuarios");            
+            _usuarios = database.GetCollection<Usuario>("usuarios");
+            _medico = database.GetCollection<Medico>("medicos");
         }
 
         public List<Usuario> GetAll()
@@ -41,6 +43,30 @@ namespace SISFAHD.Services
         {
             _usuarios.InsertOne(usuario);
             return usuario;
+        }
+
+        public  async Task<Usuario> CreateUsuarioMedico(UsuarioMedico usuario)
+        {
+            //Pasando los datos del usuariomedico a una clase usuario
+            Usuario miusuario = new Usuario();
+            miusuario.usuario = usuario.usuario;
+            miusuario.clave = usuario.clave;
+            miusuario.datos = usuario.datos;
+            miusuario.rol = usuario.rol;
+            miusuario.estado = "activo";
+            miusuario.fecha_Creacion = new System.DateTime();
+            
+            await _usuarios.InsertOneAsync(miusuario);
+            //Ya se inserto el usuario
+            Medico mimedico = new Medico();
+            //FALTA EL ID DEL USUARIO
+            mimedico.id_especialidad = usuario.id_especialidad;
+            mimedico.id_usuario = miusuario.id;
+            mimedico.datos_basicos = usuario.datos_basicos;
+          
+            await _medico.InsertOneAsync(mimedico);
+
+            return miusuario;
         }
 
         public Usuario ModificarUsuario(Usuario usuario)

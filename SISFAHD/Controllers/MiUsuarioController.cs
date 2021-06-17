@@ -35,6 +35,12 @@ namespace SISFAHD.Controllers
             Usuario objetousuario = _usuarioservice.CreateUsuario(usuario);
             return objetousuario;
         }
+        [HttpPost("RegistrarUsuarioMedico")]
+        public async Task<ActionResult<Usuario>> CreateUsuarioMedico(UsuarioMedico usuario)
+        {
+            Usuario objetousuario = await _usuarioservice.CreateUsuarioMedico(usuario);
+            return objetousuario;
+        }
 
         [HttpPut("Modificar")]
         public ActionResult<Usuario> ModificarUsuario(Usuario id)

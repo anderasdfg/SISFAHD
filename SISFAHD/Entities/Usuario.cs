@@ -29,6 +29,38 @@ namespace SISFAHD.Entities
 
     }
 
+    public class UsuarioMedico
+    {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string id { get; set; }
+
+        [BsonElement("usuario")]
+        public string usuario { get; set; }
+
+        [BsonElement("clave")]
+        public string clave { get; set; }
+
+        [BsonElement("datos")]
+        public Datos datos { get; set; }
+
+        [BsonElement("fecha_creacion")]
+        public DateTime? fecha_Creacion { get; set; }
+
+        [BsonElement("rol")]
+        public string rol { get; set; }
+        [BsonElement("estado")]
+        public string estado { get; set; }
+
+        [BsonElement("datos_basicos")]
+        public Datos_basicos datos_basicos { get; set; }
+        [BsonElement("id_especialidad")]
+        public string id_especialidad { get; set; }
+        [BsonElement("id_usuario")]
+        public string id_usuario { get; set; }
+
+    }
+
     public class Datos
     {
         [BsonElement("nombre")]
