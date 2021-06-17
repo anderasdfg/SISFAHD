@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SISFAHD.Entities;
 using SISFAHD.Services;
+using SISFAHD.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,9 +27,26 @@ namespace SISFAHD.Controllers
         }
 
         [HttpGet("tarifasmedico/all")]
-        public async Task<ActionResult<List<Tarifa>>> GetAll() 
+        public async Task<ActionResult<List<Tarifa>>> GetAll()
         {
-                return await _tarifaservice.GetAllTarifas();
+            return await _tarifaservice.GetAllTarifas();
         }
+
+        [HttpPut("tarifasmedico/Modificar")]
+        public async Task<ActionResult<Tarifa>> ModificarTarifa(Tarifa id)
+        {
+            Tarifa tarifa = await _tarifaservice.ModifyTarifa(id);
+            return tarifa;
+
+        }
+
+        [HttpPost("tarifasmedico/Registrar")]
+        public async Task<ActionResult<Tarifa>> CrearTarifa(Tarifa tarifa)
+        {
+            return await _tarifaservice.Createtarifas(tarifa);
+        }
+
+        //[HttpDelete("tarifasmedico/Delete")]
+
     }
 }

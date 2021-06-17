@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using SISFAHD.Entities;
 using System;
@@ -64,5 +65,31 @@ namespace SISFAHD.Services
 
             return listTarifas;
         }
+
+        public async Task<ActionResult<Tarifa>> Createtarifas(Tarifa tarifa) 
+        {
+            await _tarifas.InsertOneAsync(tarifa);
+            return tarifa;
+        }
+        public async Task<Tarifa> ModifyTarifa(Tarifa tarifa) 
+        {
+            var filter = Builders<Tarifa>.Filter.Eq("id", tarifa.id);
+            var update = Builders<Tarifa>.Update
+                         .Set("descripcion", tarifa.descripcion)
+                         .Set("impuesto", tarifa.impuesto)
+                         .Set("subtotal", tarifa.subtotal)
+                         .Set("precio_final", tarifa.precio_final);
+            var resultado = await _tarifas.FindOneAndUpdateAsync<Tarifa>(filter, update, new FindOneAndUpdateOptions<Tarifa>
+            {
+                ReturnDocument = ReturnDocument.After
+            });
+            return resultado;
+        }
+        public async Task<Tarifa> RemoveTarifa(Tarifa tarifa) 
+        {
+            var filter = Builders<Tarifa>.Filter.Eq("id", tarifa.id);
+            return await _tarifas.FindOneAndDeleteAsync<Tarifa>(filter, new FindOneAndDeleteOptions<Tarifa> {});
+        }
     }
+
 }
