@@ -92,10 +92,10 @@ namespace SISFAHD.Services
                                     new BsonDocument("especialidad.codigo", idEspecialidad),
                                     new BsonDocument("cupos.hora_inicio",
                                     new BsonDocument("$lte",
-                                    new DateTime(year, month, 30, 23, 59, 59))),
+                                    new DateTime(year, month, day, 23, 59, 59))),
                                     new BsonDocument("cupos.hora_inicio",
                                     new BsonDocument("$gte",
-                                    new DateTime(year, month, 1, 0, 0, 0)))
+                                    new DateTime(year, month, day, 0, 0, 0)))
                                 }));
 
             var addFields = new BsonDocument("$addFields",
@@ -173,6 +173,7 @@ namespace SISFAHD.Services
                                             "$datosUsuario.datos.nombre",
                                             " ",
                                             "$datosUsuario.datos.apellido_paterno",
+                                            " ",
                                             "$datosUsuario.datos.apellido_materno"
                                         }) },
                                     { "id_tarifa", 1 },
