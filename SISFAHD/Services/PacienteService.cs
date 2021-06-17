@@ -48,7 +48,7 @@ namespace SISFAHD.Services
             h.historial = new List<Historial>();
             h.numero_historia = u.datos.numero_Documento;
             p.id_historia = h.id;
-            _HistoriaCollection.InsertOne(h);            
+            _HistoriaCollection.InsertOne(h);
             _PacienteCollection.InsertOne(p);
             _UsuarioCollection.UpdateOne(filter, update);
             return p;
@@ -69,14 +69,24 @@ namespace SISFAHD.Services
         }
         public async Task<Paciente> ModifyPaciente(Paciente p)
         {
-            var filter = Builders<Paciente>.Filter.Eq("id",p.id);
+            var filter = Builders<Paciente>.Filter.Eq("id", p.id);
             var update = Builders<Paciente>.Update
                 .Set("datos", p.datos)
                 .Set("antecedentes", p.antecedentes)
                 .Set("id_historia", p.id_historia)
                 .Set("archivos", p.archivos);
-            _PacienteCollection.UpdateOne(filter,update);
+            _PacienteCollection.UpdateOne(filter, update);
             return p;
+        }
+        public async Task<Paciente> GetPacienteForUsuario(string idPaciente)
+        {
+            var match = new BsonDocument("$match",
+                        new BsonDocument("id_usuario", idPaciente));
+
+            Paciente paciente = new Paciente();
+            paciente = await _PacienteCollection.Aggregate()
+                           .AppendStage<Paciente>(match).FirstOrDefaultAsync();
+            return paciente;
         }
     }
 }
