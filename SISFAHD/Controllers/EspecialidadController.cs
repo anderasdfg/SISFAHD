@@ -92,11 +92,11 @@ namespace SISFAHD.Controllers
           }*/
 
         [HttpPost("Modificar")]
-       public async Task<ActionResult<Especialidad>> ModificarEspecialidad(Especialidad id)
-       {
-           Especialidad especialidadbd = new Especialidad();
-           especialidadbd = _especialidadeservice.GetByID(id.id);
-          try
+        public async Task<ActionResult<Especialidad>> ModificarEspecialidad(Especialidad id)
+        {
+            Especialidad especialidadbd = new Especialidad();
+            especialidadbd = _especialidadeservice.GetByID(id.id);
+            try
             {
                 if (!string.IsNullOrWhiteSpace(id.url))
                 {
@@ -104,7 +104,7 @@ namespace SISFAHD.Controllers
                     id.url = await _fileStorage.EditFile(profileimg, "jpg", "especialidad", especialidadbd.url);
                 }
 
-                Especialidad objetoespecialidadbd = await _especialidadeservice.ModificarEspecialidad(especialidadbd);
+                Especialidad objetoespecialidadbd = _especialidadeservice.ModificarEspecialidad2(especialidadbd);
                 return objetoespecialidadbd;
             }
             catch (Exception ex)
@@ -113,7 +113,31 @@ namespace SISFAHD.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex);
             }
         }
+        /*   
+         *   Tipo 1 de Modificar
+         *   [HttpPost("Modificar")]
+          public async Task<ActionResult<Especialidad>> ModificarEspecialidad(Especialidad id)
+          {
+              Especialidad especialidadbd = new Especialidad();
+              especialidadbd = _especialidadeservice.GetByID(id.id);
+             try
+               {
+                   if (!string.IsNullOrWhiteSpace(id.url))
+                   {
+                       var profileimg = Convert.FromBase64String(id.url);
+                       id.url = await _fileStorage.EditFile(profileimg, "jpg", "especialidad", especialidadbd.url);
+                   }
 
-        
+                   Especialidad objetoespecialidadbd = await _especialidadeservice.ModificarEspecialidad(especialidadbd);
+                   return objetoespecialidadbd;
+               }
+               catch (Exception ex)
+               {
+
+                   return StatusCode(StatusCodes.Status500InternalServerError, ex);
+               }
+           }*/
+
+
     }
 }
