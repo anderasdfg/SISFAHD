@@ -91,7 +91,7 @@ namespace SISFAHD.Controllers
                }
           }*/
 
-        [HttpPost("Modificar")]
+        [HttpPut("Modificar")]
         public async Task<ActionResult<Especialidad>> ModificarEspecialidad(Especialidad id)
         {
             Especialidad especialidadbd = new Especialidad();
@@ -115,7 +115,7 @@ namespace SISFAHD.Controllers
         }
         /*   
          *   Tipo 1 de Modificar
-         *   [HttpPost("Modificar")]
+         *   [HttpPut("Modificar")]
           public async Task<ActionResult<Especialidad>> ModificarEspecialidad(Especialidad id)
           {
               Especialidad especialidadbd = new Especialidad();
