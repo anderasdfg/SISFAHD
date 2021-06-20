@@ -52,11 +52,22 @@ namespace SISFAHD.Controllers
             Especialidad objetoespecialdiad = _especialidadeservice.CrearEspecialdiad2(especialidad);
             return objetoespecialdiad;
         }
-        [HttpPost("Modificar")]
-        public ActionResult<Especialidad> ModificarEspecialidad(Especialidad id)
+        [HttpPut("Modificar")]
+        public async Task<ActionResult<Especialidad>> ModificarEspecialidad(Especialidad id)
         {
+            
+
             try
             {
+                if (!id.url.StartsWith("http"))
+                {
+                    if (!string.IsNullOrWhiteSpace(id.url))
+                    {
+                        var profileimg = Convert.FromBase64String(id.url);
+                        id.url = await _fileStorage.EditFile(profileimg, "jpg", "especialidad",id.url);
+                    }
+                }
+
                 Especialidad objetoespecialidadbd = _especialidadeservice.ModificarEspecialidad2(id);
                 return objetoespecialidadbd;
             }
