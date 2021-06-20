@@ -45,7 +45,6 @@ namespace SISFAHD.Services
                 .Set("signos_vitales", actomedico.signos_vitales)
                 .Set("anamnesis", actomedico.anamnesis)
                 .Set("indicaciones", actomedico.indicaciones);
-
             await _actoMedico.UpdateOneAsync(filter, update);
             return actomedico;
         }
