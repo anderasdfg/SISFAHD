@@ -51,7 +51,16 @@ namespace SISFAHD.Controllers
         {
             return _pagocita.ModifyTokenVenta(venta);
         }
-
+        [HttpPut("")]
+        public ActionResult<Venta> PutVenta(string idcita, Venta venta)
+        {
+            return _pagocita.ModifyVenta(idcita,venta);
+        }
+        [HttpPut("estado")]
+        public ActionResult<Cita> PutEstadoCita(string idcita)
+        {
+            return _pagocita.ModifyEstadoPagoCita(idcita);
+        }
         [HttpPost]
         [Route("[action]/{id_cita}")]
         public async Task<IActionResult> Test(String id_cita, [FromForm] ResponsePost response)
@@ -59,6 +68,9 @@ namespace SISFAHD.Controllers
             PagoProcesadoDTO pagoProcesado = new PagoProcesadoDTO();
             pagoProcesado = await _pagocita.ConcretandoTransaccion(id_cita, response);
 
+            ViewData["datos"] = pagoProcesado;
+
+            
             return View();
         }
         /*  

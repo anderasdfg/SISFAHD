@@ -5,12 +5,14 @@ using SISFAHD.Entities;
 using System;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Threading.Tasks;
+using SISFAHD.DTOs;
 
 namespace SISFAHD.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class UsuarioController : ControllerBase
     {
         private readonly UsuarioService _usuarioservice;
@@ -28,6 +30,17 @@ namespace SISFAHD.Controllers
         public ActionResult<Usuario> Get([FromQuery] string id)
         {
             return _usuarioservice.GetById(id);
+        }
+        [HttpGet("")]
+        public ActionResult<Usuario> GetbyUsernameAndPassword([FromQuery] string username, string pass)
+        {
+            return _usuarioservice.GetByUserNameAndPass(username,pass);
+        }
+        [HttpPost("")]
+        public ActionResult<Usuario> CreateUsuario(Usuario usuario)
+        {
+            Usuario objUsuario = _usuarioservice.CreateUsuario(usuario);
+            return objUsuario;
         }
     }
 }

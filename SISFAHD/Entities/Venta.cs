@@ -30,7 +30,7 @@ namespace SISFAHD.Entities
         [BsonElement("titular")]
         public string titular { get; set; }
         [BsonElement("fecha_pago")]
-        public string fecha_pago { get; set; }
+        public DateTime fecha_pago { get; set; }
         [BsonElement("moneda")]
         public string moneda { get; set; }
         [BsonElement("codigo_referencia")]

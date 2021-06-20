@@ -15,11 +15,19 @@ namespace SISFAHD.Entities
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string id { get; set; }
+
         [BsonElement("nombre")]
         public string nombre { get; set; }
+
         [BsonElement("codigo")]
         public string codigo { get; set; }
+
         [BsonElement("descripcion")]
         public string descripcion {get; set;}
+
+        [BsonElement("url")]
+        public string url { get; set; }
+      
     }
+
 }

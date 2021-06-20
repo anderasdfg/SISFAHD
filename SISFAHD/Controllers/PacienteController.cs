@@ -49,5 +49,10 @@ namespace SISFAHD.Controllers
         {
             return await _pacienteService.ModifyPaciente(paciente);
         }
+        [HttpGet("usuario")]
+        public async Task<ActionResult<Paciente>> GetPacienteForUsuario([FromQuery] string idusuario)
+        {
+            return await _pacienteService.GetPacienteForUsuario(idusuario);
+        }
     }
 }

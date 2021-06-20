@@ -26,8 +26,8 @@ namespace SISFAHD.Entities
     public class Historial
     {
         public DateTime? fecha_cita { get; set; }
-        public DateTime? hora_inicio { get; set; }
-        public DateTime? hora_fin { get; set; }
+        public string hora_inicio { get; set; }
+        public string hora_fin { get; set; }
         public Datos_medico datos_medico { get; set; }
         public string id_cita { get; set; }
     }

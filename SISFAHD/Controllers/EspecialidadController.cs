@@ -2,8 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using SISFAHD.Services;
 using SISFAHD.Entities;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using SISFAHD.Helpers;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace SISFAHD.Controllers
 {
@@ -13,9 +16,11 @@ namespace SISFAHD.Controllers
     public class EspecialidadController : ControllerBase
     {
         private readonly EspecialidadService _especialidadeservice;
-        public EspecialidadController(EspecialidadService especialidadeservice)
+        private readonly IFileStorage _fileStorage;
+        public EspecialidadController(EspecialidadService especialidadeservice, IFileStorage fileStorage)
         {
             _especialidadeservice = especialidadeservice;
+            _fileStorage = fileStorage;
         }
 
         [HttpGet("all")]
@@ -23,5 +28,45 @@ namespace SISFAHD.Controllers
         {
             return _especialidadeservice.GetAll();
         }
+
+        [HttpGet("Nombre")]
+        public ActionResult<Especialidad> Get([FromQuery] string nombre)
+        {
+            return _especialidadeservice.GetByNombre(nombre);
+        }
+
+        [HttpGet("Id")]
+        public ActionResult<Especialidad> GetActionResult([FromQuery] string id)
+        {
+            return _especialidadeservice.GetByID(id);
+        }
+
+         [HttpPost("Registrar")]
+        public async Task<ActionResult<Especialidad>> CrearEspecialidad(Especialidad especialidad)
+        {
+                if (!string.IsNullOrWhiteSpace(especialidad.url))
+                {
+                    var profileimg = Convert.FromBase64String(especialidad.url);
+                    especialidad.url = await _fileStorage.SaveFile(profileimg, "jpg", "especialidad");
+                }
+            Especialidad objetoespecialdiad = _especialidadeservice.CrearEspecialdiad2(especialidad);
+            return objetoespecialdiad;
+        }
+        [HttpPost("Modificar")]
+        public ActionResult<Especialidad> ModificarEspecialidad(Especialidad id)
+        {
+            try
+            {
+                Especialidad objetoespecialidadbd = _especialidadeservice.ModificarEspecialidad2(id);
+                return objetoespecialidadbd;
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+
+
+        }
+
     }
 }

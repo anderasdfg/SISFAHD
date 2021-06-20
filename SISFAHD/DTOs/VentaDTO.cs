@@ -18,9 +18,9 @@ namespace SISFAHD.DTOs
         public string detalle_estado { get; set; }
         public string tipo_operacion { get; set; }
         public string tipo_pago { get; set; }
-        public string monto { get; set; }
+        public double monto { get; set; }
         public string titular { get; set; }
-        public string fecha_pago { get; set; }
+        public DateTime? fecha_pago { get; set; }
         public string moneda { get; set; }
         public string codigo_referencia { get; set; }
         public ContenidoDatosCita datos_cita { get; set; } = new ContenidoDatosCita();

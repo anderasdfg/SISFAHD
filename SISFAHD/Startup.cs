@@ -70,7 +70,7 @@ namespace SISFAHD
             services.AddScoped<TarifaService>();
             services.AddScoped<ActoMedicoService>();
             services.AddScoped<VentaService>();
-            
+            services.AddScoped<HistoriaService>();
             //Injectando dependecia de Azure FileStorage
             services.AddScoped<IFileStorage, AzureFileStorage>();
 
@@ -87,7 +87,7 @@ namespace SISFAHD
                   ValidateIssuerSigningKey = true,
                   IssuerSigningKey = new SymmetricSecurityKey(
                  //llave secreta que dice si el token es valido
-                 Encoding.UTF8.GetBytes(Configuration["jwt:key"])),
+                 Encoding.UTF8.GetBytes(Configuration.GetSection("jwt:key").Value)),
                   ClockSkew = TimeSpan.Zero
               });
 

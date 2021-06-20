@@ -5,28 +5,26 @@ using SISFAHD.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Net.Http;
-using System.Text.Json;
 using System.Net.Http.Headers;
-using System.Net;
-using System.IO;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace SISFAHD.Services
 {
     public class VentaService
     {
         private readonly IMongoCollection<Venta> _venta;
-        private readonly IMongoCollection<Cita> _cita;        
+        private readonly IMongoCollection<Cita> _cita;
 
-        public VentaService(ISisfahdDatabaseSettings settings )
+        public VentaService(ISisfahdDatabaseSettings settings)
         {
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
             _venta = database.GetCollection<Venta>("ventas");
             _cita = database.GetCollection<Cita>("citas");
         }
-        
+
 
         public async Task<List<VentaDTO>> GetAllVentas()
         {
@@ -596,34 +594,42 @@ namespace SISFAHD.Services
             var filter = Builders<Venta>.Filter.Eq("codigo_referencia", venta.codigo_referencia);
             var update = Builders<Venta>.Update
                 .Set("pago.token", venta.pago.token)
-                .Set("pago.sessionkey", venta.pago.sessionkey);          
+                .Set("pago.sessionkey", venta.pago.sessionkey);
 
             _venta.UpdateOne(filter, update);
             return venta;
         }
 
-        
+        public DateTime UnixTimeToDateTime(string unixtime)
+        {
+            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+            dtDateTime = dtDateTime.AddMilliseconds(Convert.ToDouble(unixtime)).ToLocalTime();
+            return dtDateTime;
+        }
+
         public async Task<PagoProcesadoDTO> ConcretandoTransaccion(string id_cita, ResponsePost responsePost)
         {
 
             Venta venta = new Venta();
             venta = _venta.Find(venta => venta.codigo_referencia == id_cita).FirstOrDefault();
             string monto = String.Format("{0:0.00}", venta.monto);
+
             string moneda = venta.moneda;
-            string token = venta.pago.token;
+            string token = " ";
+            token = venta.pago.token;
             //
             TransaccionDTO transaccion = new TransaccionDTO();
             transaccion.order = new TransaccionOrder();
 
-                            transaccion.antifraud = null;
-                            transaccion.captureType = "manual";
-                            transaccion.channel = "web";
-                            transaccion.countable = true;
-                            transaccion.order.amount = monto;
-                            transaccion.order.currency = "PEN";
-                            transaccion.order.purchaseNumber = 123;
-                            transaccion.order.tokenId = responsePost.transactionToken;
-            
+            transaccion.antifraud = null;
+            transaccion.captureType = "manual";
+            transaccion.channel = "web";
+            transaccion.countable = true;
+            transaccion.order.amount = monto;
+            transaccion.order.currency = "PEN";
+            transaccion.order.purchaseNumber = 123;
+            transaccion.order.tokenId = responsePost.transactionToken;
+
             var url = "https://apitestenv.vnforapps.com/api.authorization/v3/authorization/ecommerce/522591303";
             PagoProcesadoDTO pagoProcesado = null;
             PagoRechazadoDTO pagoRechazado = null;
@@ -632,21 +638,46 @@ namespace SISFAHD.Services
             {
                 client.BaseAddress = new Uri(url);
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(token);
-                
+
                 var result = await client.PostAsync(url, new StringContent(JsonSerializer.Serialize(transaccion), System.Text.Encoding.UTF8, "application/json"));
 
                 String response = result.Content.ReadAsStringAsync().Result;
 
                 if (result.IsSuccessStatusCode)
                 {
-                    
+                    Cita cita = new Cita();
+                    cita = _cita.Find(cita => cita.id == id_cita).FirstOrDefault();
                     pagoProcesado = System.Text.Json.JsonSerializer.Deserialize<PagoProcesadoDTO>(response);
+                    venta.codigo_orden = pagoProcesado.dataMap.TRANSACTION_ID;
+                    venta.estado = "Aprobado";
+                    venta.detalle_estado = pagoProcesado.dataMap.ACTION_DESCRIPTION;
+                    venta.tipo_operacion = "Pago de Cita";
+                    venta.tipo_pago = pagoProcesado.dataMap.BRAND;
+                    venta.monto = pagoProcesado.order.amount;
+                    venta.titular = cita.id_paciente;
+                    venta.fecha_pago = UnixTimeToDateTime(pagoProcesado.order.transactionDate);
+                    venta.moneda = pagoProcesado.order.currency;
+                    ModifyVenta(id_cita, venta);
+                    ModifyEstadoPagoCita(id_cita);
                 }
                 else
                 {
                     try
                     {
                         pagoRechazado = System.Text.Json.JsonSerializer.Deserialize<PagoRechazadoDTO>(response);
+                        Cita cita = new Cita();
+                        cita = _cita.Find(cita => cita.id == id_cita).FirstOrDefault();
+                        pagoProcesado = System.Text.Json.JsonSerializer.Deserialize<PagoProcesadoDTO>(response);
+                        venta.codigo_orden = pagoProcesado.dataMap.TRANSACTION_ID;
+                        venta.estado = "Aprobado";
+                        venta.detalle_estado = pagoProcesado.dataMap.ACTION_DESCRIPTION;
+                        venta.tipo_operacion = "Pago de Cita";
+                        venta.tipo_pago = pagoProcesado.dataMap.BRAND;
+                        venta.monto = pagoProcesado.order.amount;
+                        venta.titular = cita.id_paciente;
+                        venta.fecha_pago = UnixTimeToDateTime(pagoProcesado.order.transactionDate);
+                        venta.moneda = pagoProcesado.order.currency;
+                        ModifyVenta(id_cita, venta);
                     }
                     catch (Exception e)
                     {
@@ -655,12 +686,40 @@ namespace SISFAHD.Services
                 }
 
             }
-
+            Console.WriteLine("esta kgada " + pagoRechazado + pagoProcesado);
             return pagoProcesado;
 
         }
 
-
+        public Venta ModifyVenta(string idcita, Venta venta)
+        {
+            //Venta venta = new Venta();
+            var filter = Builders<Venta>.Filter.Eq("codigo_referencia", idcita);
+            var update = Builders<Venta>.Update
+                .Set("codigo_orden", venta.codigo_orden)
+                .Set("estado", venta.estado)
+                .Set("detalle_estado", venta.detalle_estado)
+                .Set("tipo_operacion", venta.tipo_operacion)
+                .Set("tipo_pago", venta.tipo_pago)
+                .Set("monto", venta.monto)
+                .Set("titular", venta.titular)
+                .Set("fecha_pago", venta.fecha_pago)
+                .Set("moneda", venta.moneda);
+            _venta.UpdateOne(filter, update);
+            return venta;
+        }
+        public Cita ModifyEstadoPagoCita(string idcita)
+        {
+            var filter = Builders<Cita>.Filter.Eq("id", ObjectId.Parse(idcita));
+            Cita cita = new Cita();
+            Venta venta = new Venta();
+            var update = Builders<Cita>.Update
+                .Set("tipo_pago", "Niubiz")
+                .Set("fecha_pago", venta.fecha_pago)
+                .Set("estado_pago", "pagado");
+            _cita.UpdateOne(filter, update);
+            return cita;
+        }
         /*public async Task<Venta> SuccessfulResponse(string body)
         {
                
