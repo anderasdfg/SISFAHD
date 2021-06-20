@@ -65,7 +65,11 @@ namespace SISFAHD.Services
 
             return listTarifas;
         }
-
+        public Tarifa GetbyID(string id) {
+            Tarifa tarifa = new Tarifa();
+            tarifa = _tarifas.Find(tarifa => tarifa.id == id).FirstOrDefault();
+            return tarifa;
+        }
         public async Task<ActionResult<Tarifa>> Createtarifas(Tarifa tarifa) 
         {
             await _tarifas.InsertOneAsync(tarifa);
@@ -90,6 +94,8 @@ namespace SISFAHD.Services
             var filter = Builders<Tarifa>.Filter.Eq("id", tarifa.id);
             return await _tarifas.FindOneAndDeleteAsync<Tarifa>(filter, new FindOneAndDeleteOptions<Tarifa> {});
         }
+
+
     }
 
 }

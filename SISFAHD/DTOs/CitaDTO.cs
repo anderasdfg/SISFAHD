@@ -46,6 +46,7 @@ namespace SISFAHD.DTOs
         public MedicoDTO2 medico { get; set; }
         public DateTime? fecha_cita_fin { get; set; }
         public ActoMedico datos_acto_medico { get; set; }
+        public string id_acto_medico { get; set; }
     }
     public class CitaActoMedioDTO
     {

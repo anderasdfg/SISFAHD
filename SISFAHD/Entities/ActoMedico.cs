@@ -17,13 +17,13 @@ namespace SISFAHD.Entities
         [BsonElement("diagnostico")]
         public List<Diagnostico> diagnostico { get; set; } = new List<Diagnostico>();
         [BsonElement("signos_vitales")] 
-        public SignosVitales signosVitales { get; set; }
+        public SignosVitales signos_vitales { get; set; }
         [BsonElement("fecha_atencion")]
-        public DateTime? fechaAtencion { get; set; }
+        public DateTime? fecha_atencion { get; set; }
         [BsonElement("anamnesis")]
         public string anamnesis { get; set; }
         [BsonElement("fecha_creacion")]
-        public DateTime? fechaCreacion { get; set; }
+        public DateTime? fecha_creacion { get; set; }
         [BsonElement("indicaciones")]
         public string indicaciones { get; set; }
     }
@@ -32,9 +32,9 @@ namespace SISFAHD.Entities
     #region Medicacion
     public class Medicacion {
         [BsonElement("medicacion_previa")]
-        public List<MedicacionPrevia> medicacionesPrevias { get; set; } = new List<MedicacionPrevia>();
+        public List<MedicacionPrevia> medicacion_previa { get; set; } = new List<MedicacionPrevia>();
         [BsonElement("reaccion_adversa")]
-        public List<string> reaccionAdversa { get; set; }
+        public List<string> reaccion_adversa { get; set; }
     }
 
     public class MedicacionPrevia {
@@ -51,9 +51,9 @@ namespace SISFAHD.Entities
     #region Diagnostico
     public class Diagnostico {
         [BsonElement("codigo_enfermedad")]
-        public string codigoEnfermedad { get; set; }
+        public string codigo_enfermedad { get; set; }
         [BsonElement("nombre_enfermedad")]
-        public string nombreEnfermedad { get; set; }
+        public string nombre_enfermedad { get; set; }
         [BsonElement("observaciones")]
         public List<string> observaciones { get; set; } = new List<string>();
         [BsonElement("tipo")]
@@ -61,7 +61,7 @@ namespace SISFAHD.Entities
         [BsonElement("frecuencia")]
         public string frecuencia { get; set; }
         [BsonElement("examenes_auxiliares")]
-        public List<ExamenAuxiliar> examenesAuxiliares { get; set; } = new List<ExamenAuxiliar>();
+        public List<ExamenAuxiliar> examenes_auxiliares { get; set; } = new List<ExamenAuxiliar>();
         [BsonElement("prescripcion")]
         public List<Prescripcion> prescripcion { get; set; } = new List<Prescripcion>();
     }
@@ -98,7 +98,7 @@ namespace SISFAHD.Entities
         [BsonElement("cantidad")]
         public string cantidad { get; set; }
         [BsonElement("via_administracion")]
-        public string viaAdministracion { get; set; }
+        public string via_administracion { get; set; }
         [BsonElement("observaciones")]
         public List<string> observaciones { get; set; } = new List<string>();
 
@@ -112,9 +112,9 @@ namespace SISFAHD.Entities
     #region SignosVitales
     public class SignosVitales {
         [BsonElement("constantes_vitales")]
-        public ConstanteVital constantesVitales { get; set; }
+        public ConstanteVital constantes_vitales { get; set; }
         [BsonElement("datos_antropometricos")]
-        public DatosAntropomorficos datosAntropomorficos { get; set; }
+        public DatosAntropomorficos datos_antropomorficos { get; set; }
     }
 
     public class ConstanteVital
@@ -122,13 +122,13 @@ namespace SISFAHD.Entities
         [BsonElement("temperatura")]
         public Administracion temperatura { get; set; }
         [BsonElement("presion_arterial")]
-        public Administracion presionArterial { get; set; }
+        public Administracion presion_arterial { get; set; }
         [BsonElement("saturacion")]
         public Administracion saturacion { get; set; }
         [BsonElement("frecuencia_cardiaca")]
-        public Administracion frecuenciaCardiaca { get; set; }
+        public Administracion frecuencia_cardiaca { get; set; }
         [BsonElement("frecuencia_respiratoria")]
-        public Administracion frecuenciaRespiratoria { get; set; }
+        public Administracion frecuencia_respiratoria { get; set; }
     }
     public class DatosAntropomorficos
     {
@@ -137,9 +137,9 @@ namespace SISFAHD.Entities
         [BsonElement("talla")]
         public Administracion talla { get; set; }
         [BsonElement("perimetro_abdominal")]
-        public Administracion perimetroAbdominal { get; set; }
+        public Administracion perimetro_abdominal { get; set; }
         [BsonElement("superficie_corporal")]
-        public Administracion superficieCorporal { get; set; }
+        public Administracion superficie_corporal { get; set; }
         [BsonElement("imc")]
         public Double imc { get; set; } 
         [BsonElement("clasificacion_imc")]
