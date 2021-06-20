@@ -114,7 +114,7 @@ namespace SISFAHD.Entities
         [BsonElement("constantes_vitales")]
         public ConstanteVital constantes_vitales { get; set; }
         [BsonElement("datos_antropometricos")]
-        public DatosAntropomorficos datos_antropomorficos { get; set; }
+        public DatosAntropomorficos datos_antropometricos { get; set; }
     }
 
     public class ConstanteVital
