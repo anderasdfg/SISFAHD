@@ -30,8 +30,8 @@ namespace SISFAHD.Services
 
         public async Task<ActoMedico> CrearActoMedico(ActoMedico actomedico)
         {
-            actomedico.fecha_creacion = new DateTime();
-            actomedico.fecha_atencion = new DateTime();
+            actomedico.fecha_creacion = DateTime.Now;
+            actomedico.fecha_atencion = DateTime.Now;
             await _actoMedico.InsertOneAsync(actomedico);
             return actomedico;
         }
