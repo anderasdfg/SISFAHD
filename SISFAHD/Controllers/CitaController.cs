@@ -57,5 +57,10 @@ namespace SISFAHD.Controllers
         {
             return await _cita.GetCitaAndActoMedico(idCita);
         }
+        [HttpPut("actualizarSoloidActoMedico")]
+        public async Task<ActionResult<Cita>> PutSoloidActoMedico(Cita citaobj)
+        {
+            return await _cita.PutSoloidActoMedico(citaobj);
+        }
     }
 }

@@ -28,6 +28,16 @@ namespace SISFAHD.Services
             _turnoservice = turnoService;
             _ventaservice = ventaService;
         }
+
+        public async Task<Cita> PutSoloidActoMedico(Cita citaobj)
+        {
+            var filter = Builders<Cita>.Filter.Eq("id", ObjectId.Parse(citaobj.id));
+            var update = Builders<Cita>.Update
+                .Set("id_acto_medico", citaobj.id_acto_medico);
+
+            await _cita.UpdateOneAsync(filter, update);
+            return citaobj;
+        }
         public async Task<List<CitaDTO>> GetAllCitaPagadasNoPagadas()
         {
             List<CitaDTO> PagoDTO = new List<CitaDTO>();
@@ -564,6 +574,7 @@ namespace SISFAHD.Services
                                         { "enlace_cita", "$enlace_cita" },
                                         { "precio_neto", "$precio_neto" },
                                         { "calificacion", "$calificacion" },
+                                        { "id_acto_medico", "$id_acto_medico" },
                                         { "observaciones", "$observaciones" },
                                         { "tipo_pago", "$tipo_pago" },
                                         { "id_turno", "$id_turno" },
