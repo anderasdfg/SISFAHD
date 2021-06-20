@@ -54,7 +54,7 @@ namespace SISFAHD.Services
             miusuario.datos = usuario.datos;
             miusuario.rol = usuario.rol;
             miusuario.estado = "activo";
-            miusuario.fecha_Creacion = new System.DateTime();
+            miusuario.fecha_creacion = new System.DateTime();
             
             await _usuarios.InsertOneAsync(miusuario);
             //Ya se inserto el usuario
@@ -75,10 +75,10 @@ namespace SISFAHD.Services
             var filterId = Builders<Usuario>.Filter.Eq("id", usuario.id);
             var update = Builders<Usuario>.Update
                .Set("datos.nombre", usuario.datos.nombre)
-                .Set("datos.apellido_paterno", usuario.datos.apellido_Paterno)
-                .Set("datos.apellido_materno", usuario.datos.apellido_Materno)
-                .Set("datos.tipo_documento", usuario.datos.tipo_Documento)
-                .Set("datos.numero_documento", usuario.datos.numero_Documento)
+                .Set("datos.apellido_paterno", usuario.datos.apellido_paterno)
+                .Set("datos.apellido_materno", usuario.datos.apellido_materno)
+                .Set("datos.tipo_documento", usuario.datos.tipo_documento)
+                .Set("datos.numero_documento", usuario.datos.numero_documento)
                 .Set("datos.telefono", usuario.datos.fecha_nacimiento)
                 .Set("datos.fecha_nacimiento", usuario.datos.telefono)
                 .Set("datos.correo", usuario.datos.correo)
@@ -118,10 +118,10 @@ namespace SISFAHD.Services
             var filter = Builders<Usuario>.Filter.Eq("id", usuario.id);
             var update = Builders<Usuario>.Update
                 .Set("datos.nombre", usuario.datos.nombre)
-                .Set("datos.apellido_paterno", usuario.datos.apellido_Paterno)
-                .Set("datos.apellido_materno", usuario.datos.apellido_Materno)
-                .Set("datos.tipo_documento", usuario.datos.tipo_Documento)
-                .Set("datos.numero_documento", usuario.datos.numero_Documento)
+                .Set("datos.apellido_paterno", usuario.datos.apellido_paterno)
+                .Set("datos.apellido_materno", usuario.datos.apellido_materno)
+                .Set("datos.tipo_documento", usuario.datos.tipo_documento)
+                .Set("datos.numero_documento", usuario.datos.numero_documento)
                 .Set("datos.telefono", usuario.datos.fecha_nacimiento)
                 .Set("datos.fecha_nacimiento", usuario.datos.telefono)
                 .Set("datos.correo", usuario.datos.correo)
