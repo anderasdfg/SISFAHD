@@ -69,25 +69,148 @@ namespace SISFAHD.Services
             return miusuario;
         }
 
+
+        public async Task<Usuario>UpdateUsuarioMedico(UsuarioMedico usuario)
+        {
+            var filterId = Builders<Usuario>.Filter.Eq("id", usuario.id);
+            var update = Builders<Usuario>.Update
+               .Set("datos.nombre", usuario.datos.nombre)
+                .Set("datos.apellido_paterno", usuario.datos.apellido_Paterno)
+                .Set("datos.apellido_materno", usuario.datos.apellido_Materno)
+                .Set("datos.tipo_documento", usuario.datos.tipo_Documento)
+                .Set("datos.numero_documento", usuario.datos.numero_Documento)
+                .Set("datos.telefono", usuario.datos.fecha_nacimiento)
+                .Set("datos.fecha_nacimiento", usuario.datos.telefono)
+                .Set("datos.correo", usuario.datos.correo)
+                .Set("datos.sexo", usuario.datos.sexo)
+                //.Set("datos.foto", usuario.datos.foto)
+                .Set("usuario", usuario.usuario)
+                .Set("clave", usuario.clave);
+
+            var resultado = await _usuarios.FindOneAndUpdateAsync<Usuario>(filterId, update, new FindOneAndUpdateOptions<Usuario>
+            {
+                ReturnDocument = ReturnDocument.After
+            });
+
+            var filterIdM = Builders<Medico>.Filter.Eq("id_usuario", usuario.id_usuario);
+             var updateM = Builders<Medico>.Update
+
+            .Set("datos_basicos.lugar_trabajo", usuario.datos_basicos.lugar_trabajo)
+            .Set("datos_basicos.numero_colegiatura", usuario.datos_basicos.numero_colegiatura)
+            .Set("datos_basicos.idiomas", usuario.datos_basicos.idiomas)
+            .Set("datos_basicos.universidad", usuario.datos_basicos.universidad)
+            .Set("datos_basicos.experiencia", usuario.datos_basicos.experiencia)
+            .Set("datos_basicos.cargos", usuario.datos_basicos.cargos);
+
+            //_usuarios.UpdateOneAsync(filterId, update);
+
+            var resultadoM = await _medico.FindOneAndUpdateAsync<Medico>(filterIdM, updateM, new FindOneAndUpdateOptions<Medico>
+            {
+                ReturnDocument = ReturnDocument.After
+            });
+
+            return resultado;
+        }
+
         public Usuario ModificarUsuario(Usuario usuario)
         {
 
             var filter = Builders<Usuario>.Filter.Eq("id", usuario.id);
             var update = Builders<Usuario>.Update
-                .Set("nombre", usuario.datos.nombre)
-                .Set("apellido paterno", usuario.datos.apellido_Paterno)
-                .Set("apellido materno", usuario.datos.apellido_Materno)
-                .Set("tipo de documento", usuario.datos.tipo_Documento)
-                .Set("numero de documento", usuario.datos.numero_Documento)
-                .Set("fecha de nacimiento", usuario.datos.fecha_nacimiento)
-                .Set("nro de telefono", usuario.datos.telefono)
-                .Set("sexo", usuario.datos.sexo);
+                .Set("datos.nombre", usuario.datos.nombre)
+                .Set("datos.apellido_paterno", usuario.datos.apellido_Paterno)
+                .Set("datos.apellido_materno", usuario.datos.apellido_Materno)
+                .Set("datos.tipo_documento", usuario.datos.tipo_Documento)
+                .Set("datos.numero_documento", usuario.datos.numero_Documento)
+                .Set("datos.telefono", usuario.datos.fecha_nacimiento)
+                .Set("datos.fecha_nacimiento", usuario.datos.telefono)
+                .Set("datos.correo", usuario.datos.correo)
+                .Set("datos.sexo", usuario.datos.sexo)
+                //.Set("datos.foto", usuario.datos.foto)
+                .Set("usuario", usuario.usuario)
+                .Set("clave", usuario.clave);
 
             _usuarios.UpdateOne(filter, update);
 
             return usuario;
         }
 
+        public Usuario GetByID(string id)
+        {
+            Usuario usuario = new Usuario();
+            usuario = _usuarios.Find(miUsuario => miUsuario.id == id).FirstOrDefault();
+            return usuario;
+
+        }
+
+        public async Task<UsuarioMedico> GetByIDmedico(string id)
+        {
+            var match1 = new BsonDocument("$match",
+                         new BsonDocument("_id",
+                         new ObjectId(id)));
+            var lookup1 = new BsonDocument("$lookup",
+    new BsonDocument
+        {
+            { "from", "medicos" },
+            { "let",
+    new BsonDocument("idusum", "$_id") },
+            { "pipeline",
+    new BsonArray
+            {
+                new BsonDocument("$match",
+                new BsonDocument("$expr",
+                new BsonDocument("$eq",
+                new BsonArray
+                            {
+                                new BsonDocument("$toObjectId", "$id_usuario"),
+                                "$$idusum"
+                            })))
+            } },
+            { "as", "usuarioresultado" }
+        });
+
+            var proyect1 = new BsonDocument("$project",
+    new BsonDocument
+        {
+            { "datos", 1 },
+            { "usuario", 1 },
+            { "clave", 1 },
+            { "fecha_creacion", 1 },
+            { "rol", 1 },
+            { "estado", 1 },
+            { "medicoObj",
+    new BsonDocument("$arrayElemAt",
+    new BsonArray
+                {
+                    "$usuarioresultado",
+                    -1
+                }) }
+        });
+
+            var proyect2 = new BsonDocument("$project",
+    new BsonDocument
+        {
+            { "datos", 1 },
+            { "usuario", 1 },
+            { "clave", 1 },
+            { "fecha_creacion", 1 },
+            { "rol", 1 },
+            { "estado", 1 },
+            { "id_usuario", "$medicoObj.id_usuario" },
+            { "datos_basicos", "$medicoObj.datos_basicos" },
+            { "id_especialidad", "$medicoObj.id_especialidad" }
+        });
+
+            UsuarioMedico miUsuarioMedico = await _usuarios.Aggregate()
+                .AppendStage<dynamic>(match1)
+                .AppendStage<dynamic>(lookup1)
+                .AppendStage<dynamic>(proyect1)
+                .AppendStage<UsuarioMedico>(proyect2)
+                .FirstOrDefaultAsync();
+
+            return miUsuarioMedico;
+
+        }
         public async Task<List<UsuarioDTO>> GetAllUsuarios()
         {
             List<UsuarioDTO> gusuario = new List<UsuarioDTO>();

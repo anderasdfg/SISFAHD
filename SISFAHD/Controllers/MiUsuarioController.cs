@@ -42,12 +42,34 @@ namespace SISFAHD.Controllers
             return objetousuario;
         }
 
-        [HttpPut("Modificar")]
+        [HttpPut("ModificarUsuario")]
         public ActionResult<Usuario> ModificarUsuario(Usuario id)
         {
             Usuario usuario = _usuarioservice.ModificarUsuario(id);
-            return _usuarioservice.ModificarUsuario(id);
+            return usuario;
 
         }
+
+        [HttpPut("ModificarUsuarioMedico")]
+        public async Task<ActionResult<Usuario>> ModificarUsuarioMedico(UsuarioMedico usuario)
+        {
+            Usuario usuarioM = await _usuarioservice.UpdateUsuarioMedico(usuario);
+            return usuarioM;
+
+        }
+
+        [HttpGet("usuarioId")]
+        public ActionResult<Usuario> GetUsuarioById([FromQuery] string id)
+        {
+            return _usuarioservice.GetByID(id);
+        }
+
+        [HttpGet("usuarioIdMedico")]
+        public async Task <ActionResult<UsuarioMedico>> GetUsuarioMedicoById([FromQuery] string id)
+        {
+            return await _usuarioservice.GetByIDmedico(id);
+        }
+
+
     }
 }
