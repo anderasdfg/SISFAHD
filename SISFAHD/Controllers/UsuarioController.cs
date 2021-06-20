@@ -36,5 +36,11 @@ namespace SISFAHD.Controllers
         {
             return _usuarioservice.GetByUserNameAndPass(username,pass);
         }
+        [HttpPost("")]
+        public ActionResult<Usuario> CreateUsuario(Usuario usuario)
+        {
+            Usuario objUsuario = _usuarioservice.CreateUsuario(usuario);
+            return objUsuario;
+        }
     }
 }
