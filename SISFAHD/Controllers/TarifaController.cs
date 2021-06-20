@@ -25,13 +25,11 @@ namespace SISFAHD.Controllers
         {
             return await _tarifaservice.GetTarifasByIdMedico(idMedico);
         }
-
         [HttpGet("tarifasmedico/all")]
         public async Task<ActionResult<List<Tarifa>>> GetAll()
         {
             return await _tarifaservice.GetAllTarifas();
         }
-
         [HttpPut("tarifasmedico/Modificar")]
         public async Task<ActionResult<Tarifa>> ModificarTarifa(Tarifa id)
         {
@@ -39,7 +37,6 @@ namespace SISFAHD.Controllers
             return tarifa;
 
         }
-
         [HttpPost("tarifasmedico/Registrar")]
         public async Task<ActionResult<Tarifa>> CrearTarifa(Tarifa tarifa)
         {

@@ -16,7 +16,6 @@ namespace SISFAHD.Services
             var database = client.GetDatabase(settings.DatabaseName);
             _especialidades = database.GetCollection<Especialidad>("especialidades");
         }
-
         public List<Especialidad> GetAll()
         {
             List<Especialidad> especialidades = new List<Especialidad>();
@@ -36,22 +35,6 @@ namespace SISFAHD.Services
             return especialidad;
 
         }
-    /*    public Especialidad ModifyEspecialidad(Especialidad especialidad) {
-
-            var filter = Builders<Especialidad>.Filter.Eq("id", especialidad.id);
-            var update = Builders<Especialidad>.Update
-                .Set("nombre", especialidad.nombre)
-                .Set("codigo", especialidad.codigo)
-                .Set("descripcion", especialidad.descripcion);
-            especialidad = _especialidades.FindOneAndUpdate<Especialidad>(filter, update, new FindOneAndUpdateOptions<Especialidad>
-            {
-                ReturnDocument = ReturnDocument.After
-            });
-            return especialidad;
-        }
-        */
-       //  Para luego xdx
-         //Modificar Especialdiad tipo 2
            public Task<Especialidad> ModificarEspecialidad(Especialidad especialidad) {
 
               var filter = Builders<Especialidad>.Filter.Eq("id", especialidad.id);
@@ -81,27 +64,11 @@ namespace SISFAHD.Services
             });
             return especialidad;
         }
-
-
-        // Crear Especialidad tipo 1 
-        public async Task<ActionResult<Especialidad>> CreateEspecialidad(Especialidad especialidad)
-          {
-              await _especialidades.InsertOneAsync(especialidad);
-              return especialidad;
-          }
-        // tipo 2 de crear
         public Especialidad CrearEspecialdiad2(Especialidad especialidad) 
         {
             _especialidades.InsertOne(especialidad);
             return especialidad;
         }
-         
-
-       /* public Especialidad CreateEspecialidad(Especialidad especialidad)
-        {
-            _especialidades.InsertOne(especialidad);
-            return especialidad;
-        }*/
         
     }
 }
