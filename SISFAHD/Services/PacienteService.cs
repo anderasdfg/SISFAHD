@@ -46,7 +46,7 @@ namespace SISFAHD.Services
             h.id = ObjectId.GenerateNewId().ToString();
             h.fecha_creacion = DateTime.Today;
             h.historial = new List<Historial>();
-            h.numero_historia = u.datos.numero_Documento;
+            h.numero_historia = u.datos.numero_documento;
             p.id_historia = h.id;
             _HistoriaCollection.InsertOne(h);
             _PacienteCollection.InsertOne(p);
@@ -61,7 +61,7 @@ namespace SISFAHD.Services
             h.id = ObjectId.GenerateNewId().ToString();
             h.fecha_creacion = DateTime.Today;
             h.historial = new List<Historial>();
-            h.numero_historia = u.datos.numero_Documento;
+            h.numero_historia = u.datos.numero_documento;
             p.id_historia = h.id;
             _HistoriaCollection.InsertOne(h);
             _PacienteCollection.InsertOne(p);
