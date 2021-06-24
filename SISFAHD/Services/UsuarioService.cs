@@ -79,8 +79,8 @@ namespace SISFAHD.Services
                 .Set("datos.apellido_materno", usuario.datos.apellido_materno)
                 .Set("datos.tipo_documento", usuario.datos.tipo_documento)
                 .Set("datos.numero_documento", usuario.datos.numero_documento)
-                .Set("datos.telefono", usuario.datos.fecha_nacimiento)
-                .Set("datos.fecha_nacimiento", usuario.datos.telefono)
+                .Set("datos.telefono", usuario.datos.telefono)
+                .Set("datos.fecha_nacimiento", usuario.datos.fecha_nacimiento)
                 .Set("datos.correo", usuario.datos.correo)
                 .Set("datos.sexo", usuario.datos.sexo)
                 //.Set("datos.foto", usuario.datos.foto)
@@ -110,6 +110,7 @@ namespace SISFAHD.Services
             });
 
             return resultado;
+            
         }
 
         public Usuario ModificarUsuario(Usuario usuario)
@@ -122,8 +123,8 @@ namespace SISFAHD.Services
                 .Set("datos.apellido_materno", usuario.datos.apellido_materno)
                 .Set("datos.tipo_documento", usuario.datos.tipo_documento)
                 .Set("datos.numero_documento", usuario.datos.numero_documento)
-                .Set("datos.telefono", usuario.datos.fecha_nacimiento)
-                .Set("datos.fecha_nacimiento", usuario.datos.telefono)
+                .Set("datos.telefono", usuario.datos.telefono)
+                .Set("datos.fecha_nacimiento", usuario.datos.fecha_nacimiento)
                 .Set("datos.correo", usuario.datos.correo)
                 .Set("datos.sexo", usuario.datos.sexo)
                 //.Set("datos.foto", usuario.datos.foto)
