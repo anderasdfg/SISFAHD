@@ -46,5 +46,18 @@ namespace SISFAHD.DTOs
         public string id_usuario { get; set; }
         public Usuario datos_usuario { get; set; }
     }
+    public class MedicoDTO3
+    {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string id { get; set; }
+        public Datos_basicos datos_basicos { get; set; }
+        public string id_especialidad { get; set; }
+        public MedicoUsuarioDTO usuario { get; set; }
+    }
+    public class MedicoUsuarioDTO
+    {
+        public Datos datos { get; set; }
+    }
 
 }

@@ -29,7 +29,7 @@ namespace SISFAHD.Services
             medicos = _medicos.Find(medico => medico.id_especialidad == idEspecialidad).ToList();
             return medicos;
         }
-        public async Task <List<MedicoDTO>> GetMedicosByEspecialidad(string idEspecialidad)
+        public async Task<List<MedicoDTO>> GetMedicosByEspecialidad(string idEspecialidad)
         {
             var match = new BsonDocument("$match",
                         new BsonDocument("id_especialidad", idEspecialidad));
@@ -38,7 +38,7 @@ namespace SISFAHD.Services
                             new BsonDocument("id_usuario_obj",
                             new BsonDocument("$toObjectId", "$id_usuario")));
 
-            var lookup =      new BsonDocument("$lookup",
+            var lookup = new BsonDocument("$lookup",
                             new BsonDocument
                                 {
                                     { "from", "usuarios" },
@@ -124,6 +124,50 @@ namespace SISFAHD.Services
                      .AppendStage<MedicoDTOEspcialidad>(project).FirstOrDefaultAsync();
             return medico;
         }
+        public async Task<MedicoDTO3> GetMedicosAndDatosUsuario(string idMedico)
+        {
+            var match = new BsonDocument("$match",
+                        new BsonDocument("_id",
+                        new ObjectId(idMedico)));
+            var addFields = new BsonDocument("$addFields",
+                            new BsonDocument("id_usuario",
+                            new BsonDocument("$toObjectId", "$id_usuario")));
+            var lookup = new BsonDocument("$lookup",
+                        new BsonDocument
+                        {
+                            { "from", "usuarios" },
+                            { "localField", "id_usuario" },
+                            { "foreignField", "_id" },
+                            { "as", "usuario" }
+                        });
+            var unwind = new BsonDocument("$unwind",
+                        new BsonDocument
+                        {
+                            { "path", "$usuario" },
+                            { "preserveNullAndEmptyArrays", true }
+                        });
+            var project = new BsonDocument("$project",
+                          new BsonDocument
+                          {
+                            { "id_usuario", 0 },
+                            { "usuario._id", 0 },
+                            { "usuario.usuario", 0 },
+                            { "usuario.clave", 0 },
+                            { "usuario.fecha_creacion", 0 },
+                            { "usuario.rol", 0 },
+                            { "usuario.estado", 0 },
+                            { "turnos", 0 },
+                            { "suscripcion", 0 }
+                          });
 
+            MedicoDTO3 medico = new MedicoDTO3();
+            medico = await _medicos.Aggregate()
+                     .AppendStage<dynamic>(match)
+                     .AppendStage<dynamic>(addFields)
+                     .AppendStage<dynamic>(lookup)
+                     .AppendStage<dynamic>(unwind)
+                     .AppendStage<MedicoDTO3>(project).FirstOrDefaultAsync();
+            return medico;
+        }
     }
 }
