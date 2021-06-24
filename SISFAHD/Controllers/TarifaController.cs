@@ -51,9 +51,9 @@ namespace SISFAHD.Controllers
         }
 
         [HttpDelete("tarifasmedico/Delete")]
-        public async Task<ActionResult<Tarifa>> Delete(Tarifa tarifa) 
+        public async Task<ActionResult<Tarifa>> Delete(string id) 
         {
-            return await _tarifaservice.RemoveTarifa(tarifa);
+            return await _tarifaservice.RemoveTarifa(id);
         }
 
     }

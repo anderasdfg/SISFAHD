@@ -41,22 +41,20 @@ namespace SISFAHD.Controllers
             return _especialidadeservice.GetByID(id);
         }
 
-         [HttpPost("Registrar")]
+        [HttpPost("Registrar")]
         public async Task<ActionResult<Especialidad>> CrearEspecialidad(Especialidad especialidad)
         {
-                if (!string.IsNullOrWhiteSpace(especialidad.url))
-                {
-                    var profileimg = Convert.FromBase64String(especialidad.url);
-                    especialidad.url = await _fileStorage.SaveFile(profileimg, "jpg", "especialidad");
-                }
+            if (!string.IsNullOrWhiteSpace(especialidad.url))
+            {
+                var profileimg = Convert.FromBase64String(especialidad.url);
+                especialidad.url = await _fileStorage.SaveFile(profileimg, "jpg", "especialidad");
+            }
             Especialidad objetoespecialdiad = _especialidadeservice.CrearEspecialdiad2(especialidad);
             return objetoespecialdiad;
         }
         [HttpPut("Modificar")]
         public async Task<ActionResult<Especialidad>> ModificarEspecialidad(Especialidad id)
         {
-            
-
             try
             {
                 if (!id.url.StartsWith("http"))
@@ -64,10 +62,9 @@ namespace SISFAHD.Controllers
                     if (!string.IsNullOrWhiteSpace(id.url))
                     {
                         var profileimg = Convert.FromBase64String(id.url);
-                        id.url = await _fileStorage.EditFile(profileimg, "jpg", "especialidad",id.url);
+                        id.url = await _fileStorage.EditFile(profileimg, "jpg", "especialidad", id.url);
                     }
                 }
-
                 Especialidad objetoespecialidadbd = _especialidadeservice.ModificarEspecialidad2(id);
                 return objetoespecialidadbd;
             }
@@ -75,7 +72,6 @@ namespace SISFAHD.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, ex);
             }
-
 
         }
 

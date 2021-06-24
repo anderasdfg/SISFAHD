@@ -89,9 +89,9 @@ namespace SISFAHD.Services
             });
             return resultado;
         }
-        public async Task<Tarifa> RemoveTarifa(Tarifa tarifa) 
+        public async Task<Tarifa> RemoveTarifa(string id) 
         {
-            var filter = Builders<Tarifa>.Filter.Eq("id", tarifa.id);
+            var filter = Builders<Tarifa>.Filter.Eq("id", id);
             return await _tarifas.FindOneAndDeleteAsync<Tarifa>(filter, new FindOneAndDeleteOptions<Tarifa> {});
         }
 
