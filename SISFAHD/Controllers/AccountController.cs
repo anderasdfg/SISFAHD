@@ -79,5 +79,32 @@ namespace SISFAHD.Controllers
             };
         }
 
+        [HttpGet("user")]
+        [Authorize]
+        public async Task<ActionResult<Usuario>> GetByUserName()
+        {
+            Usuario usuario = null;
+
+            try
+            {
+                String userName = this.HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
+
+                if (String.IsNullOrEmpty(userName))
+                {
+                    return Unauthorized("Sesión expirada");
+                }
+
+                usuario = await _usuarioservice.GetByUserName(userName);
+
+                return usuario;
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+
+        }
+
     }
 }
