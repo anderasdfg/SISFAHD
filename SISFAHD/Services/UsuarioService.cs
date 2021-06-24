@@ -289,5 +289,12 @@ namespace SISFAHD.Services
                 .ToListAsync();
             return gusuario;
         }
+
+        public async Task<Usuario> GetByUserName(string username)
+        {
+            Usuario usuario = new Usuario();
+            usuario = _usuarios.Find(usuario => usuario.usuario == username).FirstOrDefault();
+            return usuario;
+        }
     }
 }
