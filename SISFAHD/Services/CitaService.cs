@@ -702,5 +702,48 @@ namespace SISFAHD.Services
                    .AppendStage<CitaActoMedioDTO>(project2).FirstOrDefaultAsync();
             return cita;
         }
+
+
+        public List<Cita> GetAll()
+        {
+            List<Cita> cita = new List<Cita>();
+            cita = _cita.Find(Cita => true).ToList();
+            return cita;
+        }
+
+        public async Task<List<CitaTurno>> GetCitasANDTurnos(string turnosid)
+        {
+            var match = new BsonDocument("$match",
+                        new BsonDocument("id_turno",
+                        new ObjectId(turnosid)));
+            var addfields = new BsonDocument("$addFields",
+                            new BsonDocument("id_turno",
+                            new BsonDocument("$toObjectId", "$id_turno")));
+            var lookup = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "turnos" },
+                                    { "localField", "id_turno" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_turnos" }
+                                });
+            var unwind = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$datos_turnos" },
+                                    { "preserveNullAndEmptyArrays", true }
+                                });
+            var project = new BsonDocument("$project",
+                            new BsonDocument("datos_turnos", 1));
+
+            List<CitaTurno> medico = new List<CitaTurno>();
+            medico = await _cita.Aggregate()
+                     .AppendStage<dynamic>(match)
+                     .AppendStage<dynamic>(addfields)
+                     .AppendStage<dynamic>(lookup)
+                     .AppendStage<dynamic>(unwind)
+                     .AppendStage<CitaTurno>(project).ToListAsync();
+            return medico;
+        }
     }
 }

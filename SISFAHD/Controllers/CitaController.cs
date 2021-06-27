@@ -62,5 +62,17 @@ namespace SISFAHD.Controllers
         {
             return await _cita.PutSoloidActoMedico(citaobj);
         }
+
+        [HttpGet("allCita")]
+        public ActionResult<List<Cita>> GetAllCita()
+        {
+            return  _cita.GetAll();
+        }
+
+        [HttpGet("turnos")]
+        public async Task<ActionResult<List<CitaTurno>>> GetCitaxTurno(string idTurno)
+        {
+            return await _cita.GetCitasANDTurnos(idTurno);
+        }
     }
 }

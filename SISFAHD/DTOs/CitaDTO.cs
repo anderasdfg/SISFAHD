@@ -58,4 +58,9 @@ namespace SISFAHD.DTOs
         public string motivo_consulta { get; set; }
         public ActoMedicoDTO acto_medico { get; set; }
     }
+
+    public class CitaTurno
+    {
+        public Turno datos_turnos { get; set; }
+    }
 }
