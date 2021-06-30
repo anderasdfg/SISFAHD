@@ -33,8 +33,13 @@ namespace SISFAHD.Controllers
         }
 
         [HttpPost("Registrar")]
-        public ActionResult<Usuario> CreateUsuario(Usuario usuario)
+        public async Task<ActionResult<Usuario>> CreateUsuario(Usuario usuario)
         {
+            if (!string.IsNullOrWhiteSpace(usuario.datos.foto))
+            {
+                var profileimg = Convert.FromBase64String(usuario.datos.foto);
+                usuario.datos.foto = await _fileStorage.SaveFile(profileimg, "jpg", "usuario");
+            }
             Usuario objetousuario = _usuarioservice.CreateUsuario(usuario);
             return objetousuario;
         }
@@ -105,7 +110,7 @@ namespace SISFAHD.Controllers
         [HttpGet("usuarioId")]
         public ActionResult<Usuario> GetUsuarioById([FromQuery] string id)
         {
-            return _usuarioservice.GetByID(id);
+            return _usuarioservice.GetById(id);
         }
 
         [HttpGet("usuarioIdMedico")]
