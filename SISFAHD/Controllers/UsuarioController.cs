@@ -42,5 +42,10 @@ namespace SISFAHD.Controllers
             Usuario objUsuario = _usuarioservice.CreateUsuario(usuario);
             return objUsuario;
         }
+        [HttpGet("correo")]
+        public ActionResult<Usuario> GetByCorreo([FromQuery] string correo)
+        {
+            return _usuarioservice.GetByCorreo(correo);
+        }
     }
 }
