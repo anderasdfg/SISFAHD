@@ -69,7 +69,6 @@ namespace SISFAHD.Services
             return miusuario;
         }
 
-
         public async Task<Usuario>UpdateUsuarioMedico(UsuarioMedico usuario)
         {
             var filterId = Builders<Usuario>.Filter.Eq("id", usuario.id);
@@ -137,6 +136,8 @@ namespace SISFAHD.Services
         }
 
         
+        }
+        }
 
         public async Task<UsuarioMedico> GetByIDmedico(string id)
         {
@@ -144,13 +145,13 @@ namespace SISFAHD.Services
                          new BsonDocument("_id",
                          new ObjectId(id)));
             var lookup1 = new BsonDocument("$lookup",
-    new BsonDocument
+        new BsonDocument
         {
             { "from", "medicos" },
             { "let",
-    new BsonDocument("idusum", "$_id") },
+        new BsonDocument("idusum", "$_id") },
             { "pipeline",
-    new BsonArray
+        new BsonArray
             {
                 new BsonDocument("$match",
                 new BsonDocument("$expr",
@@ -290,5 +291,18 @@ namespace SISFAHD.Services
             usuario = _usuarios.Find(usuario => usuario.usuario == username).FirstOrDefault();
             return usuario;
         }
+        public Usuario GetByCorreo(string correo)
+        {
+            Usuario usuario = new Usuario();
+            usuario = _usuarios.Find(usuario => usuario.datos.correo == correo).FirstOrDefault();
+            return usuario;
+        }
+        public Usuario GetByDocIdentidad(string docIdentidad)
+        {
+            Usuario usuario = new Usuario();
+            usuario = _usuarios.Find(usuario => usuario.datos.numero_documento == docIdentidad).FirstOrDefault();
+            return usuario;
+        }
+
     }
 }
