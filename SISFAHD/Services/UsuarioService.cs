@@ -136,8 +136,7 @@ namespace SISFAHD.Services
         }
 
         
-        }
-        }
+   
 
         public async Task<UsuarioMedico> GetByIDmedico(string id)
         {
