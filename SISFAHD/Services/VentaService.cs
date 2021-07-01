@@ -15,14 +15,14 @@ namespace SISFAHD.Services
     public class VentaService
     {
         private readonly IMongoCollection<Venta> _venta;
-        private readonly IMongoCollection<Cita> _cita;
+        private readonly IMongoCollection<Cita> _cita;        
 
         public VentaService(ISisfahdDatabaseSettings settings)
         {
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
             _venta = database.GetCollection<Venta>("ventas");
-            _cita = database.GetCollection<Cita>("citas");
+            _cita = database.GetCollection<Cita>("citas");            
         }
 
 
@@ -659,6 +659,7 @@ namespace SISFAHD.Services
                     venta.moneda = pagoProcesado.order.currency;
                     ModifyVenta(id_cita, venta);
                     ModifyEstadoPagoCita(id_cita);
+
                 }
                 else
                 {
@@ -677,7 +678,7 @@ namespace SISFAHD.Services
                         venta.titular = cita.id_paciente;
                         venta.fecha_pago = UnixTimeToDateTime(pagoProcesado.order.transactionDate);
                         venta.moneda = pagoProcesado.order.currency;
-                        ModifyVenta(id_cita, venta);
+                        ModifyVenta(id_cita, venta);                        
                     }
                     catch (Exception e)
                     {
