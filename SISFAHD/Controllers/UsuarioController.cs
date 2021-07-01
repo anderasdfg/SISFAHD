@@ -47,5 +47,10 @@ namespace SISFAHD.Controllers
         {
             return _usuarioservice.GetByCorreo(correo);
         }
+        [HttpGet("docidentidad")]
+        public ActionResult<Usuario> GetByDocIdentidad([FromQuery] string docIdentidad)
+        {
+            return _usuarioservice.GetByDocIdentidad(docIdentidad);
+        }
     }
 }

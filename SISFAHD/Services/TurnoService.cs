@@ -28,7 +28,7 @@ namespace SISFAHD.Services
         {
             List<Turno> turnos = new List<Turno>();
             DateTime firstDate = new DateTime(year, month, 1, 0, 0, 0);
-            DateTime lastDate = firstDate.AddMonths(1).AddDays(-1);
+            DateTime lastDate = firstDate.AddMonths(2).AddDays(-1);
             lastDate.AddHours(23);
             lastDate.AddMinutes(59);
             lastDate.AddSeconds(59);
