@@ -17,7 +17,6 @@ namespace SISFAHD.Controllers
     [Route("api/[controller]")]
     public class MedicamentoController: ControllerBase
     {
-
         private readonly MedicamentoService _medicamentoService;
         public MedicamentoController(MedicamentoService medicamentoService)
         {

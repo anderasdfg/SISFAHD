@@ -686,6 +686,7 @@ namespace SISFAHD.Services
                 }
 
             }
+
             Console.WriteLine("esta kgada " + pagoRechazado + pagoProcesado);
             return pagoProcesado;
 
