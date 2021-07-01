@@ -33,5 +33,18 @@ namespace SISFAHD.Services
             medicamento = _MedicamentoCollection.Find(medicamento => medicamento.nombre == nombre).ToList();
             return medicamento;
         }
+        public async Task<List<Medicamento>> GetByNameConcentrationForm(string nombre, string concentracion, string forma)
+        {
+            List<Medicamento> medicamentos = new List<Medicamento>();
+            var match = new BsonDocument("$match",
+                            new BsonDocument
+                                {
+                                    { "nombre", new BsonDocument("$regex", nombre)  },
+                                    { "concentracion", new BsonDocument("$regex", concentracion)  },
+                                    { "formula_farmaceutica_simplificada", new BsonDocument("$regex", forma) }
+                                });
+            medicamentos = await _MedicamentoCollection.Aggregate().AppendStage<Medicamento>(match).ToListAsync();
+            return medicamentos;
+        }
     }
 }
