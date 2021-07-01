@@ -39,5 +39,10 @@ namespace SISFAHD.Controllers
         {
             return await _medicoservice.GetMedicosAndDatosUsuario(idMedico);
         }
+        [HttpGet("medicodatos/{idUsuario}")]
+        public async Task<ActionResult<MedicoDTO3>> GetByIdUsuario(string idUsuario)
+        {
+            return await _medicoservice.GetMedicosAndDatosUsuarioByUsuario(idUsuario);
+        }
     }
 }
