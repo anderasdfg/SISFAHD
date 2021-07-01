@@ -26,7 +26,10 @@ namespace SISFAHD.Services
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
             _venta = database.GetCollection<Venta>("ventas");
-            _cita = database.GetCollection<Cita>("citas");            
+            _cita = database.GetCollection<Cita>("citas");
+            _PacienteCollection = database.GetCollection<Paciente>("pacientes");
+            _UsuarioCollection = database.GetCollection<Usuario>("usuarios");
+            _MedicoCollection = database.GetCollection<Medico>("medicos");
         }
 
 
