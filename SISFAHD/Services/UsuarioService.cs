@@ -82,7 +82,7 @@ namespace SISFAHD.Services
                 .Set("datos.fecha_nacimiento", usuario.datos.fecha_nacimiento)
                 .Set("datos.correo", usuario.datos.correo)
                 .Set("datos.sexo", usuario.datos.sexo)
-                //.Set("datos.foto", usuario.datos.foto)
+                .Set("datos.foto", usuario.datos.foto)
                 .Set("usuario", usuario.usuario)
                 .Set("clave", usuario.clave);
 
@@ -126,7 +126,7 @@ namespace SISFAHD.Services
                 .Set("datos.fecha_nacimiento", usuario.datos.fecha_nacimiento)
                 .Set("datos.correo", usuario.datos.correo)
                 .Set("datos.sexo", usuario.datos.sexo)
-                //.Set("datos.foto", usuario.datos.foto)
+                .Set("datos.foto", usuario.datos.foto)
                 .Set("usuario", usuario.usuario)
                 .Set("clave", usuario.clave);
 
@@ -135,12 +135,8 @@ namespace SISFAHD.Services
             return usuario;
         }
 
-        public Usuario GetByID(string id)
-        {
-            Usuario usuario = new Usuario();
-            usuario = _usuarios.Find(miUsuario => miUsuario.id == id).FirstOrDefault();
-            return usuario;
-        }
+        
+   
 
         public async Task<UsuarioMedico> GetByIDmedico(string id)
         {

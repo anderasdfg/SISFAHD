@@ -74,5 +74,11 @@ namespace SISFAHD.Controllers
         {
             return await _cita.GetCitasANDTurnos(idTurno);
         }
+
+        [HttpGet("id_paciente")]
+        public ActionResult<Cita> GetByIdPaciente([FromQuery] string id_paciente)
+        {
+            return _cita.GetByIdPaciente(id_paciente);
+        }
     }
 }
