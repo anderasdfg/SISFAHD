@@ -9,14 +9,18 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Net.Mail;
+using System.Net;
 
 namespace SISFAHD.Services
 {
     public class VentaService
     {
         private readonly IMongoCollection<Venta> _venta;
-        private readonly IMongoCollection<Cita> _cita;        
-
+        private readonly IMongoCollection<Cita> _cita;
+        private readonly IMongoCollection<Paciente> _PacienteCollection;
+        private readonly IMongoCollection<Usuario> _UsuarioCollection;
+        private readonly IMongoCollection<Medico> _MedicoCollection;
         public VentaService(ISisfahdDatabaseSettings settings)
         {
             var client = new MongoClient(settings.ConnectionString);
@@ -659,7 +663,8 @@ namespace SISFAHD.Services
                     venta.moneda = pagoProcesado.order.currency;
                     ModifyVenta(id_cita, venta);
                     ModifyEstadoPagoCita(id_cita);
-
+                    //ENVIA CORREO
+                    sendNotification(id_cita);
                 }
                 else
                 {
@@ -686,8 +691,7 @@ namespace SISFAHD.Services
                     }
                 }
 
-            }
-
+            }           
             Console.WriteLine("esta kgada " + pagoRechazado + pagoProcesado);
             return pagoProcesado;
 
@@ -721,6 +725,62 @@ namespace SISFAHD.Services
                 .Set("estado_pago", "pagado");
             _cita.UpdateOne(filter, update);
             return cita;
+        }
+        public void sendNotification(string idCita)
+        {
+            Cita c = new Cita();
+            c = _cita.Find(cit => cit.id == idCita).FirstOrDefault();
+            Paciente p = new Paciente();
+            p = _PacienteCollection.Find(pacient => pacient.id == c.id_paciente).FirstOrDefault();
+            Medico m = new Medico();
+            m = _MedicoCollection.Find(med => med.id == c.id_medico).FirstOrDefault();
+            Usuario objpaciente = new Usuario();
+            objpaciente = _UsuarioCollection.Find(user => user.id == p.id_usuario).FirstOrDefault();
+            Usuario objMedico = new Usuario();
+            objMedico = _UsuarioCollection.Find(user => user.id == m.id_usuario).FirstOrDefault();
+
+            SmtpClient smtp = new SmtpClient();
+            smtp.Host = "smtp.gmail.com";
+            smtp.Port = 587;
+            smtp.UseDefaultCredentials = false;
+            smtp.EnableSsl = true;
+            smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+
+            string Emisor = "sisfahdq@gmail.com";
+            string EmisorPass = "sisf@hd12";
+            string displayName = "SISFAHD";
+            string Receptor = objpaciente.usuario;
+            string htmlbody = "<body style='margin:0;padding:0;'>" +
+                                "<table role = 'presentation' style = 'width:602px;border-collapse:collapse;border:1px solid #cccccc;border-spacing:0;text-align:left;' >" +
+                                        "<tr>" +
+                                            "<td align = 'center' style = 'padding:40px 0 30px 0;background:#70bbd9;'>" +
+                                                    "<img src = 'https://blog.dinterweb.com/hubfs/directmailemail_1361936.jpg' alt = '' width = '300' style = 'height:auto;display:block;'/>" +
+                                            "</td>" +
+                                        "</tr>" +
+                                        "<tr>" +
+                                            "<td style = 'padding:0;'>" +
+                                                "<h1> Cita Pagada </h1>" +
+                                                    "<p>Fecha de cita: " + c.fecha_cita.ToString() + "</p>" +
+                                                    "<p>Médico: " + objMedico.datos.nombre + " " + objMedico.datos.apellido_paterno + " " + objMedico.datos.apellido_materno + "</p>" +
+                                            "</td>" +
+                                        "</tr>" +
+                                        "<tr>" +
+                                            "<td style = 'padding:0;background:#ee4c50;' >" +
+                                                "SISFAHD" +
+                                            "</td>" +
+                                        "</tr>" +
+                                 "</table>" +
+                               "</body> ";
+
+            MailMessage mail = new MailMessage();
+            mail.Subject = "Bienvenido";
+            mail.From = new MailAddress(Emisor.Trim(), displayName);
+            mail.Body = htmlbody;
+            mail.To.Add(new MailAddress(Receptor));
+            mail.IsBodyHtml = true;
+            NetworkCredential nc = new NetworkCredential(Emisor, EmisorPass);
+            smtp.Credentials = nc;
+            smtp.Send(mail);
         }
         /*public async Task<Venta> SuccessfulResponse(string body)
         {
