@@ -18,7 +18,6 @@ namespace SISFAHD.Controllers
     public class VentaController:Controller
     {
         private readonly VentaService _pagocita;
-
         public VentaController(VentaService ventaService)
         {
             _pagocita = ventaService;
@@ -40,7 +39,7 @@ namespace SISFAHD.Controllers
         public async Task<ActionResult<Venta>> PostCrearVenta([FromBody] Venta pagorealizado)
         {
             return _pagocita.CrearVenta(pagorealizado);
-        }
+        }        
         //[HttpPost("/responsevisa/{id_cita}")]
         //public async Task<ActionResult<Venta>> PostTransaccion(String id_cita, [FromForm] ResponsePost response)
         //{
