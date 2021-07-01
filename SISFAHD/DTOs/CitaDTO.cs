@@ -70,11 +70,16 @@ namespace SISFAHD.DTOs
         public string id_paciente { get; set; }
         public double precio_neto { get; set; }
         public string tipo_pago { get; set; }
+        public ContenidoIdUsuario datos_usuario { get; set; } = new ContenidoIdUsuario();
         public ContenidoDatosPaciente datos_paciente { get; set; } = new ContenidoDatosPaciente();
         public ContenidoDatosTurno datos_turno { get; set; } = new ContenidoDatosTurno();
 
         public ActoMedico datos_acto_medico { get; set; }
 
+    }
+    public class ContenidoIdUsuario
+    {
+        public string id_usuario { get; set; }
     }
     public class CitaTurno
     {

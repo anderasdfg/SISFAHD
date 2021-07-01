@@ -947,12 +947,12 @@ namespace SISFAHD.Services
             return PagoDTO;
         }
 
-        public async Task<List<CitaActoMedioDTO2>> GetAllCitasByIdPacienteActoMedico(string idPaciente)
+        public async Task<List<CitaActoMedioDTO2>> GetAllCitasByIdPacienteActoMedico(string idUsuario)
         {
             List<CitaActoMedioDTO2> PagoDTO = new List<CitaActoMedioDTO2>();
 
             var match = new BsonDocument("$match",
-                       new BsonDocument("id_paciente", idPaciente));
+                       new BsonDocument("id_usuario", idUsuario));
 
             var addfields1 = new BsonDocument("$addFields",
                                 new BsonDocument("id_paciente_pro",
@@ -1110,6 +1110,7 @@ namespace SISFAHD.Services
                                     { "id_paciente", 1 },
                                     { "precio_neto", 1 },
                                     { "tipo_pago", 1 },
+                                    { "datos_usuario.id_usuario", 1 },
                                     { "datos_paciente",
                             new BsonDocument
                                     {
@@ -1134,41 +1135,6 @@ namespace SISFAHD.Services
                             new BsonDocument("nombre_apellido_medico", 1) }
                                     } }
                                 });
-            //var project = new BsonDocument("$project",
-            //                    new BsonDocument
-            //                        {
-            //                        { "_id", 1 },
-            //                        { "estado_atencion", 1 },
-            //                        { "estado_pago", 1 },
-            //                        { "fecha_cita", 1 },
-            //                        { "fecha_pago", 1 },
-            //                        { "id_paciente", 1 },
-            //                        { "precio_neto", 1 },
-            //                        { "tipo_pago", 1 },
-            //                        { "datos_usuario.id_usuario", 1 },
-            //                        { "datos_paciente",
-            //                new BsonDocument
-            //                        {
-            //                            { "datos",
-            //                new BsonDocument
-            //                            {
-            //                                { "nombre_apellido_paciente", 1 },
-            //                                { "correo", 1 }
-            //                            } },
-            //                            { "usuario", 1 },
-            //                            { "clave", 1 },
-            //                            { "nombre_rol",
-            //                new BsonDocument("nombre", 1) }
-            //                        } },
-            //                        { "datos_acto_medico", 1 },
-            //                        { "datos_turno",
-            //                new BsonDocument
-            //                        {
-            //                            { "especialidad", 1 },
-            //                            { "datos_medico",
-            //                new BsonDocument("nombre_apellido_medico", 1) }
-            //                        } }
-            //                        });
             PagoDTO = await _cita.Aggregate()
                                 .AppendStage<dynamic>(match)
                                 .AppendStage<dynamic>(addfields1)
