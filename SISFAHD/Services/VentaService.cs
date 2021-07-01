@@ -773,8 +773,8 @@ namespace SISFAHD.Services
                                             "</td>" +
                                         "</tr>" +
                                         "<tr>" +
-                                            "<td style = 'padding:0;background:#ee4c50;' >" +
-                                                "< a href = '"+c.enlace_cita+"' style = 'background-color:red; color:white; padding:1em 1.5em; text-transform:uppercase; text-decoration:none'> Ir a reunión</ a >"+
+                                            "<td style = 'padding:0' >" +
+                                                "<a href = '"+c.enlace_cita+"' style = 'background-color:red; color:white; padding:1em 1.5em; text-transform:uppercase; text-decoration:none'> Ir a reunión</a>"+
                                              "</td>" +
                                         "</tr>" +                                        
                                  "</table>" +
