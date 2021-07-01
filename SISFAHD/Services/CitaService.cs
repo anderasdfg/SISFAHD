@@ -443,9 +443,9 @@ namespace SISFAHD.Services
             List<CitaDTO2> citas = new List<CitaDTO2>();
             DateTime firstDate = new DateTime(year, month, 1,0,0,0);
             DateTime lastDate = firstDate.AddMonths(1).AddDays(-1);
-            lastDate.AddHours(23);
-            lastDate.AddMinutes(59);
-            lastDate.AddSeconds(59);
+            lastDate = lastDate.AddHours(23);
+            lastDate = lastDate.AddMinutes(59);
+            lastDate = lastDate.AddSeconds(59);
 
             var match = new BsonDocument("$match",
                                 new BsonDocument("$and",
