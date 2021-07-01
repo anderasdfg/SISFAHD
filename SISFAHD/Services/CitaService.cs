@@ -710,7 +710,12 @@ namespace SISFAHD.Services
             cita = _cita.Find(Cita => true).ToList();
             return cita;
         }
-
+        public Cita GetByIdPaciente(string id_paciente)
+        {
+            Cita cita = new Cita();
+            cita = _cita.Find(cita => cita.id_paciente == id_paciente).FirstOrDefault();
+            return cita;
+        }
         public async Task<List<CitaTurno>> GetCitasANDTurnos(string turnosid)
         {
             var match = new BsonDocument("$match",
