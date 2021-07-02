@@ -951,8 +951,7 @@ namespace SISFAHD.Services
         {
             List<CitaActoMedioDTO2> PagoDTO = new List<CitaActoMedioDTO2>();
 
-            var match = new BsonDocument("$match",
-                       new BsonDocument("id_usuario", idUsuario));
+            
 
             var addfields1 = new BsonDocument("$addFields",
                                 new BsonDocument("id_paciente_pro",
@@ -1135,8 +1134,9 @@ namespace SISFAHD.Services
                             new BsonDocument("nombre_apellido_medico", 1) }
                                     } }
                                 });
+            var match = new BsonDocument("$match",
+                       new BsonDocument("datos_usuario.id_usuario", idUsuario));
             PagoDTO = await _cita.Aggregate()
-                                .AppendStage<dynamic>(match)
                                 .AppendStage<dynamic>(addfields1)
                                 .AppendStage<dynamic>(lookup1)
                                 .AppendStage<dynamic>(unwind1)
@@ -1160,7 +1160,8 @@ namespace SISFAHD.Services
                                 .AppendStage<dynamic>(addfields9)
                                 .AppendStage<dynamic>(lookup7)
                                 .AppendStage<dynamic>(unwind7)
-                                .AppendStage<CitaActoMedioDTO2>(project)
+                                .AppendStage<dynamic>(project)
+                                .AppendStage<CitaActoMedioDTO2>(match)
                                 .ToListAsync();
             return PagoDTO;
         }
