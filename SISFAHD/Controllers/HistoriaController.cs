@@ -22,5 +22,10 @@ namespace SISFAHD.Controllers
         {
             return _historiaservice.GetById(id);
         }
+        [HttpPut("historia")]
+        public ActionResult<Historia> PushHistorial(Historia historia)
+        {
+            return _historiaservice.ModifyHistoria(historia);
+        }
     }
 }

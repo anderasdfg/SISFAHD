@@ -22,5 +22,13 @@ namespace SISFAHD.Services
             historia = _historias.Find(historia => historia.id == id).FirstOrDefault();
             return historia;
         }
+
+        public Historia ModifyHistoria(Historia historia)
+        {
+            var filter = Builders<Historia>.Filter.Eq("id", historia.id);
+            var pushHistoria = Builders<Historia>.Update.Push("historial", historia.historial[0]);
+             _historias.FindOneAndUpdateAsync(filter, pushHistoria);
+            return historia;
+        }        
     }
 }
