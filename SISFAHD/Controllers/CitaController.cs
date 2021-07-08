@@ -86,5 +86,10 @@ namespace SISFAHD.Controllers
         {
             return await _cita.GetAllCitasByIdPaciente(idPaciente);
         }
+        [HttpGet("acto_medico_2")]
+        public async Task<ActionResult<List<CitaActoMedioDTO2>>> GetAllByIdPacienteActoMedico([FromQuery] string idUsuario)
+        {
+            return await _cita.GetAllCitasByIdPacienteActoMedico(idUsuario);
+        }
     }
 }
