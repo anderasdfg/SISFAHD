@@ -753,35 +753,116 @@ namespace SISFAHD.Services
             string EmisorPass = "sisf@hd12";
             string displayName = "SISFAHD";
             string Receptor = objpaciente.usuario;
-            string htmlbody = "<body style='margin:0;padding:0;'>" +
-                                "<table role = 'presentation' style = 'width:602px;border-collapse:collapse;border:1px solid #cccccc;border-spacing:0;text-align:left;' >" +
-                                        "<tr>" +
-                                            "<td align = 'center' style = 'padding:40px 0 30px 0;background:#70bbd9;'>" +
-                                                    "<img src = 'https://blog.dinterweb.com/hubfs/directmailemail_1361936.jpg' alt = '' width = '300' style = 'height:auto;display:block;'/>" +
-                                            "</td>" +
-                                        "</tr>" +
-                                        "<tr>" +
-                                            "<td style = 'padding:0;background:#ee4c50;' >" +
-                                                "SISFAHD" +
-                                            "</td>" +
-                                        "</tr>" +
-                                        "<tr>" +
-                                            "<td style = 'padding:0;'>" +
-                                                "<h1> Cita Pagada </h1>" +
-                                                    "<p>Fecha de cita: " + c.fecha_cita.ToString() + "</p>" +
-                                                    "<p>Médico: " + objMedico.datos.nombre + " " + objMedico.datos.apellido_paterno + " " + objMedico.datos.apellido_materno + "</p>" +
-                                            "</td>" +
-                                        "</tr>" +
-                                        "<tr>" +
-                                            "<td style = 'padding:0' >" +
-                                                "<a href = '"+c.enlace_cita+"' style = 'background-color:red; color:white; padding:1em 1.5em; text-transform:uppercase; text-decoration:none'> Ir a reunión</a>"+
-                                             "</td>" +
-                                        "</tr>" +                                        
-                                 "</table>" +
-                               "</body> ";
-
+            //string htmlbody = "<body style='margin:0;padding:0;'>" +
+            //                    "<table role = 'presentation' style = 'width:602px;border-collapse:collapse;border:1px solid #cccccc;border-spacing:0;text-align:left;' >" +
+            //                            "<tr>" +
+            //                                "<td align = 'center' style = 'padding:40px 0 30px 0;background:#70bbd9;'>" +
+            //                                        "<img src = 'https://blog.dinterweb.com/hubfs/directmailemail_1361936.jpg' alt = '' width = '300' style = 'height:auto;display:block;'/>" +
+            //                                "</td>" +
+            //                            "</tr>" +
+            //                            "<tr>" +
+            //                                "<td style = 'padding:0;background:#ee4c50;' >" +
+            //                                    "SISFAHD" +
+            //                                "</td>" +
+            //                            "</tr>" +
+            //                            "<tr>" +
+            //                                "<td style = 'padding:0;'>" +
+            //                                    "<h1> Cita Pagada </h1>" +
+            //                                        "<p>Fecha de cita: " + c.fecha_cita.ToString() + "</p>" +
+            //                                        "<p>Médico: " + objMedico.datos.nombre + " " + objMedico.datos.apellido_paterno + " " + objMedico.datos.apellido_materno + "</p>" +
+            //                                "</td>" +
+            //                            "</tr>" +
+            //                            "<tr>" +
+            //                                "<td style = 'padding:0' >" +
+            //                                    "<a href = '"+c.enlace_cita+"' style = 'background-color:red; color:white; padding:1em 1.5em; text-transform:uppercase; text-decoration:none'> Ir a reunión</a>"+
+            //                                 "</td>" +
+            //                            "</tr>" +                                        
+            //                     "</table>" +
+            //                   "</body> ";
+            string htmlbody = "<body class='body' style='padding:0 !important; margin:0 !important; display:block !important; min-width:100% !important; width:100% !important; background:#001f51; -webkit-text-size-adjust:none;'>" +
+                                "<table width = '100%' border='0' cellspacing='0' cellpadding='0' bgcolor='#001f51'>" +
+                                    "<tr>" +
+                                        "<td align = 'center' valign='top'>" +
+                                            "<table width = '650' border='0' cellspacing='0' cellpadding='0' class='mobile-shell'>" +
+                                                "<tr>" +
+                                                    "<td class='td container' style='width:650px; min-width:650px; font-size:0pt; line-height:0pt; margin:0; font-weight:normal; padding:55px 0px;'>" +
+                                                        "<table width = '100%' border='0' cellspacing='0' cellpadding='0'>" +
+                                                            "<tr>" +
+                                                                "<td class='p30-15 tbrr' style='padding: 30px; border-radius:12px 12px 0px 0px;' bgcolor='#ffffff'>" +
+                                                                    "<table width = '100%' border='0' cellspacing='0' cellpadding='0'>" +
+                                                                        "<tr>" +
+                                                                            "<th class='column-top' width='145' style='font-size:0pt; line-height:0pt; padding:0; margin:0; font-weight:normal; vertical-align:top;'>" +
+                                                                                "<table width = '100%' border='0' cellspacing='0' cellpadding='0'>" +
+                                                                                    "<tr>" +
+                                                                                        "<td class='img m-center' style='font-size:0pt; line-height:0pt; text-align:left;'><img src = 'https://i.ibb.co/C1DWyrk/logo-s.png' width='150' height='40' border='0' alt='' /></td>" +
+                                                                                    "</tr>" +
+                                                                                "</table>" +
+                                                                            "</th>" +
+                                                                            "<th class='column-empty2' width='1' style='font-size:0pt; line-height:0pt; padding:0; margin:0; font-weight:normal; vertical-align:top;'></th>" +
+                                                                        "</tr>" +
+                                                                    "</table>" +
+                                                                "</td>" +
+                                                            "</tr>" +
+                                                        "</table>" +
+                                                        "<table width = '100%' border='0' cellspacing='0' cellpadding='0'>" +
+                                                            "<tr>" +
+                                                                "<td class='fluid-img' style='font-size:0pt; line-height:0pt; text-align:left;'><img src = 'https://i.ibb.co/k3L5pTX/undraw-doctor-kw5l.png' border='0' width='650' height='370' alt='' /></td>" +
+                                                            "</tr>" +
+                                                        "</table>" +
+                                                        "<table width = '100%' border='0' cellspacing='0' cellpadding='0' bgcolor='#ffffff'>" +
+                                                            "<tr>" +
+                                                                "<td style = 'padding-bottom: 10px;' >" +
+                                                                    "< table width='100%' border='0' cellspacing='0' cellpadding='0'>" +
+                                                                        "<tr>" +
+                                                                            "<td class='p30-15' style='padding: 10px 30px;'>" +
+                                                                                "<table width = '100%' border='0' cellspacing='0' cellpadding='0'>" +
+                                                                                    "<tr>" +
+                                                                                        "<td class='h1 pb25' style='color:#444444; font-size:35px; line-height:42px; text-align:left; padding-bottom:25px;'>Reserva satisfactoria</td>" +
+                                                                                    "</tr>" +
+                                                                                    "<tr>" +
+                                                                                        "<td class='text-center pb25' style='color:#666666; font-family:Arial,sans-serif; font-size:16px; line-height:30px; text-align:left; padding-bottom:25px;'>" +
+                                                                                            "<b>Fecha de la cita</b> " + c.fecha_cita.ToString()  + "<br/>" +
+                                                                                            "<b>Médico</b> " + objMedico.datos.nombre + " " + objMedico.datos.apellido_paterno + " " + objMedico.datos.apellido_materno  + "<br/>" +
+                                                                                            "<b>Costo de la consulta </b>S/." + c.precio_neto.ToString() +  " <br/>" +
+                                                                                            "<b>Método de pago</b> Niubiz <br/>" +
+                                                                                        "</td>" +
+                                                                                    "</tr>" +
+                                                                                    "<tr>" +
+                                                                                        "<td align = 'center' >" +
+                                                                                            "<table class='center' border='0' cellspacing='0' cellpadding='0' style='text-align:center;'>" +
+                                                                                                "<tr>" +
+                                                                                                    "<td class='text-button' style='background:#ffda5c; color:#444444; font-size:14px; line-height:18px; padding:12px 15px; text-align:center; border-radius:10px; text-transform:uppercase;'><a href = '"+ c.enlace_cita + "' target='_blank' class='link' style='color:#000001; text-decoration:none;'><span class='link' style='color:#000001; text-decoration:none;'>Ir a la consulta</span></a></td>" +
+                                                                                                "</tr>" +
+                                                                                            "</table>" +
+                                                                                        "</td>" +
+                                                                                    "</tr>" +
+                                                                                "</table>" +
+                                                                            "</td>" +
+                                                                        "</tr>" +
+                                                                    "</table>" +
+                                                                "</td>" +
+                                                            "</tr>" +
+                                                        "</table>" +
+                                                        "<table width = '100%' border= '0' cellspacing= '0' cellpadding= '0' >" +
+                                                              "<tr>" +
+                                                                  "<td class='p30-15 bbrr' style='padding: 20px 30px; border-radius:0px 0px 12px 12px;' bgcolor='#ffffff'>" +
+                                                                    "<table width = '100%' border='0' cellspacing='0' cellpadding='0'>" +
+                                                                        "<tr>" +
+                                                                            "<td class='text-footer2' style='color:#999999; font-family:Arial,sans-serif; font-size:12px; line-height:26px; text-align:center;'>Recuerde ingresar 5 minutos antes de que empiece la videoconsulta</td>" +
+                                                                        "</tr>" +
+                                                                    "</table>" +
+                                                                "</td>" +
+                                                            "</tr>" +
+                                                        "</table>" +
+                                                    "</td>" +
+                                                "</tr>" +
+                                            "</table>" +
+                                        "</td>" +
+                                    "</tr>" +
+                                "</table>" +
+                            "</body>";
             MailMessage mail = new MailMessage();
-            mail.Subject = "Bienvenido";
+            mail.Subject = "Reserva de cita satisfactoria - SISFAHD";
             mail.From = new MailAddress(Emisor.Trim(), displayName);
             mail.Body = htmlbody;
             mail.To.Add(new MailAddress(Receptor));
