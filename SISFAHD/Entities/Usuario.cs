@@ -83,5 +83,10 @@ namespace SISFAHD.Entities
         public string sexo { get; set; }
         [BsonElement("foto")]
         public string foto { get; set; }
+
+        [BsonElement("codigo")]
+        public string codigo { get; set; }
+        
+
     }
 }

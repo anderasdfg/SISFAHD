@@ -55,7 +55,14 @@ namespace SISFAHD.Services
             user = _UsuarioCollection.Find(sucorreo => sucorreo.usuario == email).FirstOrDefault();
             string codigorandom; // Cambiar por user.algo para asignarlo
             codigorandom = RandomString(12);
-            
+            //user.datos.codigo = codigorandom;
+            var filter = Builders<Usuario>.Filter.Eq("datos.correo", email);
+            var update = Builders<Usuario>.Update
+                         .Set("datos.codigo", codigorandom);
+            var resultado = _UsuarioCollection.FindOneAndUpdateAsync<Usuario>(filter, update, new FindOneAndUpdateOptions<Usuario>
+            {
+                ReturnDocument = ReturnDocument.After
+            });
             SmtpClient smtp = new SmtpClient();
             smtp.Host = "smtp.gmail.com";
             smtp.Port = 587;
@@ -66,7 +73,7 @@ namespace SISFAHD.Services
             string Emisor = "sisfahdq@gmail.com";
             string EmisorPass = "sisf@hd12";
             string displayName = "SISFAHD";
-            string Receptor = "damien66w_u392s@tahyu.com"; //user.usuario;
+            string Receptor = "virgil27r_k185z@tahyu.com"; //user.usuario;
             string htmlbody = "<body style='margin:0;padding:0;'>" +
                                 "<table role = 'presentation' style = 'width:602px;border-collapse:collapse;border:1px solid #cccccc;border-spacing:0;text-align:left;' >" +
                                         "<tr>" +
