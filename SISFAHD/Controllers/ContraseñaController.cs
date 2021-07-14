@@ -20,30 +20,27 @@ namespace SISFAHD.Controllers
     public class ContraseñaController : Controller
     {
         private readonly ContraseñaService _contraseña;
-        private readonly IMongoCollection<Usuario> _UsuarioCollection;
-        public ContraseñaController(ContraseñaService contraseña, ISisfahdDatabaseSettings settings)
+        public ContraseñaController(ContraseñaService contraseña)
         {
-
             _contraseña = contraseña;
-            var client = new MongoClient(settings.ConnectionString);
-            var database = client.GetDatabase(settings.DatabaseName);
-            _UsuarioCollection = database.GetCollection<Usuario>("usuarios");
-
         }
 
         [HttpGet("Notificacion")]
-
         public void SendCode(string correo)
         {
             _contraseña.SendNotification(correo);
         }
         // Cambiar contraseña
-
         [HttpPut("Modificar")]
         public void ModificarPass(string code, string pass)
         {
             _contraseña.ModificarPass(code, pass);
         }
-        
+        // Verificar Codigo
+        [HttpGet("Verify")]
+        public void VerifyCode(string code)
+        {
+            _contraseña.VerifyPass(code);
+        }
     }
 }

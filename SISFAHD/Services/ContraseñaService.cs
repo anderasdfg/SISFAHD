@@ -29,18 +29,22 @@ namespace SISFAHD.Services
         }
 
         // Verificar codigo
-        public void /*async Task<Usuario> */ ModificarPass(string code, string pass)
+        public void VerifyPass(string code)
         {
-                      // El cambio de Pass
-        /*    var filter = Builders<Usuario>.Filter.Eq("nuevocampo", code.nuevocampo);
+            Usuario user = new Usuario();
+            user = _UsuarioCollection.Find(sucorreo => sucorreo.datos.codigo == code).FirstOrDefault();
+        }
+        //Cambiar Pass
+        public void ModificarPass(string code, string pass)
+        {
+            var filter = Builders<Usuario>.Filter.Eq("datos.codigo", code);
             var update = Builders<Usuario>.Update
                          .Set("clave", pass)
-                         .Set("nuevocampo", "");
-            var resultado = await _UsuarioCollection.FindOneAndUpdateAsync<Usuario>(filter, update, new FindOneAndUpdateOptions<Usuario>
+                         .Set("datos.codigo", "");
+            _ = _UsuarioCollection.FindOneAndUpdateAsync<Usuario>(filter, update, new FindOneAndUpdateOptions<Usuario>
             {
                 ReturnDocument = ReturnDocument.After
             });
-            return ;*/
         }
         public static string RandomString(int length)
         {
@@ -53,9 +57,10 @@ namespace SISFAHD.Services
         {
             Usuario user = new Usuario();
             user = _UsuarioCollection.Find(sucorreo => sucorreo.usuario == email).FirstOrDefault();
+
             string codigorandom; // Cambiar por user.algo para asignarlo
             codigorandom = RandomString(12);
-            //user.datos.codigo = codigorandom;
+
             var filter = Builders<Usuario>.Filter.Eq("datos.correo", email);
             var update = Builders<Usuario>.Update
                          .Set("datos.codigo", codigorandom);
@@ -63,6 +68,7 @@ namespace SISFAHD.Services
             {
                 ReturnDocument = ReturnDocument.After
             });
+
             SmtpClient smtp = new SmtpClient();
             smtp.Host = "smtp.gmail.com";
             smtp.Port = 587;
