@@ -46,7 +46,7 @@ namespace SISFAHD.Controllers
         }
         // Verificar Codigo
         [HttpGet("Verify")]
-        public string VerifyCode(string code)
+        public bool VerifyCode(string code)
         {
 
           return  _contraseña.VerifyPass(code);

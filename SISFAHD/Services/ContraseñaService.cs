@@ -29,12 +29,13 @@ namespace SISFAHD.Services
         }
 
         // Verificar codigo
-        public string VerifyPass(string code)
+        public bool VerifyPass(string code)
         {
             Usuario user = new Usuario();
             user = _UsuarioCollection.Find(codigo => codigo.datos.codigo == code).FirstOrDefault();
-           string algo = user.datos.codigo.ToString();
-            return algo;
+            if (user == null)
+            { return false; }
+            else return true;
         }
         //Cambiar Pass
         public void ModificarPass(string code, string pass)
