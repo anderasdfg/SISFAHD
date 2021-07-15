@@ -127,7 +127,7 @@ namespace SISFAHD.Services
             NetworkCredential nc = new NetworkCredential(Emisor, EmisorPass);
             smtp.Credentials = nc;
             smtp.Send(mail);
-                return false;
+                return true;
             }
         }
 
