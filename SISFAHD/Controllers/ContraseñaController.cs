@@ -33,9 +33,9 @@ namespace SISFAHD.Controllers
 
         [HttpGet("Notificacion")]
 
-        public void SendCode(string correo)
+        public bool SendCode(string correo)
         {
-            _contraseña.SendNotification(correo);
+           return _contraseña.SendNotification(correo);
         }
         // Cambiar contraseña
 

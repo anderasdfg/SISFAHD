@@ -55,11 +55,13 @@ namespace SISFAHD.Services
               .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        public void SendNotification(string email)
+        public bool SendNotification(string email)
         {
             Usuario user = new Usuario();
             user = _UsuarioCollection.Find(sucorreo => sucorreo.usuario == email).FirstOrDefault();
 
+            if (user == null) { return false; }
+            else { 
             string codigorandom; // Cambiar por user.algo para asignarlo
             codigorandom = RandomString(12);
 
@@ -81,7 +83,7 @@ namespace SISFAHD.Services
             string Emisor = "sisfahdq@gmail.com";
             string EmisorPass = "sisf@hd12";
             string displayName = "SISFAHD";
-            string Receptor = "virgil27r_k185z@tahyu.com"; //user.usuario;
+            string Receptor = "keliv46623@ovooovo.com"; //user.usuario;
             string htmlbody = "<body style='margin:0;padding:0;'>" +
                                 "<table role = 'presentation' style = 'width:602px;border-collapse:collapse;border:1px solid #cccccc;border-spacing:0;text-align:left;' >" +
                                         "<tr>" +
@@ -124,6 +126,8 @@ namespace SISFAHD.Services
             NetworkCredential nc = new NetworkCredential(Emisor, EmisorPass);
             smtp.Credentials = nc;
             smtp.Send(mail);
+                return false;
+            }
         }
 
     }
