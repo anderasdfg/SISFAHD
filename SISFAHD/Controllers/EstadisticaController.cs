@@ -56,5 +56,21 @@ namespace SISFAHD.Controllers
                 return await _estadistica.CantidadCitasxPaciente_y_Estado(idPaciente, estado);
             }
         }
+
+        [HttpGet("especialidadespedidas")]
+        public async Task<ActionResult<List<EspecialidadesMPedidas>>> EspecialidadesMasPedidas()
+        {
+                return await _estadistica.EspecialidadesMasPedidas();
+        }
+        [HttpGet("medicamentospedidos")]
+        public async Task<ActionResult<List<MedicamentosMPedidos>>> MedicamentosMasPedidos()
+        {
+            return await _estadistica.MedicamentosMasPedidos();
+        }
+        [HttpGet("laboratoriopedidos")]
+        public async Task<ActionResult<List<LaboratorioPedidos>>> LaboratorioMasPedidos()
+        {
+            return await _estadistica.LaboratorioMasPedidos();
+        }
     }
 }

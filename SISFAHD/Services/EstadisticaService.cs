@@ -12,11 +12,13 @@ namespace SISFAHD.Services
     public class EstadisticaService
     {
         private readonly IMongoCollection<Cita> _cita;
+        private readonly IMongoCollection<ActoMedico> _acto;
         public EstadisticaService(ISisfahdDatabaseSettings settings)
         {
             var paciente = new MongoClient(settings.ConnectionString);
             var database = paciente.GetDatabase(settings.DatabaseName);
             _cita = database.GetCollection<Cita>("citas");
+            _acto = database.GetCollection<ActoMedico>("acto_medico");
         }
         public async Task<EstadisticaDTO> CitasxEstadoAtencion(string estado)
         {
@@ -338,6 +340,160 @@ namespace SISFAHD.Services
                    .AppendStage<dynamic>(group)
                    .AppendStage<EstadisticaDTO>(project).FirstAsync();
             return eDTO;
+        }
+        public async Task<List<EspecialidadesMPedidas>> EspecialidadesMasPedidas()
+        {
+            var match = new BsonDocument("$match",
+                        new BsonDocument("estado_pago", "pagado"));
+            var addfields = new BsonDocument("$addFields",
+                            new BsonDocument("id_turno",
+                            new BsonDocument("$toObjectId", "$id_turno")));
+            var lookup = new BsonDocument("$lookup",
+                            new BsonDocument
+                            {
+                                { "from", "turnos" },
+                                { "localField", "id_turno" },
+                                { "foreignField", "_id" },
+                                { "as", "turno" }
+                            });
+            var unwind = new BsonDocument("$unwind",
+                         new BsonDocument
+                         {
+                            { "path", "$turno" },
+                            { "preserveNullAndEmptyArrays", true }
+                         });
+            var addfields1 = new BsonDocument("$addFields",
+                            new BsonDocument("especialidad", "$turno.especialidad"));
+            var group = new BsonDocument("$group",
+                        new BsonDocument
+                        {
+                            { "_id", "$especialidad.codigo" },
+                            { "cantidad", new BsonDocument("$sum", 1) }
+                        });
+            var addfields2 = new BsonDocument("$addFields",
+                                new BsonDocument("id",
+                                new BsonDocument("$toObjectId", "$_id")));
+            var lookup1 = new BsonDocument("$lookup",
+                            new BsonDocument
+                            {
+                                { "from", "especialidades" },
+                                { "localField", "id" },
+                                { "foreignField", "_id" },
+                                { "as", "datos" }
+                            });
+            var unwind1 = new BsonDocument("$unwind",
+                            new BsonDocument
+                            {
+                                { "path", "$datos" },
+                                { "preserveNullAndEmptyArrays", false }
+                            });
+            var project = new BsonDocument("$project",
+                            new BsonDocument
+                            {
+                                { "_id", 1 },
+                                { "cantidad", 1 },
+                                { "datos.nombre", 1 },
+                                { "datos.url", 1 }
+                            });
+
+            List<EspecialidadesMPedidas> listaEsp = new List<EspecialidadesMPedidas>();
+            listaEsp = await _cita.Aggregate()
+                        .AppendStage<dynamic>(match)
+                        .AppendStage<dynamic>(addfields)
+                        .AppendStage<dynamic>(lookup)
+                        .AppendStage<dynamic>(unwind)
+                        .AppendStage<dynamic>(addfields1)
+                        .AppendStage<dynamic>(group)
+                        .AppendStage<dynamic>(addfields2)
+                        .AppendStage<dynamic>(lookup1)
+                        .AppendStage<dynamic>(unwind1)
+                        .AppendStage<EspecialidadesMPedidas>(project).ToListAsync();
+
+            listaEsp = listaEsp.OrderByDescending(x => x.cantidad).ToList();
+            return listaEsp;
+        }
+        public async Task<List<MedicamentosMPedidos>> MedicamentosMasPedidos()
+        {
+            var unwind = new BsonDocument("$unwind",
+                        new BsonDocument
+                        {
+                            { "path", "$diagnostico" },
+                            { "preserveNullAndEmptyArrays", false }
+                        });
+            var unwind1 = new BsonDocument("$unwind",
+                        new BsonDocument
+                        {
+                            { "path", "$diagnostico.prescripcion" },
+                            { "preserveNullAndEmptyArrays", false }
+                        });
+            var group = new BsonDocument("$group",
+                        new BsonDocument
+                        {
+                            { "_id", "$diagnostico.prescripcion.codigo" },
+                            { "cantidad", new BsonDocument("$sum", 1) }
+                        });
+            var lookup = new BsonDocument("$lookup",
+                        new BsonDocument
+                        {
+                            { "from", "medicamentos" },
+                            { "localField", "_id" },
+                            { "foreignField", "codigo" },
+                            { "as", "datos" }
+                        });
+            var unwind2 = new BsonDocument("$unwind",
+                            new BsonDocument
+                            {
+                                { "path", "$datos" },
+                                { "preserveNullAndEmptyArrays", false }
+                            });
+            var project = new BsonDocument("$project",
+                            new BsonDocument
+                            {
+                                { "_id", 1 },
+                                { "cantidad", 1 },
+                                { "datos.nombre", 1 },
+                                { "datos.concentracion", 1 },
+                                { "datos.formula_farmaceutica", 1 }
+                            });
+            List<MedicamentosMPedidos> listaMedi = new List<MedicamentosMPedidos>();
+            listaMedi = await _acto.Aggregate()
+                        .AppendStage<dynamic>(unwind)
+                        .AppendStage<dynamic>(unwind1)
+                        .AppendStage<dynamic>(group)
+                        .AppendStage<dynamic>(lookup)
+                        .AppendStage<dynamic>(unwind2)
+                        .AppendStage<MedicamentosMPedidos>(project).ToListAsync();
+            listaMedi = listaMedi.OrderByDescending(x => x.cantidad).ToList();
+            return listaMedi;
+        }
+        public async Task<List<LaboratorioPedidos>> LaboratorioMasPedidos()
+        {
+            var unwind = new BsonDocument("$unwind",
+                            new BsonDocument
+                            {
+                                { "path", "$diagnostico" },
+                                { "preserveNullAndEmptyArrays", false }
+                            });
+            var unwind1 = new BsonDocument("$unwind",
+                            new BsonDocument
+                            {
+                                { "path", "$diagnostico.examenes_auxiliares" },
+                                { "preserveNullAndEmptyArrays", false }
+                            });
+            var group = new BsonDocument("$group",
+                        new BsonDocument
+                        {
+                            { "_id", "$diagnostico.examenes_auxiliares.nombre" },
+                            { "cantidad", new BsonDocument("$sum", 1) }
+                        });
+
+            List<LaboratorioPedidos> listaLabo = new List<LaboratorioPedidos>();
+            listaLabo = await _acto.Aggregate()
+                        .AppendStage<dynamic>(unwind)
+                        .AppendStage<dynamic>(unwind1)
+                        .AppendStage<LaboratorioPedidos>(group).ToListAsync();
+            listaLabo = listaLabo.OrderByDescending(x => x.cantidad).ToList();
+            return listaLabo;
         }
     }
 }
