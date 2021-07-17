@@ -55,6 +55,6 @@ namespace SISFAHD.Controllers
             {
                 return await _estadistica.CantidadCitasxPaciente_y_Estado(idPaciente, estado);
             }
-        }
+        }       
     }
 }

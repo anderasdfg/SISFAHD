@@ -49,5 +49,10 @@ namespace SISFAHD.Controllers
         {
             return await _turnoservice.GetCuposByEspecialidadAndFecha(idEspecialidad, fecha);
         }
+        [HttpGet("turnosfecha")]
+        public async Task<ActionResult<List<TurnoDTO>>> GetByFecha([FromQuery] DateTime fecha)
+        {
+            return await _turnoservice.GetCuposByFecha(fecha);
+        }
     }
 }
