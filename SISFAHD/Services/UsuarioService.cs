@@ -112,6 +112,47 @@ namespace SISFAHD.Services
             
         }
 
+        public async Task<Usuario> ModificarPerfilMedico(MedicoDTO3 user)
+        {
+            var filterId = Builders<Usuario>.Filter.Eq("id", user.id);
+            var update = Builders<Usuario>.Update
+               .Set("datos.nombre", user.usuario.datos.nombre)
+                .Set("datos.apellido_paterno", user.usuario.datos.apellido_paterno)
+                .Set("datos.apellido_materno", user.usuario.datos.apellido_materno)
+                .Set("datos.tipo_documento", user.usuario.datos.tipo_documento)
+                .Set("datos.numero_documento", user.usuario.datos.numero_documento)
+                .Set("datos.telefono", user.usuario.datos.telefono)
+                .Set("datos.fecha_nacimiento", user.usuario.datos.fecha_nacimiento)
+                .Set("datos.correo", user.usuario.datos.correo)
+                .Set("datos.sexo", user.usuario.datos.sexo)
+                .Set("datos.foto", user.usuario.datos.foto);
+
+            var resultado = await _usuarios.FindOneAndUpdateAsync<Usuario>(filterId, update, new FindOneAndUpdateOptions<Usuario>
+            {
+                ReturnDocument = ReturnDocument.After
+            });
+
+            var filterIdM = Builders<Medico>.Filter.Eq("id_usuario", user.id);
+            var updateM = Builders<Medico>.Update
+
+           .Set("datos_basicos.lugar_trabajo", user.datos_basicos.lugar_trabajo)
+           .Set("datos_basicos.numero_colegiatura", user.datos_basicos.numero_colegiatura)
+           .Set("datos_basicos.idiomas", user.datos_basicos.idiomas)
+           .Set("datos_basicos.universidad", user.datos_basicos.universidad)
+           .Set("datos_basicos.experiencia", user.datos_basicos.experiencia)
+           .Set("datos_basicos.cargos", user.datos_basicos.cargos);
+
+            //_usuarios.UpdateOneAsync(filterId, update);
+
+            var resultadoM = await _medico.FindOneAndUpdateAsync<Medico>(filterIdM, updateM, new FindOneAndUpdateOptions<Medico>
+            {
+                ReturnDocument = ReturnDocument.After
+            });
+
+            return resultado;
+
+        }
+
         public Usuario ModificarUsuario(Usuario usuario)
         {
 
@@ -135,8 +176,29 @@ namespace SISFAHD.Services
             return usuario;
         }
 
-        
-   
+        public Usuario ModificarPerfilUsuario(Usuario usuario)
+        {
+
+            var filter = Builders<Usuario>.Filter.Eq("id", usuario.id);
+            var update = Builders<Usuario>.Update
+                .Set("datos.nombre", usuario.datos.nombre)
+                .Set("datos.apellido_paterno", usuario.datos.apellido_paterno)
+                .Set("datos.apellido_materno", usuario.datos.apellido_materno)
+                .Set("datos.tipo_documento", usuario.datos.tipo_documento)
+                .Set("datos.numero_documento", usuario.datos.numero_documento)
+                .Set("datos.telefono", usuario.datos.telefono)
+                .Set("datos.fecha_nacimiento", usuario.datos.fecha_nacimiento)
+                .Set("datos.correo", usuario.datos.correo)
+                .Set("datos.sexo", usuario.datos.sexo)
+                .Set("datos.foto", usuario.datos.foto);
+
+            _usuarios.UpdateOne(filter, update);
+
+            return usuario;
+        }
+
+
+
 
         public async Task<UsuarioMedico> GetByIDmedico(string id)
         {

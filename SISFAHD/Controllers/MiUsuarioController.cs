@@ -56,6 +56,32 @@ namespace SISFAHD.Controllers
             return objetousuario;
         }
 
+        [HttpPut("ModificarPerfilUsuario")]
+        public async Task<ActionResult<Usuario>> ModificarPerfilUsuario(Usuario id)
+        {
+
+            try
+            {
+                if (!id.datos.foto.StartsWith("http"))
+                {
+                    if (!string.IsNullOrWhiteSpace(id.datos.foto))
+                    {
+                        var profileimg = Convert.FromBase64String(id.datos.foto);
+                        id.datos.foto = await _fileStorage.EditFile(profileimg, "jpg", "usuario", id.datos.foto);
+                    }
+                }
+
+                Usuario usuario = _usuarioservice.ModificarPerfilUsuario(id);
+                return usuario;
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+
+
+        }
+
         [HttpPut("ModificarUsuario")]
         public async Task< ActionResult<Usuario>> ModificarUsuario(Usuario id)
         {
@@ -104,6 +130,31 @@ namespace SISFAHD.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex);
             }
            
+
+        }
+
+        [HttpPut("ModificarPerfilMedico")]
+        public async Task<ActionResult<Usuario>> ModificarPerfilMedico(MedicoDTO3 user)
+        {
+            try
+            {
+                if (!user.usuario.datos.foto.StartsWith("http"))
+                {
+                    if (!string.IsNullOrWhiteSpace(user.usuario.datos.foto))
+                    {
+                        var profileimg = Convert.FromBase64String(user.usuario.datos.foto);
+                        user.usuario.datos.foto = await _fileStorage.EditFile(profileimg, "jpg", "usuario", user.usuario.datos.foto);
+                    }
+                }
+
+                Usuario usuarioM = await _usuarioservice.ModificarPerfilMedico(user);
+                return usuarioM;
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+
 
         }
 
