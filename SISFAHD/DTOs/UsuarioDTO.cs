@@ -41,5 +41,6 @@ namespace SISFAHD.DTOs
         public string nombresyapellidos { get; set; }
 
         public string codigo { get; set; }
+
     }
 }
