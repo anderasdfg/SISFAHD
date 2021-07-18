@@ -38,6 +38,15 @@ namespace SISFAHD.Services
             await _cita.UpdateOneAsync(filter, update);
             return citaobj;
         }
+        public async Task<bool> PutSoloCitaAtendida(string idCita)
+        {
+            var filter = Builders<Cita>.Filter.Eq("id", ObjectId.Parse(idCita));
+            var update = Builders<Cita>.Update
+                .Set("estado_atencion", "atendido");
+
+            await _cita.UpdateOneAsync(filter, update);
+            return true;
+        }
         public async Task<List<CitaDTO>> GetAllCitaPagadasNoPagadas()
         {
             List<CitaDTO> PagoDTO = new List<CitaDTO>();
