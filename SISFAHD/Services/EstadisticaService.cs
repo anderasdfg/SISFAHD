@@ -358,7 +358,7 @@ namespace SISFAHD.Services
                             new BsonDocument
                             {
                                 { "estado_pago", "pagado" },
-                                { "fecha_pago",
+                                { "fecha_cita",
                             new BsonDocument
                             {
                                 { "$gte", new DateTime(fecha.Year, fecha.Month, fecha.Day, 0, 0, 0) },

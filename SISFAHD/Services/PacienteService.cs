@@ -87,6 +87,6 @@ namespace SISFAHD.Services
             paciente = await _PacienteCollection.Aggregate()
                            .AppendStage<Paciente>(match).FirstOrDefaultAsync();
             return paciente;
-        }
+        }        
     }
 }
