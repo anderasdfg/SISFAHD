@@ -38,6 +38,15 @@ namespace SISFAHD.Services
             await _cita.UpdateOneAsync(filter, update);
             return citaobj;
         }
+        public async Task<bool> PutSoloCitaAtendida(string idCita)
+        {
+            var filter = Builders<Cita>.Filter.Eq("id", ObjectId.Parse(idCita));
+            var update = Builders<Cita>.Update
+                .Set("estado_atencion", "atendido");
+
+            await _cita.UpdateOneAsync(filter, update);
+            return true;
+        }
         public async Task<List<CitaDTO>> GetAllCitaPagadasNoPagadas()
         {
             List<CitaDTO> PagoDTO = new List<CitaDTO>();
@@ -611,7 +620,9 @@ namespace SISFAHD.Services
         }
 
         public Cita CreateCita(Cita cita)
-        {            
+        {                        
+            //Inserta la cita
+            _cita.InsertOne(cita);
 
             //Ocupa el turno disponible
             Turno turno = _turnoservice.GetById(cita.id_turno);
@@ -634,9 +645,6 @@ namespace SISFAHD.Services
                 ReturnDocument = ReturnDocument.After
             });
 
-            //Inserta la cita
-            _cita.InsertOne(cita);
-
             //Crea la venta en pendiente para esa cita
             Venta venta = new Venta();
             venta.codigo_orden = "";
@@ -649,8 +657,9 @@ namespace SISFAHD.Services
             venta.titular = "";
             venta.moneda = "";            
 
-
             _ventaservice.CrearVenta(venta);
+
+
 
             return cita;
         }

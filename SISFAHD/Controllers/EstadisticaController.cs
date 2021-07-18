@@ -59,19 +59,19 @@ namespace SISFAHD.Controllers
         }
 
         [HttpGet("especialidadespedidas")]
-        public async Task<ActionResult<List<EspecialidadesMPedidas>>> EspecialidadesMasPedidas()
+        public async Task<ActionResult<List<EspecialidadesMPedidas>>> EspecialidadesMasPedidas(DateTime fecha)
         {
-                return await _estadistica.EspecialidadesMasPedidas();
+                return await _estadistica.EspecialidadesMasPedidas(fecha);
         }
         [HttpGet("medicamentospedidos")]
-        public async Task<ActionResult<List<MedicamentosMPedidos>>> MedicamentosMasPedidos()
+        public async Task<ActionResult<List<MedicamentosMPedidos>>> MedicamentosMasPedidos(DateTime fecha)
         {
-            return await _estadistica.MedicamentosMasPedidos();
+            return await _estadistica.MedicamentosMasPedidos(fecha);
         }
         [HttpGet("laboratoriopedidos")]
-        public async Task<ActionResult<List<LaboratorioPedidos>>> LaboratorioMasPedidos()
+        public async Task<ActionResult<List<LaboratorioPedidos>>> LaboratorioMasPedidos(DateTime fecha)
         {
-            return await _estadistica.LaboratorioMasPedidos();
+            return await _estadistica.LaboratorioMasPedidos(fecha);
         }
         [HttpGet("Medico")]
         public async Task<ActionResult<List<CitasxMedicos>>> ECitasxMedico()

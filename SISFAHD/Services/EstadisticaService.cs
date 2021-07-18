@@ -347,10 +347,31 @@ namespace SISFAHD.Services
                    .AppendStage<EstadisticaDTO>(project).FirstAsync();
             return eDTO;
         }
-        public async Task<List<EspecialidadesMPedidas>> EspecialidadesMasPedidas()
+        public async Task<List<EspecialidadesMPedidas>> EspecialidadesMasPedidas(DateTime fecha)
         {
+
+
+            DateTime fechaComparacion = new DateTime();
             var match = new BsonDocument("$match",
                         new BsonDocument("estado_pago", "pagado"));
+
+            if (fecha != fechaComparacion)
+            {
+                DateTime fechasiguiente = fecha;
+                fechasiguiente = fechasiguiente.AddDays(1);
+
+                match = new BsonDocument("$match",
+                            new BsonDocument
+                            {
+                                { "estado_pago", "pagado" },
+                                { "fecha_cita",
+                            new BsonDocument
+                            {
+                                { "$gte", new DateTime(fecha.Year, fecha.Month, fecha.Day, 0, 0, 0) },
+                                { "$lt", new DateTime(fechasiguiente.Year, fechasiguiente.Month, fechasiguiente.Day, 0, 0, 0) }
+                            } }
+                            });
+            }
             var addfields = new BsonDocument("$addFields",
                             new BsonDocument("id_turno",
                             new BsonDocument("$toObjectId", "$id_turno")));
@@ -418,8 +439,22 @@ namespace SISFAHD.Services
             listaEsp = listaEsp.OrderByDescending(x => x.cantidad).ToList();
             return listaEsp;
         }
-        public async Task<List<MedicamentosMPedidos>> MedicamentosMasPedidos()
+        public async Task<List<MedicamentosMPedidos>> MedicamentosMasPedidos(DateTime fecha)
         {
+            DateTime fechaComparacion = new DateTime();
+            BsonDocument match = new BsonDocument();
+            if (fecha != fechaComparacion)
+            {
+                DateTime fechasiguiente = fecha;
+                fechasiguiente = fechasiguiente.AddDays(1);
+                match = new BsonDocument("$match",
+                                    new BsonDocument("fecha_atencion",
+                                    new BsonDocument
+                                    {
+                                        { "$gte", new DateTime(fecha.Year, fecha.Month, fecha.Day, 0, 0, 0) },
+                                        { "$lt", new DateTime(fechasiguiente.Year, fechasiguiente.Month, fechasiguiente.Day, 0, 0, 0) }
+                                    }));
+            }
             var unwind = new BsonDocument("$unwind",
                         new BsonDocument
                         {
@@ -462,18 +497,46 @@ namespace SISFAHD.Services
                                 { "datos.formula_farmaceutica", 1 }
                             });
             List<MedicamentosMPedidos> listaMedi = new List<MedicamentosMPedidos>();
-            listaMedi = await _acto.Aggregate()
+            if (fecha != fechaComparacion)
+            {
+                listaMedi = await _acto.Aggregate()
+                        .AppendStage<dynamic>(match)
                         .AppendStage<dynamic>(unwind)
                         .AppendStage<dynamic>(unwind1)
                         .AppendStage<dynamic>(group)
                         .AppendStage<dynamic>(lookup)
                         .AppendStage<dynamic>(unwind2)
                         .AppendStage<MedicamentosMPedidos>(project).ToListAsync();
+            }
+            else
+            {
+                listaMedi = await _acto.Aggregate()
+                        .AppendStage<dynamic>(unwind)
+                        .AppendStage<dynamic>(unwind1)
+                        .AppendStage<dynamic>(group)
+                        .AppendStage<dynamic>(lookup)
+                        .AppendStage<dynamic>(unwind2)
+                        .AppendStage<MedicamentosMPedidos>(project).ToListAsync();
+            }
             listaMedi = listaMedi.OrderByDescending(x => x.cantidad).ToList();
             return listaMedi;
         }
-        public async Task<List<LaboratorioPedidos>> LaboratorioMasPedidos()
+        public async Task<List<LaboratorioPedidos>> LaboratorioMasPedidos(DateTime fecha)
         {
+            DateTime fechaComparacion = new DateTime();
+            BsonDocument match = new BsonDocument();
+            if (fecha != fechaComparacion)
+            {
+                DateTime fechasiguiente = fecha;
+                fechasiguiente = fechasiguiente.AddDays(1);
+                match = new BsonDocument("$match",
+                                    new BsonDocument("fecha_atencion",
+                                    new BsonDocument
+                                    {
+                                        { "$gte", new DateTime(fecha.Year, fecha.Month, fecha.Day, 0, 0, 0) },
+                                        { "$lt", new DateTime(fechasiguiente.Year, fechasiguiente.Month, fechasiguiente.Day, 0, 0, 0) }
+                                    }));
+            }
             var unwind = new BsonDocument("$unwind",
                             new BsonDocument
                             {
@@ -494,10 +557,21 @@ namespace SISFAHD.Services
                         });
 
             List<LaboratorioPedidos> listaLabo = new List<LaboratorioPedidos>();
-            listaLabo = await _acto.Aggregate()
+            if (fecha != fechaComparacion)
+            {
+                listaLabo = await _acto.Aggregate()
+                        .AppendStage<dynamic>(match)
                         .AppendStage<dynamic>(unwind)
                         .AppendStage<dynamic>(unwind1)
                         .AppendStage<LaboratorioPedidos>(group).ToListAsync();
+            }
+            else
+            {
+                listaLabo = await _acto.Aggregate()
+                       .AppendStage<dynamic>(unwind)
+                       .AppendStage<dynamic>(unwind1)
+                       .AppendStage<LaboratorioPedidos>(group).ToListAsync();
+            }
             listaLabo = listaLabo.OrderByDescending(x => x.cantidad).ToList();
             return listaLabo;
         }

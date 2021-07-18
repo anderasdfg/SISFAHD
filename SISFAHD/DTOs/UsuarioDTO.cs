@@ -39,5 +39,8 @@ namespace SISFAHD.DTOs
        
         public string foto { get; set; }
         public string nombresyapellidos { get; set; }
+
+        public string codigo { get; set; }
+
     }
 }

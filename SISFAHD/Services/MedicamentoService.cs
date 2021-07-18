@@ -27,10 +27,40 @@ namespace SISFAHD.Services
             medicamento = await _MedicamentoCollection.Aggregate().AppendStage<dynamic>(project).AppendStage<Medicamento>(limit).ToListAsync();
             return medicamento;
         }
-        public List<Medicamento> GetByName(string nombre)
+        public async Task<List<Medicamento>> GetByName(string nombre)
         {
             List<Medicamento> medicamento = new List<Medicamento>();
-            medicamento = _MedicamentoCollection.Find(medicamento => medicamento.nombre == nombre).ToList();
+            var primermatch = new BsonDocument("$match",
+                new BsonDocument("nombre",
+                new BsonDocument
+                        {
+                            { "$regex", nombre },
+                            { "$options", "g" }
+                        }));
+            var segundofiltro = new BsonDocument("$group",
+                new BsonDocument
+                    {
+                        { "_id",
+                new BsonDocument
+                        {
+                            { "nombre", "$nombre" },
+                            { "concentracion", "$concentracion" },
+                            { "formula_farmaceutica", "$formula_farmaceutica" }
+                        } },
+                        { "doc",
+                new BsonDocument("$first", "$$ROOT") }
+                    });
+            var tercerfiltro = new BsonDocument("$project",
+                new BsonDocument
+                    {
+                        { "_id", "$doc._id" },
+                        { "codigo", "$doc.codigo" },
+                        { "nombre", "$_id.nombre" },
+                        { "concentracion", "$_id.concentracion" },
+                        { "formula_farmaceutica", "$_id.formula_farmaceutica" }
+                    });
+
+            medicamento = await _MedicamentoCollection.Aggregate().AppendStage<dynamic>(primermatch).AppendStage<dynamic>(segundofiltro).AppendStage<Medicamento>(tercerfiltro).ToListAsync();
             return medicamento;
         }
         public async Task<List<Medicamento>> GetByNameConcentrationForm(string nombre, string concentracion, string forma)
