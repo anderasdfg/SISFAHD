@@ -63,6 +63,12 @@ namespace SISFAHD.Controllers
             return await _cita.PutSoloidActoMedico(citaobj);
         }
 
+        [HttpPut("actualizarCitaAtendida")]
+        public async Task<ActionResult<bool>> PutSoloCitaAtendida([FromQuery] string idCita)
+        {
+            return await _cita.PutSoloCitaAtendida(idCita);
+        }
+
         [HttpGet("allCita")]
         public ActionResult<List<Cita>> GetAllCita()
         {
