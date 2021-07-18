@@ -13,12 +13,18 @@ namespace SISFAHD.Services
     {
         private readonly IMongoCollection<Cita> _cita;
         private readonly IMongoCollection<ActoMedico> _acto;
+        private readonly IMongoCollection<Medico> _medicos;
+        private readonly IMongoCollection<Paciente> _pacientes;
         public EstadisticaService(ISisfahdDatabaseSettings settings)
         {
             var paciente = new MongoClient(settings.ConnectionString);
             var database = paciente.GetDatabase(settings.DatabaseName);
             _cita = database.GetCollection<Cita>("citas");
             _acto = database.GetCollection<ActoMedico>("acto_medico");
+
+            /////////-----------Colecciones Usadas en Estadistica---------/////////////
+            _medicos = database.GetCollection<Medico>("medicos");
+            _pacientes = database.GetCollection<Paciente>("pacientes");
         }
         public async Task<EstadisticaDTO> CitasxEstadoAtencion(string estado)
         {
@@ -568,6 +574,1049 @@ namespace SISFAHD.Services
             }
             listaLabo = listaLabo.OrderByDescending(x => x.cantidad).ToList();
             return listaLabo;
+        }
+
+        /////------------Citas x Estado Atencion--------------//////
+        public async Task<List<CitasxEstadoAtencion>> EstadisticasAllCitasxEstadoAtencion()
+        {
+            var group = new BsonDocument("$group",
+                        new BsonDocument
+                            {
+                                { "_id", "$estado_atencion" },
+                                { "cantidad",
+                        new BsonDocument("$sum", 1) }
+                            });
+            var addfields = new BsonDocument("$addFields",
+                        new BsonDocument("estado",
+                        new BsonDocument("$toString", "$_id")));
+            var project = new BsonDocument("$project",
+                        new BsonDocument("_id", 0));
+            List<CitasxEstadoAtencion> eDTO = new List<CitasxEstadoAtencion>();
+            eDTO = await _cita.Aggregate()
+                   .AppendStage<dynamic>(group)
+                   .AppendStage<dynamic>(addfields)
+                   .AppendStage<CitasxEstadoAtencion>(project).ToListAsync();
+            return eDTO;
+        }
+        public async Task<List<CitasxEstadoAtencion>> EstadisticasCitasxEstadoAtencion(string estado)
+        {
+            var group = new BsonDocument("$group",
+                        new BsonDocument
+                            {
+                                { "_id", "$estado_atencion" },
+                                { "cantidad",
+                        new BsonDocument("$sum", 1) }
+                            });
+            var addfields = new BsonDocument("$addFields",
+                        new BsonDocument("estado",
+                        new BsonDocument("$toString", "$_id")));
+            var project = new BsonDocument("$project",
+                        new BsonDocument("_id", 0));
+            var match = new BsonDocument("$match",
+                        new BsonDocument("estado", estado));
+            List<CitasxEstadoAtencion> eDTO = new List<CitasxEstadoAtencion>();
+            eDTO = await _cita.Aggregate()
+                   .AppendStage<dynamic>(group)
+                   .AppendStage<dynamic>(addfields)
+                   .AppendStage<dynamic>(project)
+                   .AppendStage<CitasxEstadoAtencion>(match).ToListAsync();
+            return eDTO;
+        }
+        /////------------Citas x Médicos--------------//////
+        public async Task<List<CitasxMedicos>> EstadisticasAllCitasxMedico()
+        {
+            var addfields = new BsonDocument("$addFields",
+                            new BsonDocument("id_med",
+                            new BsonDocument("$toString", "$_id")));
+            var lookup = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "citas" },
+                                    { "localField", "id_med" },
+                                    { "foreignField", "id_medico" },
+                                    { "as", "citas" }
+                                });
+            var project = new BsonDocument("$project",
+                            new BsonDocument
+                                {
+                                    { "datos_basicos", 1 },
+                                    { "turnos", 1 },
+                                    { "suscripcion", 1 },
+                                    { "citas", 1 },
+                                    { "id_especialidad", 1 },
+                                    { "cantidad",
+                            new BsonDocument("$size", "$citas") }
+                                });
+            var sort = new BsonDocument("$sort",
+                            new BsonDocument("cantidad", -1));
+            List<CitasxMedicos> estadisticaDTO = new List<CitasxMedicos>();
+            estadisticaDTO = await _medicos.Aggregate()
+                   .AppendStage<dynamic>(addfields)
+                   .AppendStage<dynamic>(lookup)
+                   .AppendStage<dynamic>(project)
+                   .AppendStage<CitasxMedicos>(sort).ToListAsync();
+
+            return estadisticaDTO;
+        }
+
+        /////------------Citas x Médicos y Estado Atencion--------------//////
+        public async Task<List<CitasxMedicosyEstadoAtencion>> EstadisticasCitasxMedicoyEstadoByMedico(string medico)
+        {
+            var addfields = new BsonDocument("$addFields",
+                            new BsonDocument("id_med",
+                            new BsonDocument("$toString", "$_id")));
+            var lookup = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "citas" },
+                                    { "localField", "id_med" },
+                                    { "foreignField", "id_medico" },
+                                    { "as", "cita" }
+                                });
+            var unwind = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$cita" },
+                                    { "preserveNullAndEmptyArrays", false }
+                                });
+            var group = new BsonDocument("$group",
+                            new BsonDocument
+                                {
+                                    { "_id",
+                            new BsonDocument
+                                    {
+                                        { "id_medico", "$_id" },
+                                        { "estado", "$cita.estado_atencion" }
+                                    } },
+                                    { "cantidad",
+                            new BsonDocument("$sum", 1) }
+                                });
+            var lookup2 = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "medicos" },
+                                    { "localField", "_id.id_medico" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_medico" }
+                                });
+            var unwind2 = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$datos_medico" },
+                                    { "preserveNullAndEmptyArrays", true }
+                                });
+            var addfields2 = new BsonDocument("$addFields",
+                            new BsonDocument("estado_atencion", "$_id.estado"));
+            var project = new BsonDocument("$project",
+                            new BsonDocument("_id", 0));
+            var match = new BsonDocument("$match",
+                            new BsonDocument
+                                {
+                                    { "datos_medico._id",
+                            new ObjectId(medico) }
+                                });
+            List<CitasxMedicosyEstadoAtencion> estadisticaDTO = new List<CitasxMedicosyEstadoAtencion>();
+            estadisticaDTO = await _medicos.Aggregate()
+                   .AppendStage<dynamic>(addfields)
+                   .AppendStage<dynamic>(lookup)
+                   .AppendStage<dynamic>(unwind)
+                   .AppendStage<dynamic>(group)
+                   .AppendStage<dynamic>(lookup2)
+                   .AppendStage<dynamic>(unwind2)
+                   .AppendStage<dynamic>(addfields2)
+                   .AppendStage<dynamic>(project)
+                   .AppendStage<CitasxMedicosyEstadoAtencion>(match).ToListAsync();
+
+            return estadisticaDTO;
+        }
+        public async Task<List<CitasxMedicosyEstadoAtencion>> EstadisticasCitasxMedicoyEstadoByEstado(string estado_atencion)
+        {
+            var addfields = new BsonDocument("$addFields",
+                            new BsonDocument("id_med",
+                            new BsonDocument("$toString", "$_id")));
+            var lookup = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "citas" },
+                                    { "localField", "id_med" },
+                                    { "foreignField", "id_medico" },
+                                    { "as", "cita" }
+                                });
+            var unwind = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$cita" },
+                                    { "preserveNullAndEmptyArrays", false }
+                                });
+            var group = new BsonDocument("$group",
+                            new BsonDocument
+                                {
+                                    { "_id",
+                            new BsonDocument
+                                    {
+                                        { "id_medico", "$_id" },
+                                        { "estado", "$cita.estado_atencion" }
+                                    } },
+                                    { "cantidad",
+                            new BsonDocument("$sum", 1) }
+                                });
+            var lookup2 = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "medicos" },
+                                    { "localField", "_id.id_medico" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_medico" }
+                                });
+            var unwind2 = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$datos_medico" },
+                                    { "preserveNullAndEmptyArrays", true }
+                                });
+            var addfields2 = new BsonDocument("$addFields",
+                            new BsonDocument("estado_atencion", "$_id.estado"));
+            var project = new BsonDocument("$project",
+                            new BsonDocument("_id", 0));
+            var match = new BsonDocument("$match",
+                            new BsonDocument
+                                {
+                                   
+                                    { "estado_atencion", estado_atencion }
+                                });
+            List<CitasxMedicosyEstadoAtencion> estadisticaDTO = new List<CitasxMedicosyEstadoAtencion>();
+            estadisticaDTO = await _medicos.Aggregate()
+                   .AppendStage<dynamic>(addfields)
+                   .AppendStage<dynamic>(lookup)
+                   .AppendStage<dynamic>(unwind)
+                   .AppendStage<dynamic>(group)
+                   .AppendStage<dynamic>(lookup2)
+                   .AppendStage<dynamic>(unwind2)
+                   .AppendStage<dynamic>(addfields2)
+                   .AppendStage<dynamic>(project)
+                   .AppendStage<CitasxMedicosyEstadoAtencion>(match).ToListAsync();
+
+            return estadisticaDTO;
+        }
+        public async Task<List<CitasxMedicosyEstadoAtencion>> EstadisticasCitasxMedicoyEstado(string medico, string estado_atencion)
+        {
+            var addfields = new BsonDocument("$addFields",
+                            new BsonDocument("id_med",
+                            new BsonDocument("$toString", "$_id")));
+            var lookup = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "citas" },
+                                    { "localField", "id_med" },
+                                    { "foreignField", "id_medico" },
+                                    { "as", "cita" }
+                                });
+            var unwind = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$cita" },
+                                    { "preserveNullAndEmptyArrays", false }
+                                });
+            var group = new BsonDocument("$group",
+                            new BsonDocument
+                                {
+                                    { "_id",
+                            new BsonDocument
+                                    {
+                                        { "id_medico", "$_id" },
+                                        { "estado", "$cita.estado_atencion" }
+                                    } },
+                                    { "cantidad",
+                            new BsonDocument("$sum", 1) }
+                                });
+            var lookup2 = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "medicos" },
+                                    { "localField", "_id.id_medico" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_medico" }
+                                });
+            var unwind2 = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$datos_medico" },
+                                    { "preserveNullAndEmptyArrays", true }
+                                });
+            var addfields2 = new BsonDocument("$addFields",
+                            new BsonDocument("estado_atencion", "$_id.estado"));
+            var project = new BsonDocument("$project",
+                            new BsonDocument("_id", 0));
+            var match = new BsonDocument("$match",
+                            new BsonDocument
+                                {
+                                    { "datos_medico._id",
+                            new ObjectId(medico) },
+                                    { "estado_atencion", estado_atencion }
+                                });
+            List<CitasxMedicosyEstadoAtencion> estadisticaDTO = new List<CitasxMedicosyEstadoAtencion>();
+            estadisticaDTO = await _medicos.Aggregate()
+                   .AppendStage<dynamic>(addfields)
+                   .AppendStage<dynamic>(lookup)
+                   .AppendStage<dynamic>(unwind)
+                   .AppendStage<dynamic>(group)
+                   .AppendStage<dynamic>(lookup2)
+                   .AppendStage<dynamic>(unwind2)
+                   .AppendStage<dynamic>(addfields2)
+                   .AppendStage<dynamic>(project)
+                   .AppendStage<CitasxMedicosyEstadoAtencion>(match).ToListAsync();
+
+            return estadisticaDTO;
+        }
+
+        /////------------Citas x Especialidad--------------//////
+        public async Task<List<CitasxEspecialidad>> EstadisticasAllCitasxEspecialidad()
+        {
+            var addfields = new BsonDocument("$addFields",
+                            new BsonDocument("id_med",
+                            new BsonDocument("$toString", "$_id")));
+            var lookup = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "citas" },
+                                    { "localField", "id_med" },
+                                    { "foreignField", "id_medico" },
+                                    { "as", "cita" }
+                                });
+            var unwind = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$cita" },
+                                    { "preserveNullAndEmptyArrays", false }
+                                });
+            var group = new BsonDocument("$group",
+                            new BsonDocument
+                                {
+                                    { "_id", "$id_especialidad" },
+                                    { "cantidad",
+                            new BsonDocument("$sum", 1) }
+                                });
+            var addfields2 = new BsonDocument("$addFields",
+                            new BsonDocument("_id",
+                            new BsonDocument("$toObjectId", "$_id")));
+            var lookup2 = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "especialidades" },
+                                    { "localField", "_id" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_especialidad" }
+                                });
+            var unwind2 = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$datos_especialidad" },
+                                    { "preserveNullAndEmptyArrays", true }
+                                });
+            List<CitasxEspecialidad> estadisticaDTO = new List<CitasxEspecialidad>();
+            estadisticaDTO = await _medicos.Aggregate()
+                   .AppendStage<dynamic>(addfields)
+                   .AppendStage<dynamic>(lookup)
+                   .AppendStage<dynamic>(unwind)
+                   .AppendStage<dynamic>(group)
+                   .AppendStage<dynamic>(addfields2)
+                   .AppendStage<dynamic>(lookup2)
+                   .AppendStage<CitasxEspecialidad>(unwind2).ToListAsync();
+
+            return estadisticaDTO;
+
+        }
+        public async Task<List<CitasxEspecialidad>> EstadisticasCitasxEspecialidad(string especialidad)
+        {
+            var addfields = new BsonDocument("$addFields",
+                            new BsonDocument("id_med",
+                            new BsonDocument("$toString", "$_id")));
+            var lookup = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "citas" },
+                                    { "localField", "id_med" },
+                                    { "foreignField", "id_medico" },
+                                    { "as", "cita" }
+                                });
+            var unwind = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$cita" },
+                                    { "preserveNullAndEmptyArrays", false }
+                                });
+            var group = new BsonDocument("$group",
+                            new BsonDocument
+                                {
+                                    { "_id", "$id_especialidad" },
+                                    { "cantidad",
+                            new BsonDocument("$sum", 1) }
+                                });
+            var addfields2 = new BsonDocument("$addFields",
+                            new BsonDocument("_id",
+                            new BsonDocument("$toObjectId", "$_id")));
+            var lookup2 = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "especialidades" },
+                                    { "localField", "_id" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_especialidad" }
+                                });
+            var unwind2 = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$datos_especialidad" },
+                                    { "preserveNullAndEmptyArrays", true }
+                                });
+            var match = new BsonDocument("$match",
+                            new BsonDocument
+                                {
+                                    { "datos_especialidad.nombre", especialidad }
+                                });
+            List<CitasxEspecialidad> estadisticaDTO = new List<CitasxEspecialidad>();
+            estadisticaDTO = await _medicos.Aggregate()
+                   .AppendStage<dynamic>(addfields)
+                   .AppendStage<dynamic>(lookup)
+                   .AppendStage<dynamic>(unwind)
+                   .AppendStage<dynamic>(group)
+                   .AppendStage<dynamic>(addfields2)
+                   .AppendStage<dynamic>(lookup2)
+                   .AppendStage<dynamic>(unwind2)
+                   .AppendStage<CitasxEspecialidad>(match).ToListAsync();
+
+            return estadisticaDTO;
+
+        }
+        /////------------Citas x Especialidad y Estado Atencion--------------//////
+        public async Task<List<CitasxEspecialidadyEstadoAtencion>> EstadisticasCitasxEspecialidadyEstadoAtencionByEspecialidad(string especialidad)
+        {
+            var addfields = new BsonDocument("$addFields",
+                            new BsonDocument("id_med",
+                            new BsonDocument("$toString", "$_id")));
+            var lookup = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "citas" },
+                                    { "localField", "id_med" },
+                                    { "foreignField", "id_medico" },
+                                    { "as", "citas" }
+                                });
+            var unwind = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$citas" },
+                                    { "preserveNullAndEmptyArrays", false }
+                                });
+            var group = new BsonDocument("$group",
+                            new BsonDocument
+                                {
+                                    { "_id",
+                            new BsonDocument
+                                    {
+                                        { "estado", "$citas.estado_atencion" },
+                                        { "especialidad", "$id_especialidad" }
+                                    } },
+                                    { "cantidad",
+                            new BsonDocument("$sum", 1) }
+                                });
+            var addfields2 = new BsonDocument("$addFields",
+                            new BsonDocument("id_esp",
+                            new BsonDocument("$toObjectId", "$_id.especialidad")));
+            var lookup2 = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "especialidades" },
+                                    { "localField", "id_esp" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_especialidad" }
+                                });
+            var unwind2 = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$datos_especialidad" },
+                                    { "preserveNullAndEmptyArrays", true }
+                                });
+            var addfields3 = new BsonDocument("$addFields",
+                            new BsonDocument("estado_atencion", "$_id.estado"));
+            var project = new BsonDocument("$project",
+                            new BsonDocument
+                                {
+                                    { "_id", 0 },
+                                    { "datos_especialidad", 1 },
+                                    { "estado_atencion", 1 },
+                                    { "cantidad", 1 }
+                                });
+            var match = new BsonDocument("$match",
+                            new BsonDocument
+                                {
+                                    { "datos_especialidad.nombre", especialidad }
+                                    
+                                });
+            List<CitasxEspecialidadyEstadoAtencion> estadisticaDTO = new List<CitasxEspecialidadyEstadoAtencion>();
+            estadisticaDTO = await _medicos.Aggregate()
+                   .AppendStage<dynamic>(addfields)
+                   .AppendStage<dynamic>(lookup)
+                   .AppendStage<dynamic>(unwind)
+                   .AppendStage<dynamic>(group)
+                   .AppendStage<dynamic>(addfields2)
+                   .AppendStage<dynamic>(lookup2)
+                   .AppendStage<dynamic>(unwind2)
+                   .AppendStage<dynamic>(addfields3)
+                   .AppendStage<dynamic>(project)
+                   .AppendStage<CitasxEspecialidadyEstadoAtencion>(match).ToListAsync();
+
+            return estadisticaDTO;
+
+        }
+        public async Task<List<CitasxEspecialidadyEstadoAtencion>> EstadisticasCitasxEspecialidadyEstadoAtencionByEstado( string estado_atencion)
+        {
+            var addfields = new BsonDocument("$addFields",
+                            new BsonDocument("id_med",
+                            new BsonDocument("$toString", "$_id")));
+            var lookup = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "citas" },
+                                    { "localField", "id_med" },
+                                    { "foreignField", "id_medico" },
+                                    { "as", "citas" }
+                                });
+            var unwind = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$citas" },
+                                    { "preserveNullAndEmptyArrays", false }
+                                });
+            var group = new BsonDocument("$group",
+                            new BsonDocument
+                                {
+                                    { "_id",
+                            new BsonDocument
+                                    {
+                                        { "estado", "$citas.estado_atencion" },
+                                        { "especialidad", "$id_especialidad" }
+                                    } },
+                                    { "cantidad",
+                            new BsonDocument("$sum", 1) }
+                                });
+            var addfields2 = new BsonDocument("$addFields",
+                            new BsonDocument("id_esp",
+                            new BsonDocument("$toObjectId", "$_id.especialidad")));
+            var lookup2 = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "especialidades" },
+                                    { "localField", "id_esp" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_especialidad" }
+                                });
+            var unwind2 = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$datos_especialidad" },
+                                    { "preserveNullAndEmptyArrays", true }
+                                });
+            var addfields3 = new BsonDocument("$addFields",
+                            new BsonDocument("estado_atencion", "$_id.estado"));
+            var project = new BsonDocument("$project",
+                            new BsonDocument
+                                {
+                                    { "_id", 0 },
+                                    { "datos_especialidad", 1 },
+                                    { "estado_atencion", 1 },
+                                    { "cantidad", 1 }
+                                });
+            var match = new BsonDocument("$match",
+                            new BsonDocument
+                                {
+                                    
+                                    { "estado_atencion", estado_atencion }
+                                });
+            List<CitasxEspecialidadyEstadoAtencion> estadisticaDTO = new List<CitasxEspecialidadyEstadoAtencion>();
+            estadisticaDTO = await _medicos.Aggregate()
+                   .AppendStage<dynamic>(addfields)
+                   .AppendStage<dynamic>(lookup)
+                   .AppendStage<dynamic>(unwind)
+                   .AppendStage<dynamic>(group)
+                   .AppendStage<dynamic>(addfields2)
+                   .AppendStage<dynamic>(lookup2)
+                   .AppendStage<dynamic>(unwind2)
+                   .AppendStage<dynamic>(addfields3)
+                   .AppendStage<dynamic>(project)
+                   .AppendStage<CitasxEspecialidadyEstadoAtencion>(match).ToListAsync();
+
+            return estadisticaDTO;
+
+        }
+        public async Task<List<CitasxEspecialidadyEstadoAtencion>> EstadisticasCitasxEspecialidadyEstadoAtencion(string especialidad, string estado_atencion)
+        {
+            var addfields = new BsonDocument("$addFields",
+                            new BsonDocument("id_med",
+                            new BsonDocument("$toString", "$_id")));
+            var lookup = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "citas" },
+                                    { "localField", "id_med" },
+                                    { "foreignField", "id_medico" },
+                                    { "as", "citas" }
+                                });
+            var unwind = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$citas" },
+                                    { "preserveNullAndEmptyArrays", false }
+                                });
+            var group = new BsonDocument("$group",
+                            new BsonDocument
+                                {
+                                    { "_id",
+                            new BsonDocument
+                                    {
+                                        { "estado", "$citas.estado_atencion" },
+                                        { "especialidad", "$id_especialidad" }
+                                    } },
+                                    { "cantidad",
+                            new BsonDocument("$sum", 1) }
+                                });
+            var addfields2 = new BsonDocument("$addFields",
+                            new BsonDocument("id_esp",
+                            new BsonDocument("$toObjectId", "$_id.especialidad")));
+            var lookup2 = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "especialidades" },
+                                    { "localField", "id_esp" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_especialidad" }
+                                });
+            var unwind2 = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$datos_especialidad" },
+                                    { "preserveNullAndEmptyArrays", true }
+                                });
+            var addfields3 = new BsonDocument("$addFields",
+                            new BsonDocument("estado_atencion", "$_id.estado"));
+            var project = new BsonDocument("$project",
+                            new BsonDocument
+                                {
+                                    { "_id", 0 },
+                                    { "datos_especialidad", 1 },
+                                    { "estado_atencion", 1 },
+                                    { "cantidad", 1 }
+                                });
+            var match = new BsonDocument("$match",
+                            new BsonDocument
+                                {
+                                    { "datos_especialidad.nombre", especialidad },
+                                    { "estado_atencion", estado_atencion }
+                                });
+            List<CitasxEspecialidadyEstadoAtencion> estadisticaDTO = new List<CitasxEspecialidadyEstadoAtencion>();
+            estadisticaDTO = await _medicos.Aggregate()
+                   .AppendStage<dynamic>(addfields)
+                   .AppendStage<dynamic>(lookup)
+                   .AppendStage<dynamic>(unwind)
+                   .AppendStage<dynamic>(group)
+                   .AppendStage<dynamic>(addfields2)
+                   .AppendStage<dynamic>(lookup2)
+                   .AppendStage<dynamic>(unwind2)
+                   .AppendStage<dynamic>(addfields3)
+                   .AppendStage<dynamic>(project)
+                   .AppendStage<CitasxEspecialidadyEstadoAtencion>(match).ToListAsync();
+
+            return estadisticaDTO;
+
+        }
+
+        /////------------Citas x Paciente--------------//////
+        public async Task<List<CitasxPaciente>> EstadisticasAllCitasxPaciente()
+        {
+            var addfields = new BsonDocument("$addFields",
+                            new BsonDocument("id_usuario",
+                            new BsonDocument("$toObjectId", "$id_usuario")));
+            var lookup = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "usuarios" },
+                                    { "localField", "id_usuario" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_paciente" }
+                                });
+            var unwind = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$datos_paciente" },
+                                    { "preserveNullAndEmptyArrays", true }
+                                });
+            var addfields2 = new BsonDocument("$addFields",
+                            new BsonDocument("id_paciente",
+                            new BsonDocument("$toString", "$_id")));
+            var lookup2 = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "citas" },
+                                    { "localField", "id_paciente" },
+                                    { "foreignField", "id_paciente" },
+                                    { "as", "datos_citas" }
+                                });
+            var project = new BsonDocument("$project",
+                            new BsonDocument
+                                {
+                                    { "datos", 1 },
+                                    { "datos_paciente", 1 },
+                                    { "datos_citas", 1 },
+                                    { "cantidad",
+                            new BsonDocument("$size", "$datos_citas") }
+                                });
+            List<CitasxPaciente> estadisticaDTO = new List<CitasxPaciente>();
+            estadisticaDTO = await _pacientes.Aggregate()
+                   .AppendStage<dynamic>(addfields)
+                   .AppendStage<dynamic>(lookup)
+                   .AppendStage<dynamic>(unwind)
+                   .AppendStage<dynamic>(addfields2)
+                   .AppendStage<dynamic>(lookup2)
+                   .AppendStage<CitasxPaciente>(project).ToListAsync();
+
+            return estadisticaDTO;
+        }
+        public async Task<List<CitasxPaciente>> EstadisticasCitasxPaciente(string id_paciente)
+        {
+            var addfields = new BsonDocument("$addFields",
+                            new BsonDocument("id_usuario",
+                            new BsonDocument("$toObjectId", "$id_usuario")));
+            var lookup = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "usuarios" },
+                                    { "localField", "id_usuario" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_paciente" }
+                                });
+            var unwind = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$datos_paciente" },
+                                    { "preserveNullAndEmptyArrays", true }
+                                });
+            var addfields2 = new BsonDocument("$addFields",
+                            new BsonDocument("id_paciente",
+                            new BsonDocument("$toString", "$_id")));
+            var lookup2 = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "citas" },
+                                    { "localField", "id_paciente" },
+                                    { "foreignField", "id_paciente" },
+                                    { "as", "datos_citas" }
+                                });
+            var project = new BsonDocument("$project",
+                            new BsonDocument
+                                {
+                                    { "datos", 1 },
+                                    { "datos_paciente", 1 },
+                                    { "datos_citas", 1 },
+                                    { "cantidad",
+                            new BsonDocument("$size", "$datos_citas") }
+                                });
+            var match = new BsonDocument("$match",
+                            new BsonDocument("_id",
+                            new ObjectId(id_paciente)));
+            List<CitasxPaciente> estadisticaDTO = new List<CitasxPaciente>();
+            estadisticaDTO = await _pacientes.Aggregate()
+                   .AppendStage<dynamic>(addfields)
+                   .AppendStage<dynamic>(lookup)
+                   .AppendStage<dynamic>(unwind)
+                   .AppendStage<dynamic>(addfields2)
+                   .AppendStage<dynamic>(lookup2)
+                   .AppendStage<CitasxPaciente>(project).ToListAsync();
+
+            return estadisticaDTO;
+        }
+
+        /////------------Citas x Paciente y Estado Atencion--------------//////
+        public async Task<List<CitasxPacienteyEstadoAtencion>> EstadisticasCitasxPacienteyEstadoAtencion(string id_paciente)
+        {
+            var project = new BsonDocument("$project",
+                            new BsonDocument
+                                {
+                                    { "estado_atencion", 1 },
+                                    { "estado_pago", 1 },
+                                    { "fecha_cita", 1 },
+                                    { "id_paciente", 1 },
+                                    { "id_medico", 1 },
+                                    { "cantidad",
+                            new BsonDocument("$sum", 1) }
+                                });
+            var group = new BsonDocument("$group",
+                            new BsonDocument
+                                {
+                                    { "_id",
+                            new BsonDocument
+                                    {
+                                        { "id_paciente", "$id_paciente" },
+                                        { "estado", "$estado_atencion" }
+                                    } },
+                                    { "cantidad",
+                            new BsonDocument("$sum", 1) }
+                                });
+            var addfields = new BsonDocument("$addFields",
+                            new BsonDocument("estado_cita",
+                            new BsonDocument("$toString", "$_id.estado")));
+            var addfields2 = new BsonDocument("$addFields",
+                            new BsonDocument("_id.id_paciente",
+                            new BsonDocument("$toObjectId", "$_id.id_paciente")));
+            var lookup = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "pacientes" },
+                                    { "localField", "_id.id_paciente" },
+                                    { "foreignField", "_id" },
+                                    { "as", "paciente" }
+                                });
+            var unwind = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$paciente" },
+                                    { "preserveNullAndEmptyArrays", true }
+                                });
+            var addfields3 = new BsonDocument("$addFields",
+                            new BsonDocument("paciente.id_usuario",
+                            new BsonDocument("$toObjectId", "$paciente.id_usuario")));
+            var lookup2 = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "usuarios" },
+                                    { "localField", "paciente.id_usuario" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_usuario" }
+                                });
+            var unwind2 = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$datos_usuario" },
+                                    { "preserveNullAndEmptyArrays", true }
+                                });
+            var addfields4 = new BsonDocument("$addFields",
+                            new BsonDocument("id_usuario",
+                            new BsonDocument("$toString", "$_id.id_paciente")));
+            var project2 = new BsonDocument("$project",
+                            new BsonDocument
+                                {
+                                    { "_id", 0 },
+                                    { "paciente", 0 }
+                                });
+            var match = new BsonDocument("$match",
+                            new BsonDocument
+                                {
+                                    
+                                    { "id_usuario", id_paciente }
+                                });
+            List<CitasxPacienteyEstadoAtencion> estadisticaDTO = new List<CitasxPacienteyEstadoAtencion>();
+            estadisticaDTO = await _pacientes.Aggregate()
+                   .AppendStage<dynamic>(project)
+                   .AppendStage<dynamic>(group)
+                   .AppendStage<dynamic>(addfields)
+                   .AppendStage<dynamic>(addfields2)
+                   .AppendStage<dynamic>(lookup)
+                   .AppendStage<dynamic>(unwind)
+                   .AppendStage<dynamic>(addfields3)
+                   .AppendStage<dynamic>(lookup2)
+                   .AppendStage<dynamic>(unwind2)
+                   .AppendStage<dynamic>(addfields4)
+                   .AppendStage<dynamic>(project2)
+                   .AppendStage<CitasxPacienteyEstadoAtencion>(match).ToListAsync();
+
+            return estadisticaDTO;
+        }
+        public async Task<List<CitasxPacienteyEstadoAtencion>> EstadisticasCitasxPacienteyEstadoAtencionByEstado(string estado_atencion)
+        {
+            var project = new BsonDocument("$project",
+                            new BsonDocument
+                                {
+                                    { "estado_atencion", 1 },
+                                    { "estado_pago", 1 },
+                                    { "fecha_cita", 1 },
+                                    { "id_paciente", 1 },
+                                    { "id_medico", 1 },
+                                    { "cantidad",
+                            new BsonDocument("$sum", 1) }
+                                });
+            var group = new BsonDocument("$group",
+                            new BsonDocument
+                                {
+                                    { "_id",
+                            new BsonDocument
+                                    {
+                                        { "id_paciente", "$id_paciente" },
+                                        { "estado", "$estado_atencion" }
+                                    } },
+                                    { "cantidad",
+                            new BsonDocument("$sum", 1) }
+                                });
+            var addfields = new BsonDocument("$addFields",
+                            new BsonDocument("estado_cita",
+                            new BsonDocument("$toString", "$_id.estado")));
+            var addfields2 = new BsonDocument("$addFields",
+                            new BsonDocument("_id.id_paciente",
+                            new BsonDocument("$toObjectId", "$_id.id_paciente")));
+            var lookup = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "pacientes" },
+                                    { "localField", "_id.id_paciente" },
+                                    { "foreignField", "_id" },
+                                    { "as", "paciente" }
+                                });
+            var unwind = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$paciente" },
+                                    { "preserveNullAndEmptyArrays", true }
+                                });
+            var addfields3 = new BsonDocument("$addFields",
+                            new BsonDocument("paciente.id_usuario",
+                            new BsonDocument("$toObjectId", "$paciente.id_usuario")));
+            var lookup2 = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "usuarios" },
+                                    { "localField", "paciente.id_usuario" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_usuario" }
+                                });
+            var unwind2 = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$datos_usuario" },
+                                    { "preserveNullAndEmptyArrays", true }
+                                });
+            var addfields4 = new BsonDocument("$addFields",
+                            new BsonDocument("id_usuario",
+                            new BsonDocument("$toString", "$_id.id_paciente")));
+            var project2 = new BsonDocument("$project",
+                            new BsonDocument
+                                {
+                                    { "_id", 0 },
+                                    { "paciente", 0 }
+                                });
+            var match = new BsonDocument("$match",
+                            new BsonDocument
+                                {
+                                    { "estado_cita", estado_atencion }
+                                    
+                                });
+            List<CitasxPacienteyEstadoAtencion> estadisticaDTO = new List<CitasxPacienteyEstadoAtencion>();
+            estadisticaDTO = await _cita.Aggregate()
+                   .AppendStage<dynamic>(project)
+                   .AppendStage<dynamic>(group)
+                   .AppendStage<dynamic>(addfields)
+                   .AppendStage<dynamic>(addfields2)
+                   .AppendStage<dynamic>(lookup)
+                   .AppendStage<dynamic>(unwind)
+                   .AppendStage<dynamic>(addfields3)
+                   .AppendStage<dynamic>(lookup2)
+                   .AppendStage<dynamic>(unwind2)
+                   .AppendStage<dynamic>(addfields4)
+                   .AppendStage<dynamic>(project2)
+                   .AppendStage<CitasxPacienteyEstadoAtencion>(match).ToListAsync();
+
+            return estadisticaDTO;
+        }
+        public async Task<List<CitasxPacienteyEstadoAtencion>> EstadisticasCitasxPacienteyEstadoAtencion(string id_paciente, string estado_atencion)
+        {
+            var project = new BsonDocument("$project",
+                            new BsonDocument
+                                {
+                                    { "estado_atencion", 1 },
+                                    { "estado_pago", 1 },
+                                    { "fecha_cita", 1 },
+                                    { "id_paciente", 1 },
+                                    { "id_medico", 1 },
+                                    { "cantidad",
+                            new BsonDocument("$sum", 1) }
+                                });
+            var group = new BsonDocument("$group",
+                            new BsonDocument
+                                {
+                                    { "_id",
+                            new BsonDocument
+                                    {
+                                        { "id_paciente", "$id_paciente" },
+                                        { "estado", "$estado_atencion" }
+                                    } },
+                                    { "cantidad",
+                            new BsonDocument("$sum", 1) }
+                                });
+            var addfields = new BsonDocument("$addFields",
+                            new BsonDocument("estado_cita",
+                            new BsonDocument("$toString", "$_id.estado")));
+            var addfields2 = new BsonDocument("$addFields",
+                            new BsonDocument("_id.id_paciente",
+                            new BsonDocument("$toObjectId", "$_id.id_paciente")));
+            var lookup = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "pacientes" },
+                                    { "localField", "_id.id_paciente" },
+                                    { "foreignField", "_id" },
+                                    { "as", "paciente" }
+                                });
+            var unwind = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$paciente" },
+                                    { "preserveNullAndEmptyArrays", true }
+                                });
+            var addfields3 = new BsonDocument("$addFields",
+                            new BsonDocument("paciente.id_usuario",
+                            new BsonDocument("$toObjectId", "$paciente.id_usuario")));
+            var lookup2 = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "usuarios" },
+                                    { "localField", "paciente.id_usuario" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_usuario" }
+                                });
+            var unwind2 = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$datos_usuario" },
+                                    { "preserveNullAndEmptyArrays", true }
+                                });
+            var addfields4 = new BsonDocument("$addFields",
+                            new BsonDocument("id_usuario",
+                            new BsonDocument("$toString", "$_id.id_paciente")));
+            var project2 = new BsonDocument("$project",
+                            new BsonDocument
+                                {
+                                    { "_id", 0 },
+                                    { "paciente", 0 }
+                                });
+            var match = new BsonDocument("$match",
+                            new BsonDocument
+                                {
+                                    { "estado_cita", estado_atencion },
+                                    { "id_usuario", id_paciente }
+                                });
+            List<CitasxPacienteyEstadoAtencion> estadisticaDTO = new List<CitasxPacienteyEstadoAtencion>();
+            estadisticaDTO = await _pacientes.Aggregate()
+                   .AppendStage<dynamic>(project)
+                   .AppendStage<dynamic>(group)
+                   .AppendStage<dynamic>(addfields)
+                   .AppendStage<dynamic>(addfields2)
+                   .AppendStage<dynamic>(lookup)
+                   .AppendStage<dynamic>(unwind)
+                   .AppendStage<dynamic>(addfields3)
+                   .AppendStage<dynamic>(lookup2)
+                   .AppendStage<dynamic>(unwind2)
+                   .AppendStage<dynamic>(addfields4)
+                   .AppendStage<dynamic>(project2)
+                   .AppendStage<CitasxPacienteyEstadoAtencion>(match).ToListAsync();
+
+            return estadisticaDTO;
         }
     }
 }
