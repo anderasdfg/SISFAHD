@@ -378,7 +378,8 @@ namespace SISFAHD.Services
                                     { "fecha_pago", 1 },
                                     { "id_paciente", 1 },
                                     { "precio_neto", 1 },
-                                    { "tipo_pago", 1 },  
+                                    { "tipo_pago", 1 },
+                                    { "id_medico", 1 },
                                     { "datos_paciente",
                             new BsonDocument
                                     {
@@ -399,7 +400,7 @@ namespace SISFAHD.Services
                                         { "especialidad", 1 },
                                         { "hora_inicio", 1 },
                                         { "datos_medico",
-                            new BsonDocument("nombre_apellido_medico", 1) }
+                            new BsonDocument("nombre_apellido_medico", 1)},
                                     } }
                                 });
             var match = new BsonDocument("$match",
@@ -1196,6 +1197,182 @@ namespace SISFAHD.Services
                                             new BsonDocument("$gte",new DateTime(year, month, day, 0, 0, 0))),
                                             new BsonDocument("fecha_cita_fin",
                                             new BsonDocument("$lte",new DateTime(year, month, day, 23, 59, 59)))                                            
+                                        }));
+            var lookUpTurno = new BsonDocument("$lookup",
+                                new BsonDocument
+                                    {
+                                        { "from", "turnos" },
+                                        { "let",
+                                new BsonDocument("turnoID", "$id_turno") },
+                                        { "pipeline",
+                                new BsonArray
+                                        {
+                                            new BsonDocument("$match",
+                                            new BsonDocument("$expr",
+                                            new BsonDocument("$eq",
+                                            new BsonArray
+                                                        {
+                                                            new BsonDocument("$toObjectId", "$$turnoID"),
+                                                            "$_id"
+                                                        })))
+                                        } },
+                                        { "as", "turno" }
+                                    });
+
+            var lookUpPaciente = new BsonDocument("$lookup",
+                                        new BsonDocument
+                                            {
+                                                { "from", "pacientes" },
+                                                { "let",
+                                        new BsonDocument("pacienteID", "$id_paciente") },
+                                                { "pipeline",
+                                        new BsonArray
+                                                {
+                                                    new BsonDocument("$match",
+                                                    new BsonDocument("$expr",
+                                                    new BsonDocument("$eq",
+                                                    new BsonArray
+                                                                {
+                                                                    new BsonDocument("$toObjectId", "$$pacienteID"),
+                                                                    "$_id"
+                                                                })))
+                                                } },
+                                                { "as", "paciente" }
+                                            });
+
+            var lookUpMedico = new BsonDocument("$lookup",
+                                        new BsonDocument
+                                            {
+                                                { "from", "medicos" },
+                                                { "let",
+                                        new BsonDocument("medicoID", "$id_medico") },
+                                                { "pipeline",
+                                        new BsonArray
+                                                {
+                                                    new BsonDocument("$match",
+                                                    new BsonDocument("$expr",
+                                                    new BsonDocument("$eq",
+                                                    new BsonArray
+                                                                {
+                                                                    new BsonDocument("$toObjectId", "$$medicoID"),
+                                                                    "$_id"
+                                                                }))),
+                                                    new BsonDocument("$lookup",
+                                                    new BsonDocument
+                                                        {
+                                                            { "from", "especialidades" },
+                                                            { "let",
+                                                    new BsonDocument("especialidadID", "$id_especialidad") },
+                                                            { "pipeline",
+                                                    new BsonArray
+                                                            {
+                                                                new BsonDocument("$match",
+                                                                new BsonDocument("$expr",
+                                                                new BsonDocument("$eq",
+                                                                new BsonArray
+                                                                            {
+                                                                                new BsonDocument("$toObjectId", "$$especialidadID"),
+                                                                                "$_id"
+                                                                            })))
+                                                            } },
+                                                            { "as", "especialidad" }
+                                                        }),
+                                                    new BsonDocument("$project",
+                                                    new BsonDocument
+                                                        {
+                                                            { "_id", "$_id" },
+                                                            { "turnos", 1 },
+                                                            { "subscripcion", 1 },
+                                                            { "datos_basicos", 1 },
+                                                            { "especialidad",
+                                                    new BsonDocument("$arrayElemAt",
+                                                    new BsonArray
+                                                                {
+                                                                    "$especialidad",
+                                                                    0
+                                                                }) },
+                                                            { "id_usuario", 1 }
+                                                        })
+                                                } },
+                                                { "as", "medico" }
+                                            });
+
+            var project = new BsonDocument("$project",
+                                new BsonDocument
+                                    {
+                                        { "_id", "$_id" },
+                                        { "estado_atencion", "$estado_atencion" },
+                                        { "estado_pago", "$estado_pago" },
+                                        { "fecha_cita", "$fecha_cita" },
+                                        { "fecha_reserva", "$fecha_reserva" },
+                                        { "datos_paciente",
+                                new BsonDocument("$arrayElemAt",
+                                new BsonArray
+                                            {
+                                                "$paciente",
+                                                0
+                                            }) },
+                                        { "enlace_cita", "$enlace_cita" },
+                                        { "precio_neto", "$precio_neto" },
+                                        { "calificacion", "$calificacion" },
+                                        { "id_acto_medico", "$id_acto_medico" },
+                                        { "observaciones", "$observaciones" },
+                                        { "tipo_pago", "$tipo_pago" },
+                                        { "id_turno", "$id_turno" },
+                                        { "turno",
+                                new BsonDocument("$arrayElemAt",
+                                new BsonArray
+                                            {
+                                                "$turno",
+                                                0
+                                            }) },
+                                        { "medico",
+                                new BsonDocument("$arrayElemAt",
+                                new BsonArray
+                                            {
+                                                "$medico",
+                                                0
+                                            }) },
+                                        { "fecha_cita_fin", "$fecha_cita_fin" }
+                                    });
+
+            citas = await _cita.Aggregate()
+                .AppendStage<dynamic>(match)
+                .AppendStage<dynamic>(lookUpTurno)
+                .AppendStage<dynamic>(lookUpPaciente)
+                .AppendStage<dynamic>(lookUpMedico)
+                .AppendStage<CitaDTO2>(project)
+                .ToListAsync();
+
+            return citas;
+
+            //calcula la fecha actual
+            //obtener el mes: 29 abril -> abril
+            //2 fechas -primer dia del mes 01 abril 00:00, -ultimo dia del mes 31 abril 24:00
+        }
+
+        public async Task<List<CitaDTO2>> GetCitasbyFechaPaciente(DateTime fecha, string idPaciente)
+        {
+            int year = fecha.Year;
+            int day = fecha.Day;
+            int month = fecha.Month;
+
+            List<CitaDTO2> citas = new List<CitaDTO2>();
+            DateTime firstDate = new DateTime(year, month, 1, 0, 0, 0);
+            DateTime lastDate = firstDate.AddMonths(1).AddDays(-1);
+            lastDate = lastDate.AddHours(23);
+            lastDate = lastDate.AddMinutes(59);
+            lastDate = lastDate.AddSeconds(59);
+
+            var match = new BsonDocument("$match",
+                                new BsonDocument("$and",
+                                new BsonArray
+                                        {
+                                            new BsonDocument("id_paciente", idPaciente),
+                                            new BsonDocument("fecha_cita",
+                                            new BsonDocument("$gte",new DateTime(year, month, day, 0, 0, 0))),
+                                            new BsonDocument("fecha_cita_fin",
+                                            new BsonDocument("$lte",new DateTime(year, month, day, 23, 59, 59)))
                                         }));
             var lookUpTurno = new BsonDocument("$lookup",
                                 new BsonDocument

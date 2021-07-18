@@ -102,5 +102,10 @@ namespace SISFAHD.Controllers
         {
             return await _cita.GetCitasbyFecha(fecha);
         }
+        [HttpGet("citafechapaciente")]
+        public async Task<ActionResult<List<CitaDTO2>>> GetListaCitasPorFechaPaciente(DateTime fecha, string idPaciente)
+        {
+            return await _cita.GetCitasbyFechaPaciente(fecha, idPaciente);
+        }
     }
 }
