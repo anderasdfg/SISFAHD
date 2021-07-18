@@ -611,7 +611,9 @@ namespace SISFAHD.Services
         }
 
         public Cita CreateCita(Cita cita)
-        {            
+        {                        
+            //Inserta la cita
+            _cita.InsertOne(cita);
 
             //Ocupa el turno disponible
             Turno turno = _turnoservice.GetById(cita.id_turno);
@@ -634,9 +636,6 @@ namespace SISFAHD.Services
                 ReturnDocument = ReturnDocument.After
             });
 
-            //Inserta la cita
-            _cita.InsertOne(cita);
-
             //Crea la venta en pendiente para esa cita
             Venta venta = new Venta();
             venta.codigo_orden = "";
@@ -649,8 +648,9 @@ namespace SISFAHD.Services
             venta.titular = "";
             venta.moneda = "";            
 
-
             _ventaservice.CrearVenta(venta);
+
+
 
             return cita;
         }
