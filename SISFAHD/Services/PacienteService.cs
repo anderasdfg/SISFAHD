@@ -78,6 +78,15 @@ namespace SISFAHD.Services
             _PacienteCollection.UpdateOne(filter, update);
             return p;
         }
+        public async Task<PacienteDTOInfoMedica> ModifyInformacionMedica(PacienteDTOInfoMedica p)
+        {
+            var filter = Builders<Paciente>.Filter.Eq("id", p.id);
+            var update = Builders<Paciente>.Update
+                .Set("datos", p.datos)
+                .Set("antecedentes", p.antecedentes);
+            _PacienteCollection.UpdateOne(filter, update);
+            return p;
+        }
         public async Task<Paciente> GetPacienteForUsuario(string idPaciente)
         {
             var match = new BsonDocument("$match",

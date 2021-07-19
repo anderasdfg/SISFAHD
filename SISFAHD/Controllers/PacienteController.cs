@@ -49,6 +49,11 @@ namespace SISFAHD.Controllers
         {
             return await _pacienteService.ModifyPaciente(paciente);
         }
+        [HttpPut("modificarinfomedica")]
+        public async Task<ActionResult<PacienteDTOInfoMedica>> UpdatePacienteInfoMedica(PacienteDTOInfoMedica paciente)
+        {
+            return await _pacienteService.ModifyInformacionMedica(paciente);
+        }
         [HttpGet("usuario")]
         public async Task<ActionResult<Paciente>> GetPacienteForUsuario([FromQuery] string idusuario)
         {

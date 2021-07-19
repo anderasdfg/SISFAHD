@@ -35,79 +35,64 @@ namespace SISFAHD.Entities
 
     public class Antecedentes
     {
-        public List<Personales> personales { get; set; }
-        public List<Familiares> familiares { get; set; }
-        public Psicosociales psicosociales { get; set; }
+        public Personales personales { get; set; }
+        public Familiares familiares { get; set; }
+        public Habitos habitos { get; set; }
         public Sexuales sexuales { get; set; }
-        public List<ProblemasCronicos> problemas_cronicos { get; set; }
-    }
-
-    public class ProblemasCronicos
-    {
-        public string numero { get; set; }
-        public DateTime? fecha { get; set; }
-        public string problema { get; set; }
-        public string situacion { get; set; }
-        public List<String> observaciones { get; set; } = new List<String>();
     }
 
     public class Personales
     {
-        public string codigo { get; set; }
-        public string nombre { get; set; }
-        public List<String> observaciones { get; set; } = new List<String>();
+        public bool? existencia { get; set; }
+        public List<Enfermedad_ant> enfermedades { get; set; } = new List<Enfermedad_ant>();
     }
     public class Familiares
     {
+        public bool? existencia { get; set; }
+        public List<Enfermedad_ant> enfermedades { get; set; } = new List<Enfermedad_ant>();
+    }
+    public class Enfermedad_ant
+    {
         public string codigo { get; set; }
         public string nombre { get; set; }
-        public List<String> observaciones { get; set; } = new List<String>();
-    }
-    public class Psicosociales
-    {
-        //public List<String> educacion { get; set; } = new List<String>();
-        public List<Habito> educacion { get; set; }
-        public List<Habito> laborales { get; set; }
-        public List<Habito> habitos_nocivos { get; set; } 
-        public List<Habito> habitos_generales { get; set; }
-        public List<Habito> sociales { get; set; }
+        public string situacion { get; set; }
+        public DateTime? fecha_inicio { get; set; }
+        public List<Observacion> observaciones { get; set; } = new List<Observacion>();
     }
 
-    public class Habito
+
+    public class Habitos
     {
-        public string habito { get; set; }
-        public List<String> observaciones { get; set; } = new List<String>();
+        public ConsumoSustancia consumo_tabaco { get; set; }
+        public ConsumoSustancia consumo_alcohol { get; set; }
+        public ConsumoSustancia consumo_drogas { get; set; }
     }
 
+    public class ConsumoSustancia
+    {
+        public string consumo { get; set; }
+        public List<Observacion> observaciones { get; set; } = new List<Observacion>();
+    }
     public class Sexuales
     {
-        public Espermarquia espermarquia { get; set; } 
         public Inicio_actividad_sexual inicio_actividad_sexual { get; set; }
-        public Parejas_sexuales parejas_sexuales { get; set; }
-        public Percepcion_libido percepcion_libido { get; set; }
+        public int parejas_sexuales { get; set; }
         public Uso_metodos_anticonceptivos uso_metodos_anticonceptivos { get; set; }
     }
 
     public class Uso_metodos_anticonceptivos
     {
         public List<Metodos> metodos { get; set; }
-        public bool? estado { get; set; }
-        public List<String> observaciones { get; set; } = new List<String>();
+        public bool? uso_metodos { get; set; }
     }
 
     public class Metodos
     {
+        public string codigo { get; set; }
         public string nombre { get; set; }
         public DateTime? fecha_inicio { get; set; }
         public DateTime? fecha_fin { get; set; }
-        public List<String> observaciones { get; set; } = new List<String>();
-    }
-
-    public class Percepcion_libido
-    {
-        public string estado_percepcion { get; set; }
-        public bool? estado { get; set; }
-        public List<String> observaciones { get; set; } = new List<String>();
+        public List<Observacion> observaciones { get; set; } = new List<Observacion>();
     }
 
     public class Parejas_sexuales
@@ -125,29 +110,20 @@ namespace SISFAHD.Entities
         public List<String> observaciones { get; set; } = new List<String>();
     }
 
-    public class Espermarquia
-    {
-        public bool? estado { get; set; }
-        public List<String> observaciones { get; set; } = new List<String>();
-    }
     public class Datos_Paciente
     {
         public string lugar_nacimiento { get; set; }
-        public string procedencia { get; set; }
-        public string grupo_instruccion { get; set; }
         public string estado_civil { get; set; }
         public string domicilio { get; set; }
         public string ocupacion { get; set; }
         public string grupo_sanguineo { get; set; }
-        public List<Tutores> tutores_legales { get; set; } 
         
     }
 
-    public class Tutores
+    public class Observacion
     {
-        public string parentesco { get; set; }
-        public string nombres { get; set; }
-        public string apellidos { get; set; }
+        public string observacion { get; set; }
+        public DateTime? fecha_observacion { get; set; }
     }
 
 }
