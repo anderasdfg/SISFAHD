@@ -5,6 +5,9 @@ using SISFAHD.Entities;
 using MongoDB.Bson;
 using SISFAHD.DTOs;
 using System.Threading.Tasks;
+using System;
+
+
 
 namespace SISFAHD.Services
 {
@@ -365,6 +368,31 @@ namespace SISFAHD.Services
             Usuario usuario = new Usuario();
             usuario = _usuarios.Find(usuario => usuario.datos.numero_documento == docIdentidad).FirstOrDefault();
             return usuario;
+        }
+        public async Task<List<Usuario>> GetByFechaCreacion(string rol, DateTime fecha)
+        {
+            int year = fecha.Year;
+            int day = fecha.Day;
+            int month = fecha.Month;
+
+            var match = new BsonDocument("$match",
+                        new BsonDocument("$and",
+                        new BsonArray
+                                {
+                                    new BsonDocument("rol", rol),
+                                    new BsonDocument("fecha_creacion",
+                                    new BsonDocument("$lte",
+                                    new DateTime(year, month, day, 23, 59, 59))),
+                                    new BsonDocument("fecha_creacion",
+                                    new BsonDocument("$gte",
+                                    new DateTime(year, month, day, 0, 0, 0)))
+                                }));
+            List<Usuario> usuarios = new List<Usuario>();
+
+            usuarios = await _usuarios.Aggregate()
+                           .AppendStage<Usuario>(match).ToListAsync();
+
+            return usuarios;
         }
 
     }

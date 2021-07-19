@@ -28,11 +28,11 @@ namespace SISFAHD.Controllers
         {
             return await _medicamentoService.GetAll();
         }
-        //[HttpGet("")]
-        //public ActionResult<List<Medicamento>> GetByName([FromQuery] string name)
-        //{
-        //    return _medicamentoService.GetByName(name);
-        //}
+        [HttpGet("obtenerpornombre")]
+        public async Task<List<Medicamento>> GetByName([FromQuery] string nombre)
+        {
+            return await _medicamentoService.GetByName(nombre);
+        }
         [HttpGet("Filter")]
         public async Task<ActionResult<List<Medicamento>>> GetByNameConcentrationForma(string nombre="", string concentracion="", string forma="")
         {

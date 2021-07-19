@@ -662,7 +662,7 @@ namespace SISFAHD.Services
                     venta.tipo_pago = pagoProcesado.dataMap.BRAND;
                     venta.monto = pagoProcesado.order.amount;
                     venta.titular = cita.id_paciente;
-                    venta.fecha_pago = UnixTimeToDateTime(pagoProcesado.order.transactionDate);
+                    venta.fecha_pago = DateTime.Now;
                     venta.moneda = pagoProcesado.order.currency;
                     ModifyVenta(id_cita, venta);
                     ModifyEstadoPagoCita(id_cita);
@@ -684,7 +684,7 @@ namespace SISFAHD.Services
                         venta.tipo_pago = pagoProcesado.dataMap.BRAND;
                         venta.monto = pagoProcesado.order.amount;
                         venta.titular = cita.id_paciente;
-                        venta.fecha_pago = UnixTimeToDateTime(pagoProcesado.order.transactionDate);
+                        venta.fecha_pago = DateTime.Now;
                         venta.moneda = pagoProcesado.order.currency;
                         ModifyVenta(id_cita, venta);                        
                     }
