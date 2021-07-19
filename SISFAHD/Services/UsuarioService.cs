@@ -12,6 +12,7 @@ namespace SISFAHD.Services
     {
         private readonly IMongoCollection<Usuario> _usuarios;
         private readonly IMongoCollection<Medico> _medico;
+
         public UsuarioService(ISisfahdDatabaseSettings settings)
         {
             var client = new MongoClient(settings.ConnectionString);
@@ -41,6 +42,7 @@ namespace SISFAHD.Services
 
         public Usuario CreateUsuario(Usuario usuario)
         {
+            usuario.fecha_creacion = System.DateTime.Now;
             _usuarios.InsertOne(usuario);
             return usuario;
         }
@@ -54,7 +56,7 @@ namespace SISFAHD.Services
             miusuario.datos = usuario.datos;
             miusuario.rol = usuario.rol;
             miusuario.estado = "activo";
-            miusuario.fecha_creacion = new System.DateTime();
+            miusuario.fecha_creacion = System.DateTime.Now;
             
             await _usuarios.InsertOneAsync(miusuario);
             //Ya se inserto el usuario
@@ -93,7 +95,7 @@ namespace SISFAHD.Services
 
             var filterIdM = Builders<Medico>.Filter.Eq("id_usuario", usuario.id_usuario);
              var updateM = Builders<Medico>.Update
-
+            .Set("id_especialidad", usuario.id_especialidad)
             .Set("datos_basicos.lugar_trabajo", usuario.datos_basicos.lugar_trabajo)
             .Set("datos_basicos.numero_colegiatura", usuario.datos_basicos.numero_colegiatura)
             .Set("datos_basicos.idiomas", usuario.datos_basicos.idiomas)
