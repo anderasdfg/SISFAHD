@@ -1526,6 +1526,52 @@ namespace SISFAHD.Services
             //obtener el mes: 29 abril -> abril
             //2 fechas -primer dia del mes 01 abril 00:00, -ultimo dia del mes 31 abril 24:00
         }
+        public async Task<List<CitaActoMedioDTO>> GetCitaAndActoMedicoByPaciente(string idPaciente)
+        {
+            var match = new BsonDocument("$match",
+                        new BsonDocument("id_paciente", idPaciente));
+            var project = new BsonDocument("$project",
+                          new BsonDocument
+                          {
+                            { "_id", 1 },
+                            { "fecha_cita", 1 },
+                            { "id_acto_medico", 1 },
+                            { "motivo_consulta", 1 }
+                          });
+            var addfields = new BsonDocument("$addFields",
+                            new BsonDocument("id_acto_medico_pro",
+                            new BsonDocument("$toObjectId", "$id_acto_medico")));
+            var lookup = new BsonDocument("$lookup",
+                         new BsonDocument
+                         {
+                            { "from", "acto_medico" },
+                            { "localField", "id_acto_medico_pro" },
+                            { "foreignField", "_id" },
+                            { "as", "acto_medico" }
+                         });
+            var unwind = new BsonDocument("$unwind",
+                         new BsonDocument
+                         {
+                            { "path", "$acto_medico" },
+                            { "preserveNullAndEmptyArrays", true }
+                         });
+            var project2 = new BsonDocument("$project",
+                           new BsonDocument
+                           {
+                               { "id_acto_medico_pro", 0 },
+                               { "acto_medico._id", 0 }
+                           });
+
+            List<CitaActoMedioDTO> citas = new List<CitaActoMedioDTO>();
+            citas = await _cita.Aggregate()
+                   .AppendStage<dynamic>(match)
+                   .AppendStage<dynamic>(project)
+                   .AppendStage<dynamic>(addfields)
+                   .AppendStage<dynamic>(lookup)
+                   .AppendStage<dynamic>(unwind)
+                   .AppendStage<CitaActoMedioDTO>(project2).ToListAsync();
+            return citas;
+        }
     }      
 }
 
