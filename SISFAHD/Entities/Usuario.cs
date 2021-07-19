@@ -56,6 +56,7 @@ namespace SISFAHD.Entities
         public Datos_basicos datos_basicos { get; set; }
         [BsonElement("id_especialidad")]
         public string id_especialidad { get; set; }
+
         [BsonElement("id_usuario")]
         public string id_usuario { get; set; }
 

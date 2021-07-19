@@ -143,7 +143,7 @@ namespace SISFAHD.Controllers
                     if (!string.IsNullOrWhiteSpace(user.usuario.datos.foto))
                     {
                         var profileimg = Convert.FromBase64String(user.usuario.datos.foto);
-                        user.usuario.datos.foto = await _fileStorage.EditFile(profileimg, "jpg", "usuario", user.usuario.datos.foto);
+                        user.usuario.datos.foto = await _fileStorage.EditFile(profileimg, "jpg", "user", user.usuario.datos.foto);
                     }
                 }
 

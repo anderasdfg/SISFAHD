@@ -25,6 +25,7 @@ namespace SISFAHD.Controllers
         {
             if (String.IsNullOrEmpty(estado))
             {
+                //return await _estadistica.CitasxMedico(idMedico);
                 return await _estadistica.CitasxMedico(idMedico);
             }
             else
@@ -71,6 +72,68 @@ namespace SISFAHD.Controllers
         public async Task<ActionResult<List<LaboratorioPedidos>>> LaboratorioMasPedidos(DateTime fecha)
         {
             return await _estadistica.LaboratorioMasPedidos(fecha);
+        }
+        [HttpGet("Medico")]
+        public async Task<ActionResult<List<CitasxMedicos>>> ECitasxMedico()
+        {
+                return await _estadistica.EstadisticasAllCitasxMedico();           
+        }
+        [HttpGet("MedicoyEstado")]
+        public async Task<ActionResult<List<CitasxMedicosyEstadoAtencion>>> ECitasxMedicoyEstado(string idMedico = null,string estado = null)
+        {
+            if (String.IsNullOrEmpty(estado)) {
+                return await _estadistica.EstadisticasCitasxMedicoyEstadoByMedico(idMedico);
+            }
+            else if (String.IsNullOrEmpty(idMedico))
+            {
+                return await _estadistica.EstadisticasCitasxMedicoyEstadoByEstado(estado);
+            }
+            else
+            {
+                return await _estadistica.EstadisticasCitasxMedicoyEstado(idMedico,estado);
+            }
+        }
+        [HttpGet("Especialidad")]
+        public async Task<ActionResult<List<CitasxEspecialidad>>> ECitasxEspecialidad()
+        {
+            return await _estadistica.EstadisticasAllCitasxEspecialidad();
+        }
+        [HttpGet("EspecialidadyEstado")]
+        public async Task<ActionResult<List<CitasxEspecialidadyEstadoAtencion>>> ECitasxEspecialidadyEstado(string especialidad=null, string estado = null)
+        {
+            if (String.IsNullOrEmpty(estado))
+            {
+                return await _estadistica.EstadisticasCitasxEspecialidadyEstadoAtencionByEspecialidad(especialidad);
+            }
+            else if (String.IsNullOrEmpty(especialidad))
+            {
+                return await _estadistica.EstadisticasCitasxEspecialidadyEstadoAtencionByEstado(estado);
+            }
+            else
+            {
+                return await _estadistica.EstadisticasCitasxEspecialidadyEstadoAtencion(especialidad, estado);
+            }
+        }
+        [HttpGet("Paciente")]
+        public async Task<ActionResult<List<CitasxPaciente>>> ECitasxPaciente()
+        {
+            return await _estadistica.EstadisticasAllCitasxPaciente();
+        }
+        [HttpGet("PacienteyEspecialidad")]
+        public async Task<ActionResult<List<CitasxPacienteyEstadoAtencion>>> ECitasxPacienteyEspecialidad(string idpaciente=null,string estado=null)
+        {
+            if (String.IsNullOrEmpty(estado))
+            {
+                return await _estadistica.EstadisticasCitasxPacienteyEstadoAtencion(idpaciente);
+            }
+            else if (String.IsNullOrEmpty(idpaciente))
+            {
+                return await _estadistica.EstadisticasCitasxPacienteyEstadoAtencionByEstado(estado);
+            }
+            else
+            {
+                return await _estadistica.EstadisticasCitasxPacienteyEstadoAtencion(idpaciente, estado);
+            }
         }
     }
 }

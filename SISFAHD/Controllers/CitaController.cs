@@ -63,6 +63,12 @@ namespace SISFAHD.Controllers
             return await _cita.PutSoloidActoMedico(citaobj);
         }
 
+        [HttpPut("actualizarCitaAtendida")]
+        public async Task<ActionResult<bool>> PutSoloCitaAtendida([FromQuery] string idCita)
+        {
+            return await _cita.PutSoloCitaAtendida(idCita);
+        }
+
         [HttpGet("allCita")]
         public ActionResult<List<Cita>> GetAllCita()
         {
@@ -95,6 +101,16 @@ namespace SISFAHD.Controllers
         public async Task<ActionResult<List<CitaDTO2>>> GetListaCitasPorFecha(DateTime fecha)
         {
             return await _cita.GetCitasbyFecha(fecha);
+        }
+        [HttpGet("citafechapaciente")]
+        public async Task<ActionResult<List<CitaDTO2>>> GetListaCitasPorFechaPaciente(DateTime fecha, string idPaciente)
+        {
+            return await _cita.GetCitasbyFechaPaciente(fecha, idPaciente);
+        }
+        [HttpGet("citaactomedicopaciente")]
+        public async Task<List<CitaActoMedioDTO>> GetCitaAndActoMedicoPorPaciente([FromQuery] string idPaciente)
+        {
+            return await _cita.GetCitaAndActoMedicoByPaciente(idPaciente);
         }
     }
 }

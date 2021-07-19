@@ -52,5 +52,10 @@ namespace SISFAHD.Controllers
         {
             return _usuarioservice.GetByDocIdentidad(docIdentidad);
         }
+        [HttpGet("fechacreacion")]
+        public async Task<ActionResult<List<Usuario>>> GetbyRolFechaCreacion([FromQuery] string rol, DateTime fecha)
+        {
+            return await _usuarioservice.GetByFechaCreacion(rol, fecha);
+        }
     }
 }

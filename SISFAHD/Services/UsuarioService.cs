@@ -5,6 +5,9 @@ using SISFAHD.Entities;
 using MongoDB.Bson;
 using SISFAHD.DTOs;
 using System.Threading.Tasks;
+using System;
+
+
 
 namespace SISFAHD.Services
 {
@@ -12,6 +15,7 @@ namespace SISFAHD.Services
     {
         private readonly IMongoCollection<Usuario> _usuarios;
         private readonly IMongoCollection<Medico> _medico;
+
         public UsuarioService(ISisfahdDatabaseSettings settings)
         {
             var client = new MongoClient(settings.ConnectionString);
@@ -41,6 +45,7 @@ namespace SISFAHD.Services
 
         public Usuario CreateUsuario(Usuario usuario)
         {
+            usuario.fecha_creacion = System.DateTime.Now;
             _usuarios.InsertOne(usuario);
             return usuario;
         }
@@ -54,7 +59,7 @@ namespace SISFAHD.Services
             miusuario.datos = usuario.datos;
             miusuario.rol = usuario.rol;
             miusuario.estado = "activo";
-            miusuario.fecha_creacion = new System.DateTime();
+            miusuario.fecha_creacion = System.DateTime.Now;
             
             await _usuarios.InsertOneAsync(miusuario);
             //Ya se inserto el usuario
@@ -93,7 +98,7 @@ namespace SISFAHD.Services
 
             var filterIdM = Builders<Medico>.Filter.Eq("id_usuario", usuario.id_usuario);
              var updateM = Builders<Medico>.Update
-
+            .Set("id_especialidad", usuario.id_especialidad)
             .Set("datos_basicos.lugar_trabajo", usuario.datos_basicos.lugar_trabajo)
             .Set("datos_basicos.numero_colegiatura", usuario.datos_basicos.numero_colegiatura)
             .Set("datos_basicos.idiomas", usuario.datos_basicos.idiomas)
@@ -363,6 +368,31 @@ namespace SISFAHD.Services
             Usuario usuario = new Usuario();
             usuario = _usuarios.Find(usuario => usuario.datos.numero_documento == docIdentidad).FirstOrDefault();
             return usuario;
+        }
+        public async Task<List<Usuario>> GetByFechaCreacion(string rol, DateTime fecha)
+        {
+            int year = fecha.Year;
+            int day = fecha.Day;
+            int month = fecha.Month;
+
+            var match = new BsonDocument("$match",
+                        new BsonDocument("$and",
+                        new BsonArray
+                                {
+                                    new BsonDocument("rol", rol),
+                                    new BsonDocument("fecha_creacion",
+                                    new BsonDocument("$lte",
+                                    new DateTime(year, month, day, 23, 59, 59))),
+                                    new BsonDocument("fecha_creacion",
+                                    new BsonDocument("$gte",
+                                    new DateTime(year, month, day, 0, 0, 0)))
+                                }));
+            List<Usuario> usuarios = new List<Usuario>();
+
+            usuarios = await _usuarios.Aggregate()
+                           .AppendStage<Usuario>(match).ToListAsync();
+
+            return usuarios;
         }
 
     }
