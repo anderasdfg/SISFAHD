@@ -32,17 +32,10 @@ namespace SISFAHD.Controllers
             return _pacienteService.GetById(id);
         }
         [HttpPost("")]
-        public async Task<ActionResult<Paciente>> CreatePaciente([FromQuery]bool lleno,Paciente paciente)
+        public async Task<ActionResult<Paciente>> CreatePaciente(Paciente paciente)
         {
-            if (lleno)
-            {
-                return await _pacienteService.CreatePaciente(paciente);
-            }
-            else
-            {
-                return await _pacienteService.CreatePaciente2(paciente);
-            }
-            
+            return await _pacienteService.CreatePaciente(paciente);
+
         }
         [HttpPut("")]
         public async Task<ActionResult<Paciente>> UpdatePaciente(Paciente paciente)
