@@ -76,7 +76,7 @@ namespace SISFAHD.Entities
     public class Sexuales
     {
         public Inicio_actividad_sexual inicio_actividad_sexual { get; set; }
-        public int parejas_sexuales { get; set; }
+        public int? parejas_sexuales { get; set; }
         public Uso_metodos_anticonceptivos uso_metodos_anticonceptivos { get; set; }
     }
 
