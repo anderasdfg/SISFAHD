@@ -134,16 +134,16 @@ namespace SISFAHD.Controllers
         }
 
         [HttpPut("ModificarPerfilMedico")]
-        public async Task<ActionResult<Usuario>> ModificarPerfilMedico(MedicoDTO3 user)
+        public async Task<ActionResult<Usuario>> ModificarPerfilMedico(UsuarioMedico user)
         {
             try
             {
-                if (!user.usuario.datos.foto.StartsWith("http"))
+                if (!user.datos.foto.StartsWith("http"))
                 {
-                    if (!string.IsNullOrWhiteSpace(user.usuario.datos.foto))
+                    if (!string.IsNullOrWhiteSpace(user.datos.foto))
                     {
-                        var profileimg = Convert.FromBase64String(user.usuario.datos.foto);
-                        user.usuario.datos.foto = await _fileStorage.EditFile(profileimg, "jpg", "user", user.usuario.datos.foto);
+                        var profileimg = Convert.FromBase64String(user.datos.foto);
+                        user.datos.foto = await _fileStorage.EditFile(profileimg, "jpg", "user", user.datos.foto);
                     }
                 }
 
