@@ -27,5 +27,10 @@ namespace SISFAHD.Controllers
         {
             return await _enfermedadesService.GetByCieDescription(cie,descripcion);
         }
+        [HttpGet("obtenerporcodigo")]
+        public async Task<List<Enfermedad>> GetByCodigo([FromQuery] string codigo)
+        {
+            return await _enfermedadesService.GetByCodigo(codigo);
+        }
     }
 }
