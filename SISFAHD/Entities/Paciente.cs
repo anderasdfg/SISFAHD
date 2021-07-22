@@ -76,7 +76,7 @@ namespace SISFAHD.Entities
     public class Sexuales
     {
         public Inicio_actividad_sexual inicio_actividad_sexual { get; set; }
-        public int? parejas_sexuales { get; set; }
+        public string parejas_sexuales { get; set; }
         public Uso_metodos_anticonceptivos uso_metodos_anticonceptivos { get; set; }
     }
 
@@ -95,17 +95,9 @@ namespace SISFAHD.Entities
         public List<Observacion> observaciones { get; set; } = new List<Observacion>();
     }
 
-    public class Parejas_sexuales
-    {
-        public int? cantidad { get; set; }
-        public bool? parejas_simultaneas { get; set; }
-        public bool? estado { get; set; }
-        public List<String> observaciones { get; set; } = new List<String>();
-    }
-
     public class Inicio_actividad_sexual
     {
-        public int? edad { get; set; }
+        public string edad { get; set; }
         public bool? estado { get; set; }
         public List<String> observaciones { get; set; } = new List<String>();
     }
