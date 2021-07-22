@@ -117,20 +117,20 @@ namespace SISFAHD.Services
             
         }
 
-        public async Task<Usuario> ModificarPerfilMedico(MedicoDTO3 user)
+        public async Task<Usuario> ModificarPerfilMedico(UsuarioMedico user)
         {
             var filterId = Builders<Usuario>.Filter.Eq("id", user.id);
             var update = Builders<Usuario>.Update
-               .Set("datos.nombre", user.usuario.datos.nombre)
-                .Set("datos.apellido_paterno", user.usuario.datos.apellido_paterno)
-                .Set("datos.apellido_materno", user.usuario.datos.apellido_materno)
-                .Set("datos.tipo_documento", user.usuario.datos.tipo_documento)
-                .Set("datos.numero_documento", user.usuario.datos.numero_documento)
-                .Set("datos.telefono", user.usuario.datos.telefono)
-                .Set("datos.fecha_nacimiento", user.usuario.datos.fecha_nacimiento)
-                .Set("datos.correo", user.usuario.datos.correo)
-                .Set("datos.sexo", user.usuario.datos.sexo)
-                .Set("datos.foto", user.usuario.datos.foto);
+               .Set("datos.nombre", user.datos.nombre)
+                .Set("datos.apellido_paterno", user.datos.apellido_paterno)
+                .Set("datos.apellido_materno", user.datos.apellido_materno)
+                .Set("datos.tipo_documento", user.datos.tipo_documento)
+                .Set("datos.numero_documento", user.datos.numero_documento)
+                .Set("datos.telefono", user.datos.telefono)
+                .Set("datos.fecha_nacimiento", user.datos.fecha_nacimiento)
+                .Set("datos.correo", user.datos.correo)
+                .Set("datos.sexo", user.datos.sexo)
+                .Set("datos.foto", user.datos.foto);
 
             var resultado = await _usuarios.FindOneAndUpdateAsync<Usuario>(filterId, update, new FindOneAndUpdateOptions<Usuario>
             {
