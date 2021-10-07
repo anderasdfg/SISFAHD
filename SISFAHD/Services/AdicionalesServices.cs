@@ -15,7 +15,7 @@ namespace SISFAHD.Services
         {
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
-            _adicionales = database.GetCollection<Adicionales>("complementarios");
+            _adicionales = database.GetCollection<Adicionales>("adicionales");
 
         }
 
