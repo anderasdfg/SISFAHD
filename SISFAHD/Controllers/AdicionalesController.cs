@@ -74,6 +74,11 @@ namespace SISFAHD.Controllers
             }
 
         }
+        [HttpDelete("Delete")]
+        public async Task<ActionResult<Adicionales>> Delete(string id)
+        {
+            return await _adicionalservices.RemoveAdicioanles(id);
+        }
 
     }
 }

@@ -60,5 +60,11 @@ namespace SISFAHD.Services
             _adicionales.InsertOne(complementario);
             return complementario;
         }
+
+        public async Task<Adicionales> RemoveAdicioanles(string id)
+        {
+            var filter = Builders<Adicionales>.Filter.Eq("id", id);
+            return await _adicionales.FindOneAndDeleteAsync<Adicionales>(filter, new FindOneAndDeleteOptions<Adicionales> { });
+        }
     }
 }
