@@ -35,5 +35,11 @@ namespace SISFAHD.Controllers
         {
             return await _actomedicoservice.ModificarActoMedico(actomedico);
         }
+        [HttpPost("enviarDiagnostico")]
+        public string SendDiagnostico(string idCita)
+        {
+            _actomedicoservice.sendNotificationDiagnostico(idCita);
+            return "Correo enviado";
+        }
     }
 }

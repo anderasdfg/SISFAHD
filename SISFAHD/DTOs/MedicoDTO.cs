@@ -54,6 +54,11 @@ namespace SISFAHD.DTOs
         public Datos_basicos datos_basicos { get; set; }
         public string id_especialidad { get; set; }
         public MedicoUsuarioDTO usuario { get; set; }
+
+        public static implicit operator Task<object>(MedicoDTO3 v)
+        {
+            throw new NotImplementedException();
+        }
     }
     public class MedicoUsuarioDTO
     {
