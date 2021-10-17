@@ -28,7 +28,6 @@ namespace SISFAHD
             Configuration = configuration;
         }
 
-        
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -79,6 +78,7 @@ namespace SISFAHD
             services.AddScoped<EstadisticaService>();
             services.AddScoped<CalificacionService>();
             services.AddScoped<AdicionalesServices>();
+            services.AddScoped<ExamenesService>();
             //Injectando dependecia de Azure FileStorage
             services.AddScoped<IFileStorage, AzureFileStorage>();
 
