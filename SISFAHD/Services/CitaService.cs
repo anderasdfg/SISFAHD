@@ -654,7 +654,7 @@ namespace SISFAHD.Services
             venta.tipo_pago = "Niubiz";
             venta.estado = "";
             venta.detalle_estado = "";
-            venta.tipo_operacion = "";
+            venta.tipo_operacion = "Reserva de cita";
             venta.titular = "";
             venta.moneda = "";            
 
