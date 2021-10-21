@@ -21,25 +21,26 @@ namespace SISFAHD.Controllers
         private readonly ResultadoExamenService _resultadoExamenService;
         private readonly IFileStorage _fileStorage;
 
-        public ResultadoExamenController(ResultadoExamenService resultadoExamenService)
+        public ResultadoExamenController(IFileStorage fileStorage, ResultadoExamenService resultadoExamenService)
         {
+            _fileStorage = fileStorage;
             _resultadoExamenService = resultadoExamenService;
         }
         [HttpGet("all")]
-        public async Task<ActionResult<List<ResultadoExamen>>> GetAllExamenesSubidos(string idPaciente)
+        public async Task<ActionResult<List<ResultadoExamen>>> GetAllExamenesSubidos([FromQuery] string idUsuario)
         {
-            return await _resultadoExamenService.GetAllExamenesSubidos(idPaciente);
+            return await _resultadoExamenService.GetAllExamenesSubidos(idUsuario);
         }
-        [HttpGet("")]
+        [HttpGet("id")]
         public async Task<ActionResult<ResultadoExamen>> GetByIdExamenesSubidos([FromQuery] string id)
         {
             return await _resultadoExamenService.GetByIdExamenesSubidos(id);
         }
 
         [HttpGet("TraerExamenesSolicitados")]
-        public async Task<ActionResult<List<ExamenAuxiliar>>> getAllExamenesSolicitados(string idPaciente)
+        public async Task<ActionResult<List<ExamenAuxiliar>>> getAllExamenesSolicitados([FromQuery] string idUsuario)
         {
-            return await _resultadoExamenService.GetAllExamenesAuxiliares_By_Paciente(idPaciente);
+            return await _resultadoExamenService.GetAllExamenesAuxiliares_By_Paciente(idUsuario);
         }
 
         [HttpPost("Registrar")]
