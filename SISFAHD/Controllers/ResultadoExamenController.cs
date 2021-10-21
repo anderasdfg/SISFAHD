@@ -10,6 +10,7 @@ using SISFAHD.Entities;
 using SISFAHD.Helpers;
 using SISFAHD.Services;
 using System.Web.Http.Cors;
+using Microsoft.AspNetCore.Http;
 
 namespace SISFAHD.Controllers
 {
@@ -18,14 +19,83 @@ namespace SISFAHD.Controllers
     public class ResultadoExamenController : ControllerBase
     {
         private readonly ResultadoExamenService _resultadoExamenService;
+        private readonly IFileStorage _fileStorage;
+
         public ResultadoExamenController(ResultadoExamenService resultadoExamenService)
         {
             _resultadoExamenService = resultadoExamenService;
         }
-        [HttpGet]
-        public ActionResult<List<PacienteDTO>> getExamenesSolicitados([FromQuery] Paciente p)
+        [HttpGet("all")]
+        public async Task<ActionResult<List<ResultadoExamen>>> GetAllExamenesSubidos(string idPaciente)
         {
-            return _resultadoExamenService.getExamenesSolicitados(p);
+            return await _resultadoExamenService.GetAllExamenesSubidos(idPaciente);
+        }
+        [HttpGet("")]
+        public async Task<ActionResult<ResultadoExamen>> GetByIdExamenesSubidos([FromQuery] string id)
+        {
+            return await _resultadoExamenService.GetByIdExamenesSubidos(id);
+        }
+
+        [HttpGet("TraerExamenesSolicitados")]
+        public async Task<ActionResult<List<ExamenAuxiliar>>> getAllExamenesSolicitados(string idPaciente)
+        {
+            return await _resultadoExamenService.GetAllExamenesAuxiliares_By_Paciente(idPaciente);
+        }
+
+        [HttpPost("Registrar")]
+        public async Task<ActionResult<ResultadoExamen>> CrearResultadoExamen([FromBody] ResultadoExamen resultadoExamen)
+        {
+            try
+            {
+                if (resultadoExamen.documento_anexo.Count() != 0)
+                {
+                    for(int i=0;i< resultadoExamen.documento_anexo.Count(); i++)
+                    {
+                        if (!string.IsNullOrWhiteSpace(resultadoExamen.documento_anexo[i]))
+                        {
+                            var solicitudBytes2 = Convert.FromBase64String(resultadoExamen.documento_anexo[i]);
+                            resultadoExamen.documento_anexo[i] = await _fileStorage.SaveDoc(solicitudBytes2, "pdf", "archivos");
+                        }
+                    }  
+                }
+                return await _resultadoExamenService.CrearResultadoExamen(resultadoExamen);
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+        }
+        [HttpPut("Modificar")]
+        public async Task<ActionResult<ResultadoExamen>> ModificarResultadoExamen(ResultadoExamen id)
+        {
+            try
+            {
+                for (int i = 0; i < id.documento_anexo.Count(); i++)
+                {
+                    if (!id.documento_anexo[i].StartsWith("http"))
+                    {
+                        if (!string.IsNullOrWhiteSpace(id.documento_anexo[i]))
+                        {
+                            var profileimg = Convert.FromBase64String(id.documento_anexo[i]);
+                            id.documento_anexo[i] = await _fileStorage.EditFile(profileimg, "jpg", "especialidad", id.documento_anexo[i]);
+                        }
+                    }
+                } 
+                ResultadoExamen objetoResultado = _resultadoExamenService.ModificarResultadoExamen(id);
+                return objetoResultado;
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+
+        }
+
+        [HttpDelete("eliminar")]
+        public async Task<ActionResult<ResultadoExamen>> EliminarResultadosExamen([FromQuery] string id)
+        {
+            return await _resultadoExamenService.EliminarResultadosExamen(id);
         }
     }
 }
