@@ -33,5 +33,10 @@ namespace SISFAHD.Controllers
         {
             return _pedidosService.UpdatePedido(pedido);
         }
+        [HttpGet("byidpaciente")]
+        public async Task<ActionResult<List<Pedidos>>> GetByIdPaciente(string id_paciente)
+        {
+            return await _pedidosService.GetByIdPaciente(id_paciente);
+        }
     }
 }

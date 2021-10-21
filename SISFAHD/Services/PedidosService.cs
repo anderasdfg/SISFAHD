@@ -1,4 +1,5 @@
-﻿using MongoDB.Driver;
+﻿using MongoDB.Bson;
+using MongoDB.Driver;
 using SISFAHD.Entities;
 using System;
 using System.Collections.Generic;
@@ -60,6 +61,14 @@ namespace SISFAHD.Services
             _PedidosCollection.UpdateOne(filter, update);
 
             return pedido;
-        }     
+        }
+        public async Task<List<Pedidos>> GetByIdPaciente(string id_paciente)
+        {
+            List<Pedidos> pedidos = new List<Pedidos>();
+            var match = new BsonDocument("$match",
+                        new BsonDocument("paciente.id_paciente", id_paciente));
+            pedidos = await _PedidosCollection.Aggregate().AppendStage<Pedidos>(match).ToListAsync();
+            return pedidos;
+        }
     }
 }
