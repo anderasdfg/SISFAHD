@@ -27,7 +27,7 @@ namespace SISFAHD.Entities
         [BsonElement("fecha_pago")]
         public DateTime fecha_pago { get; set; }
         [BsonElement("precio_neto")]
-        public int precio_neto { get; set; }
+        public double precio_neto { get; set; }
     }
     public class PacientePedidos
     {
@@ -40,7 +40,7 @@ namespace SISFAHD.Entities
     {
         public string codigo { get; set; }
         public string nombre { get; set; }
-        public int precio { get; set; }
+        public double precio { get; set; }
         public int cantidad { get; set; }
     }
 }

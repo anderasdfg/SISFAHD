@@ -23,10 +23,15 @@ namespace SISFAHD.Controllers
             return _pedidosService.GetAll();
         }
         [HttpPost("")]
-        public ActionResult<Pedidos> CreateUsuario(Pedidos pedido)
+        public ActionResult<Pedidos> CreatePedido(Pedidos pedido)
         {
             Pedidos Pedido = _pedidosService.CreatePedido(pedido);
             return Pedido;
+        }
+        [HttpPut("")]
+        public ActionResult<Pedidos> ModifyPedido(Pedidos pedido)
+        {
+            return _pedidosService.UpdatePedido(pedido);
         }
     }
 }
