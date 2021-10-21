@@ -21,6 +21,7 @@ namespace SISFAHD.Services
         private readonly IMongoCollection<Paciente> _PacienteCollection;
         private readonly IMongoCollection<Usuario> _UsuarioCollection;
         private readonly IMongoCollection<Medico> _MedicoCollection;
+        private readonly IMongoCollection<Pedidos> _PedidoCollection;
         public VentaService(ISisfahdDatabaseSettings settings)
         {
             var client = new MongoClient(settings.ConnectionString);
@@ -30,6 +31,7 @@ namespace SISFAHD.Services
             _PacienteCollection = database.GetCollection<Paciente>("pacientes");
             _UsuarioCollection = database.GetCollection<Usuario>("usuarios");
             _MedicoCollection = database.GetCollection<Medico>("medicos");
+            _PedidoCollection = database.GetCollection<Pedidos>("pedidos");
         }
 
 
@@ -624,7 +626,7 @@ namespace SISFAHD.Services
             string moneda = venta.moneda;
             string token = " ";
             token = venta.pago.token;
-            //
+           
             TransaccionDTO transaccion = new TransaccionDTO();
             transaccion.order = new TransaccionOrder();
 
@@ -652,22 +654,46 @@ namespace SISFAHD.Services
 
                 if (result.IsSuccessStatusCode)
                 {
-                    Cita cita = new Cita();
-                    cita = _cita.Find(cita => cita.id == id_cita).FirstOrDefault();
-                    pagoProcesado = System.Text.Json.JsonSerializer.Deserialize<PagoProcesadoDTO>(response);
-                    venta.codigo_orden = pagoProcesado.dataMap.TRANSACTION_ID;
-                    venta.estado = "Aprobado";
-                    venta.detalle_estado = pagoProcesado.dataMap.ACTION_DESCRIPTION;
-                    venta.tipo_operacion = "Pago de Cita";
-                    venta.tipo_pago = pagoProcesado.dataMap.BRAND;
-                    venta.monto = pagoProcesado.order.amount;
-                    venta.titular = cita.id_paciente;
-                    venta.fecha_pago = DateTime.Now;
-                    venta.moneda = pagoProcesado.order.currency;
-                    ModifyVenta(id_cita, venta);
-                    ModifyEstadoPagoCita(id_cita);
-                    //ENVIA CORREO
-                    //sendNotification(id_cita);
+
+                    if(venta.tipo_operacion == "Examenes")
+                    {
+                        Pedidos pedidos = new Pedidos();
+                        pedidos = _PedidoCollection.Find(pedidos => pedidos.id == id_cita).FirstOrDefault();
+                        pagoProcesado = System.Text.Json.JsonSerializer.Deserialize<PagoProcesadoDTO>(response);
+                        venta.codigo_orden = pagoProcesado.dataMap.TRANSACTION_ID;
+                        venta.estado = "Aprobado";
+                        venta.detalle_estado = pagoProcesado.dataMap.ACTION_DESCRIPTION;                        
+                        venta.tipo_pago = pagoProcesado.dataMap.BRAND;
+                        venta.monto = pagoProcesado.order.amount;
+                        venta.titular = pedidos.paciente.id_paciente;
+                        venta.fecha_pago = DateTime.Now;
+                        venta.moneda = pagoProcesado.order.currency;
+                        ModifyVenta(id_cita, venta);
+                        ModifyEstadoPagoPedido(id_cita);
+                        //ENVIA CORREO
+                        sendNotificationPedido(id_cita);
+
+                    }
+                    else
+                    {
+                        Cita cita = new Cita();
+                        cita = _cita.Find(cita => cita.id == id_cita).FirstOrDefault();
+                        pagoProcesado = System.Text.Json.JsonSerializer.Deserialize<PagoProcesadoDTO>(response);
+                        venta.codigo_orden = pagoProcesado.dataMap.TRANSACTION_ID;
+                        venta.estado = "Aprobado";
+                        venta.detalle_estado = pagoProcesado.dataMap.ACTION_DESCRIPTION;
+                        venta.tipo_operacion = "Pago de Cita";
+                        venta.tipo_pago = pagoProcesado.dataMap.BRAND;
+                        venta.monto = pagoProcesado.order.amount;
+                        venta.titular = cita.id_paciente;
+                        venta.fecha_pago = DateTime.Now;
+                        venta.moneda = pagoProcesado.order.currency;
+                        ModifyVenta(id_cita, venta);
+                        ModifyEstadoPagoCita(id_cita);
+                        //ENVIA CORREO
+                        sendNotification(id_cita);
+                    }
+                    
                 }
                 else
                 {
@@ -696,6 +722,8 @@ namespace SISFAHD.Services
 
             }           
             Console.WriteLine("esta kgada " + pagoRechazado + pagoProcesado);
+
+
             return pagoProcesado;
 
         }
@@ -728,6 +756,17 @@ namespace SISFAHD.Services
                 .Set("estado_pago", "pagado");
             _cita.UpdateOne(filter, update);
             return cita;
+        }
+        public Pedidos ModifyEstadoPagoPedido(string id)
+        {
+            var filter = Builders<Pedidos>.Filter.Eq("id", ObjectId.Parse(id));
+            Pedidos pedido = new Pedidos();
+            Venta venta = new Venta();
+            var update = Builders<Pedidos>.Update                
+                .Set("fecha_pago", venta.fecha_pago)
+                .Set("estado_pago", "pagado");
+            _PedidoCollection.UpdateOne(filter, update);
+            return pedido;
         }
         public void sendNotification(string idCita)
         {
@@ -846,14 +885,129 @@ namespace SISFAHD.Services
             smtp.Credentials = nc;
             smtp.Send(mail);
         }
-        /*public async Task<Venta> SuccessfulResponse(string body)
+        public void sendNotificationPedido(string idPedido)
         {
-               
-                Venta venta = new Venta();
-                PagoProcesadoDTO pagoProcesado = new PagoProcesadoDTO();
-                pagoProcesado = JsonConvert.DeserializeObject<PagoProcesadoDTO>(body);
-                return venta;        
-        }*/
+            Pedidos p = new Pedidos();
+            p = _PedidoCollection.Find(ped => ped.id == idPedido).FirstOrDefault();
+            Paciente pac = new Paciente();
+            pac = _PacienteCollection.Find(pacient => pacient.id == p.paciente.id_paciente).FirstOrDefault();            
+            Usuario objpaciente = new Usuario();
+            objpaciente = _UsuarioCollection.Find(user => user.id == pac.id_usuario).FirstOrDefault();
+            
+
+            SmtpClient smtp = new SmtpClient();
+            smtp.Host = "smtp.gmail.com";
+            smtp.Port = 587;
+            smtp.UseDefaultCredentials = false;
+            smtp.EnableSsl = true;
+            smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+
+            string Emisor = "sisfahdq@gmail.com";
+            string EmisorPass = "sisf@hd12";
+            string displayName = "SISFAHD";
+            string Receptor = objpaciente.usuario;
+
+            string productos = "";
+            productos += "<p><b>Productos solicitados</b></p>";
+            for (int i = 0; i < p.productos.Count; i++)
+            {
+                productos += "<p>- " + p.productos[i].cantidad + " " +  p.productos[i].nombre + " - S/." + p.productos[i].precio.ToString() + "</p>";
+
+            };
+            productos += "</br>";
+
+
+
+            string htmlbody = "<body class='body' style='padding:0 !important; margin:0 !important; display:block !important; min-width:100% !important; width:100% !important; background:#001f51; -webkit-text-size-adjust:none;'>" +
+                                "<table width = '100%' border='0' cellspacing='0' cellpadding='0' bgcolor='#001f51'>" +
+                                    "<tr>" +
+                                        "<td align = 'center' valign='top'>" +
+                                            "<table width = '650' border='0' cellspacing='0' cellpadding='0' class='mobile-shell'>" +
+                                                "<tr>" +
+                                                    "<td class='td container' style='width:650px; min-width:650px; font-size:0pt; line-height:0pt; margin:0; font-weight:normal; padding:55px 0px;'>" +
+                                                        "<table width = '100%' border='0' cellspacing='0' cellpadding='0'>" +
+                                                            "<tr>" +
+                                                                "<td class='p30-15 tbrr' style='padding: 30px; border-radius:12px 12px 0px 0px;' bgcolor='#ffffff'>" +
+                                                                    "<table width = '100%' border='0' cellspacing='0' cellpadding='0'>" +
+                                                                        "<tr>" +
+                                                                            "<th class='column-top' width='145' style='font-size:0pt; line-height:0pt; padding:0; margin:0; font-weight:normal; vertical-align:top;'>" +
+                                                                                "<table width = '100%' border='0' cellspacing='0' cellpadding='0'>" +
+                                                                                    "<tr>" +
+                                                                                        "<td class='img m-center' style='font-size:0pt; line-height:0pt; text-align:left;'><img src = 'https://i.ibb.co/C1DWyrk/logo-s.png' width='150' height='40' border='0' alt='' /></td>" +
+                                                                                    "</tr>" +
+                                                                                "</table>" +
+                                                                            "</th>" +
+                                                                            "<th class='column-empty2' width='1' style='font-size:0pt; line-height:0pt; padding:0; margin:0; font-weight:normal; vertical-align:top;'></th>" +
+                                                                        "</tr>" +
+                                                                    "</table>" +
+                                                                "</td>" +
+                                                            "</tr>" +
+                                                        "</table>" +
+                                                        "<table width = '100%' border='0' cellspacing='0' cellpadding='0'>" +
+                                                            "<tr>" +
+                                                                "<td class='fluid-img' style='font-size:0pt; line-height:0pt; text-align:left;'><img src = 'https://i.ibb.co/k3L5pTX/undraw-doctor-kw5l.png' border='0' width='650' height='370' alt='' /></td>" +
+                                                            "</tr>" +
+                                                        "</table>" +
+                                                        "<table width = '100%' border='0' cellspacing='0' cellpadding='0' bgcolor='#ffffff'>" +
+                                                            "<tr>" +
+                                                                "<td style = 'padding-bottom: 10px;' >" +
+                                                                    "< table width='100%' border='0' cellspacing='0' cellpadding='0'>" +
+                                                                        "<tr>" +
+                                                                            "<td class='p30-15' style='padding: 10px 30px;'>" +
+                                                                                "<table width = '100%' border='0' cellspacing='0' cellpadding='0'>" +
+                                                                                    "<tr>" +
+                                                                                        "<td class='h1 pb25' style='color:#444444; font-size:35px; line-height:42px; text-align:left; padding-bottom:25px;'>Su pedido fue realizado satisfactoriamente</td>" +
+                                                                                    "</tr>" +
+                                                                                    "<tr>" +
+                                                                                        "<td class='text-center pb25' style='color:#666666; font-family:Arial,sans-serif; font-size:16px; line-height:30px; text-align:left; padding-bottom:25px;'>" +
+                                                                                            "<b>Fecha de pedido </b> " + p.fecha_creacion.ToString() + "<br/>" +
+                                                                                            //cambiar despues
+                                                                                            "<b>Fecha de pago </b> " + p.fecha_creacion.ToString() + "<br/>" +                                                                                            
+                                                                                            "<b>Costo total </b>S/." + p.precio_neto.ToString() + " <br/>" +
+                                                                                            "<b>Método de pago</b> Niubiz <br/>" +
+                                                                                        "</td>" +
+                                                                                    "</tr>" +
+                                                                                     "<tr>" +
+                                                                                        "<td class='text-center pb25' style='color:#666666; font-family:Arial,sans-serif; font-size:16px; line-height:30px; text-align:left; padding-bottom:25px;'>" +                                                                                            
+                                                                                            productos +
+                                                                                        "</td>" +
+                                                                                    "</tr>" +
+                                                                                "</table>" +
+                                                                            "</td>" +
+                                                                        "</tr>" +
+                                                                    "</table>" +
+                                                                "</td>" +
+                                                            "</tr>" +
+                                                        "</table>" +
+                                                        "<table width = '100%' border= '0' cellspacing= '0' cellpadding= '0' >" +
+                                                              "<tr>" +
+                                                                  "<td class='p30-15 bbrr' style='padding: 20px 30px; border-radius:0px 0px 12px 12px;' bgcolor='#ffffff'>" +
+                                                                    "<table width = '100%' border='0' cellspacing='0' cellpadding='0'>" +
+                                                                        "<tr>" +
+                                                                            "<td class='text-footer2' style='color:#999999; font-family:Arial,sans-serif; font-size:12px; line-height:26px; text-align:center;'>Gracias por su compra en el Hospital  Digital Qullana</td>" +
+                                                                        "</tr>" +
+                                                                    "</table>" +
+                                                                "</td>" +
+                                                            "</tr>" +
+                                                        "</table>" +
+                                                    "</td>" +
+                                                "</tr>" +
+                                                "</tr>" +
+                                            "</table>" +
+                                        "</td>" +
+                                    "</tr>" +
+                                "</table>" +
+                            "</body>";
+            MailMessage mail = new MailMessage();
+            mail.Subject = "Venta satisfactoria - SISFAHD";
+            mail.From = new MailAddress(Emisor.Trim(), displayName);
+            mail.Body = htmlbody;
+            mail.To.Add(new MailAddress(Receptor));
+            mail.IsBodyHtml = true;
+            NetworkCredential nc = new NetworkCredential(Emisor, EmisorPass);
+            smtp.Credentials = nc;
+            smtp.Send(mail);
+        }
 
     }
 }

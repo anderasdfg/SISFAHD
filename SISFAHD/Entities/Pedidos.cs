@@ -25,7 +25,7 @@ namespace SISFAHD.Entities
         [BsonElement("fecha_creacion")]
         public DateTime fecha_creacion { get; set; }
         [BsonElement("fecha_pago")]
-        public DateTime fecha_pago { get; set; }
+        public DateTime? fecha_pago { get; set; }
         [BsonElement("precio_neto")]
         public double precio_neto { get; set; }
     }

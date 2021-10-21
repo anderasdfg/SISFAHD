@@ -10,11 +10,13 @@ namespace SISFAHD.Services
     public class PedidosService
     {
         private readonly IMongoCollection<Pedidos> _PedidosCollection;
-        public PedidosService(ISisfahdDatabaseSettings settings)
+        private readonly VentaService _ventaservice;
+        public PedidosService(ISisfahdDatabaseSettings settings, VentaService ventaService)
         {
             var pedidos = new MongoClient(settings.ConnectionString);
             var database = pedidos.GetDatabase(settings.DatabaseName);
             _PedidosCollection = database.GetCollection<Pedidos>("pedidos");
+            _ventaservice = ventaService;
         }
         public List<Pedidos> GetAll()
         {
@@ -25,6 +27,21 @@ namespace SISFAHD.Services
         public Pedidos CreatePedido(Pedidos pedido)
         {
             _PedidosCollection.InsertOne(pedido);
+
+            //Crea la venta en pendiente para esa cita
+            Venta venta = new Venta();
+            venta.codigo_orden = "";
+            venta.codigo_referencia = pedido.id;
+            venta.monto = pedido.precio_neto;
+            venta.tipo_pago = "Niubiz";
+            venta.estado = "";
+            venta.detalle_estado = "";
+            venta.tipo_operacion = "Examenes";
+            venta.titular = "";
+            venta.moneda = "";
+
+            _ventaservice.CrearVenta(venta);
+
             return pedido;
         }
         public Pedidos UpdatePedido(Pedidos pedido)
@@ -43,6 +60,6 @@ namespace SISFAHD.Services
             _PedidosCollection.UpdateOne(filter, update);
 
             return pedido;
-        }
+        }     
     }
 }
