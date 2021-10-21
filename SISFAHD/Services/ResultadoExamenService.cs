@@ -25,13 +25,13 @@ namespace SISFAHD.Services
             _paciente = database.GetCollection<Paciente>("pacientes");
             _resultadosExamen = database.GetCollection<ResultadoExamen>("resultado_examen");
         }
-        public async Task<List<ExamenAuxiliar>> GetAllExamenesAuxiliares_By_Paciente(string idPaciente)
+        public async Task<List<ExamenAuxiliar>> GetAllExamenesAuxiliares_By_Paciente(string idUsuario)
         {
             List<ExamenAuxiliar> lstExamenesAuxiliares= new List<ExamenAuxiliar>();
 
-            var match_idPaciente = new BsonDocument("$match",
-                                    new BsonDocument("_id",
-                                    new ObjectId(idPaciente)));
+            var match_idUsuario = new BsonDocument("$match",
+                                    new BsonDocument("id_usuario",
+                                    idUsuario));
             var addFields = new BsonDocument("$addFields",
                                     new BsonDocument("id_historia",
                                     new BsonDocument("$toObjectId", "$id_historia")));
@@ -132,7 +132,7 @@ namespace SISFAHD.Services
                                                     "$acto_medico.diagnostico.examenes_auxiliares"
                                                 })));
             lstExamenesAuxiliares = await _paciente.Aggregate()
-                                .AppendStage<dynamic>(match_idPaciente)
+                                .AppendStage<dynamic>(match_idUsuario)
                                 .AppendStage<dynamic>(addFields)
                                 .AppendStage<dynamic>(lookup)
                                 .AppendStage<dynamic>(unwind)
@@ -151,13 +151,13 @@ namespace SISFAHD.Services
             return lstExamenesAuxiliares;
         }
 
-        public async Task<List<ResultadoExamen>> GetAllExamenesSubidos(string idPaciente)
+        public async Task<List<ResultadoExamen>> GetAllExamenesSubidos(string idUsuario)
         {
             List<ResultadoExamen> lstResultadoExamen = new List<ResultadoExamen>();
 
-            var match_idPaciente = new BsonDocument("$match",
-                                    new BsonDocument("_id",
-                                    new ObjectId(idPaciente)));
+            var match_idUsuario = new BsonDocument("$match",
+                                    new BsonDocument("id_usuario",
+                                    idUsuario));
             var unwind = new BsonDocument("$unwind",
                                     new BsonDocument
                                         {
@@ -203,8 +203,8 @@ namespace SISFAHD.Services
                                                     },
                                                     "$resultado_examen"
                                                 })));
-            lstResultadoExamen = await _resultadosExamen.Aggregate()
-                                .AppendStage<dynamic>(match_idPaciente)
+            lstResultadoExamen = await _paciente.Aggregate()
+                                .AppendStage<dynamic>(match_idUsuario)
                                 .AppendStage<dynamic>(unwind)
                                 .AppendStage<dynamic>(addFields)
                                 .AppendStage<dynamic>(lookup)
@@ -217,13 +217,9 @@ namespace SISFAHD.Services
         
         public async Task<ResultadoExamen> GetByIdExamenesSubidos(string id)
         {
-            var match = new BsonDocument("$match",
-                        new BsonDocument("_id", id));
-
-            ResultadoExamen resultadoExamen = new ResultadoExamen();
-            resultadoExamen = await _resultadosExamen.Aggregate()
-                           .AppendStage<ResultadoExamen>(match).FirstOrDefaultAsync();
-            return resultadoExamen;
+            ResultadoExamen resultado = new ResultadoExamen();
+            resultado = _resultadosExamen.Find(resultado => resultado.id == id).FirstOrDefault();
+            return resultado;
         }
 
         public async Task<ResultadoExamen> CrearResultadoExamen(ResultadoExamen resultados)

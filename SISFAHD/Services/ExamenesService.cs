@@ -11,11 +11,13 @@ namespace SISFAHD.Services
     {
 
         private readonly IMongoCollection<Examenes> _examenes;
+        private readonly IMongoCollection<Paciente> _paciente;
         public ExamenesService(ISisfahdDatabaseSettings settings)
         {
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
             _examenes = database.GetCollection<Examenes>("examenes");
+            _paciente = database.GetCollection<Paciente>("pacientes");
         }
         public List<Examenes> GetAll()
         {
@@ -46,13 +48,13 @@ namespace SISFAHD.Services
 
         }
 
-        public async Task<List<Examenes>> GetAllExamenes_By_Paciente(string idPaciente)
+        public async Task<List<Examenes>> GetAllExamenes_By_Paciente(string idUsuario)
         {
             List<Examenes> lstExamenes = new List<Examenes>();
 
-            var match_idPaciente = new BsonDocument("$match",
-                                    new BsonDocument("_id",
-                                    new ObjectId(idPaciente)));
+            var match_idUsuario = new BsonDocument("$match",
+                                    new BsonDocument("id_usuario",
+                                    idUsuario));
             var unwind = new BsonDocument("$unwind",
                                     new BsonDocument
                                         {
@@ -113,8 +115,8 @@ namespace SISFAHD.Services
                                                     },
                                                     "$examenes"
                                                 })));
-            lstExamenes = await _examenes.Aggregate()
-                                .AppendStage<dynamic>(match_idPaciente)
+            lstExamenes = await _paciente.Aggregate()
+                                .AppendStage<dynamic>(match_idUsuario)
                                 .AppendStage<dynamic>(unwind)
                                 .AppendStage<dynamic>(addFields)
                                 .AppendStage<dynamic>(lookup)
