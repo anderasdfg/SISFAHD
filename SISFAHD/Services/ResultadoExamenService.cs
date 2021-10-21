@@ -150,16 +150,6 @@ namespace SISFAHD.Services
                                 .ToListAsync();
             return lstExamenesAuxiliares;
         }
-        public async Task<ResultadoExamen> GetByIdExamenesAuxiliares(string id)
-        {
-            var match = new BsonDocument("$match",
-                        new BsonDocument("_id", id));
-
-            ResultadoExamen resultadoExamen = new ResultadoExamen();
-            resultadoExamen = await _resultadosExamen.Aggregate()
-                           .AppendStage<ResultadoExamen>(match).FirstOrDefaultAsync();
-            return resultadoExamen;
-        }
 
         public async Task<List<ResultadoExamen>> GetAllExamenesSubidos(string idPaciente)
         {
