@@ -36,7 +36,7 @@ namespace SISFAHD.Services
             venta.tipo_pago = "Niubiz";
             venta.estado = "";
             venta.detalle_estado = "";
-            venta.tipo_operacion = "Examenes";
+            venta.tipo_operacion = pedido.tipo;
             venta.titular = "";
             venta.moneda = "";
 

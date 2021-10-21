@@ -673,6 +673,23 @@ namespace SISFAHD.Services
                         //ENVIA CORREO
                         sendNotificationPedido(id_cita);
 
+                    }else if (venta.tipo_operacion == "Medicamentos")
+                    {
+                        Pedidos pedidos = new Pedidos();
+                        pedidos = _PedidoCollection.Find(pedidos => pedidos.id == id_cita).FirstOrDefault();
+                        pagoProcesado = System.Text.Json.JsonSerializer.Deserialize<PagoProcesadoDTO>(response);
+                        venta.codigo_orden = pagoProcesado.dataMap.TRANSACTION_ID;
+                        venta.estado = "Aprobado";
+                        venta.detalle_estado = pagoProcesado.dataMap.ACTION_DESCRIPTION;
+                        venta.tipo_pago = pagoProcesado.dataMap.BRAND;
+                        venta.monto = pagoProcesado.order.amount;
+                        venta.titular = pedidos.paciente.id_paciente;
+                        venta.fecha_pago = DateTime.Now;
+                        venta.moneda = pagoProcesado.order.currency;
+                        ModifyVenta(id_cita, venta);
+                        ModifyEstadoPagoPedido(id_cita);
+                        //ENVIA CORREO
+                        sendNotificationPedido(id_cita);
                     }
                     else
                     {
