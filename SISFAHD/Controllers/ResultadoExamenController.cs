@@ -21,8 +21,9 @@ namespace SISFAHD.Controllers
         private readonly ResultadoExamenService _resultadoExamenService;
         private readonly IFileStorage _fileStorage;
 
-        public ResultadoExamenController(ResultadoExamenService resultadoExamenService)
+        public ResultadoExamenController(IFileStorage fileStorage, ResultadoExamenService resultadoExamenService)
         {
+            _fileStorage = fileStorage;
             _resultadoExamenService = resultadoExamenService;
         }
         [HttpGet("all")]

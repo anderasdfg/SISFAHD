@@ -45,5 +45,87 @@ namespace SISFAHD.Services
             return examen;
 
         }
+
+        public async Task<List<Examenes>> GetAllExamenes_By_Paciente(string idPaciente)
+        {
+            List<Examenes> lstExamenes = new List<Examenes>();
+
+            var match_idPaciente = new BsonDocument("$match",
+                                    new BsonDocument("_id",
+                                    new ObjectId(idPaciente)));
+            var unwind = new BsonDocument("$unwind",
+                                    new BsonDocument
+                                        {
+                                            { "path", "$archivos" },
+                                            { "preserveNullAndEmptyArrays", false }
+                                        });
+            var addFields = new BsonDocument("$addFields",
+                                    new BsonDocument("archivos.id_resultado",
+                                    new BsonDocument("$toObjectId", "$archivos.id_resultado")));
+            var lookup = new BsonDocument("$lookup",
+                                    new BsonDocument
+                                        {
+                                            { "from", "resultado_examen" },
+                                            { "localField", "archivos.id_resultado" },
+                                            { "foreignField", "_id" },
+                                            { "as", "resultado_examen" }
+                                        });
+            var unwind2 = new BsonDocument("$unwind",
+                                    new BsonDocument
+                                        {
+                                            { "path", "$resultado_examen" },
+                                            { "preserveNullAndEmptyArrays", true }
+                                        });
+            var addFields2 = new BsonDocument("$addFields",
+                                    new BsonDocument("resultado_examen",
+                                    new BsonDocument("codigo",
+                                    new BsonDocument("$toObjectId", "$resultado_examen.codigo"))));
+            var lookup2 = new BsonDocument("$lookup",
+                                    new BsonDocument
+                                        {
+                                            { "from", "examenes" },
+                                            { "localField", "resultado_examen.codigo" },
+                                            { "foreignField", "_id" },
+                                            { "as", "examenes" }
+                                        });
+            var unwind3 = new BsonDocument("$unwind",
+                                    new BsonDocument
+                                        {
+                                            { "path", "$examenes" },
+                                            { "preserveNullAndEmptyArrays", false }
+                                        });
+            var project = new BsonDocument("$project",
+                                    new BsonDocument
+                                        {
+                                            { "_id", 0 },
+                                            { "examenes", 1 }
+                                        });
+            var replaceRoot = new BsonDocument("$replaceRoot",
+                                    new BsonDocument("newRoot",
+                                    new BsonDocument("$mergeObjects",
+                                    new BsonArray
+                                                {
+                                                    new BsonDocument
+                                                    {
+                                                        { "_id", 0 },
+                                                        { "descripcion", 0 },
+                                                        { "precio", 0 }
+                                                    },
+                                                    "$examenes"
+                                                })));
+            lstExamenes = await _examenes.Aggregate()
+                                .AppendStage<dynamic>(match_idPaciente)
+                                .AppendStage<dynamic>(unwind)
+                                .AppendStage<dynamic>(addFields)
+                                .AppendStage<dynamic>(lookup)
+                                .AppendStage<dynamic>(unwind2)
+                                .AppendStage<dynamic>(addFields2)
+                                .AppendStage<dynamic>(lookup2)
+                                .AppendStage<dynamic>(unwind3)
+                                .AppendStage<dynamic>(project)
+                                .AppendStage<Examenes>(replaceRoot)
+                                .ToListAsync();
+            return lstExamenes;
+        }
     }
 }

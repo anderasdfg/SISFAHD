@@ -157,7 +157,7 @@ namespace SISFAHD.Services
 
             var match_idPaciente = new BsonDocument("$match",
                                     new BsonDocument("_id",
-                                    new ObjectId("6100a020b032bf8fb6b27737")));
+                                    new ObjectId(idPaciente)));
             var unwind = new BsonDocument("$unwind",
                                     new BsonDocument
                                         {
@@ -214,7 +214,7 @@ namespace SISFAHD.Services
                                 .ToListAsync();
             return lstResultadoExamen;
         }
-
+        
         public async Task<ResultadoExamen> GetByIdExamenesSubidos(string id)
         {
             var match = new BsonDocument("$match",
@@ -225,6 +225,7 @@ namespace SISFAHD.Services
                            .AppendStage<ResultadoExamen>(match).FirstOrDefaultAsync();
             return resultadoExamen;
         }
+
         public async Task<ResultadoExamen> CrearResultadoExamen(ResultadoExamen resultados)
         {
             await _resultadosExamen.InsertOneAsync(resultados);
