@@ -25,13 +25,13 @@ namespace SISFAHD.Services
             medicina = await _MedicinasCollection.Aggregate().AppendStage<dynamic>(project).AppendStage<Medicinas>(limit).ToListAsync();
             return medicina;
         }
-        public async Task<Medicinas> GetByDescripcionFiltrer(string descripcion)
+        public async Task<List<Medicinas>> GetByDescripcionFiltrer(string descripcion)
         {
-            Medicinas medicina = new Medicinas();
+            List<Medicinas> medicina = new List<Medicinas>();
             var match = new BsonDocument("$match",
                         new BsonDocument("descripcion",
                         new BsonDocument("$regex", descripcion)));
-            medicina = await _MedicinasCollection.Aggregate().AppendStage<Medicinas>(match).FirstOrDefaultAsync();
+            medicina = await _MedicinasCollection.Aggregate().AppendStage<Medicinas>(match).ToListAsync();
             return medicina;
         }
     }

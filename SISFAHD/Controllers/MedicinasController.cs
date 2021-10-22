@@ -23,7 +23,7 @@ namespace SISFAHD.Controllers
             return await _medicinasService.GetAll();
         }
         [HttpGet("filter")]
-        public async Task<ActionResult<Medicinas>> GetByDescription(string descripcion)
+        public async Task<ActionResult<List<Medicinas>>> GetByDescription(string descripcion)
         {
             return await _medicinasService.GetByDescripcionFiltrer(descripcion);
         }
