@@ -44,22 +44,22 @@ namespace SISFAHD.Controllers
         }
 
         [HttpPost("Registrar")]
-        public async Task<ActionResult<ResultadoExamen>> CrearResultadoExamen([FromBody] ResultadoExamen resultadoExamen)
+        public async Task<ActionResult<ResultadoExamen>> CrearResultadoExamen([FromBody] ResultadoExamen resultadoExamen, string idUsuario)
         {
             try
             {
                 if (resultadoExamen.documento_anexo.Count() != 0)
                 {
-                    for(int i=0;i< resultadoExamen.documento_anexo.Count(); i++)
+                    for (int i = 0; i < resultadoExamen.documento_anexo.Count(); i++)
                     {
                         if (!string.IsNullOrWhiteSpace(resultadoExamen.documento_anexo[i]))
                         {
                             var solicitudBytes2 = Convert.FromBase64String(resultadoExamen.documento_anexo[i]);
                             resultadoExamen.documento_anexo[i] = await _fileStorage.SaveDoc(solicitudBytes2, "pdf", "archivos");
                         }
-                    }  
+                    }
                 }
-                return await _resultadoExamenService.CrearResultadoExamen(resultadoExamen);
+                return await _resultadoExamenService.CrearResultadoExamen(resultadoExamen, idUsuario);
             }
             catch (Exception ex)
             {

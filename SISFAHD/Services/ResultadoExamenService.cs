@@ -17,12 +17,14 @@ namespace SISFAHD.Services
     public class ResultadoExamenService
     {
         private readonly IMongoCollection<Paciente> _paciente;
+        private readonly IMongoCollection<Paciente2> _paciente2;
         private readonly IMongoCollection<ResultadoExamen> _resultadosExamen;
         public ResultadoExamenService(ISisfahdDatabaseSettings settings)
         {
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
             _paciente = database.GetCollection<Paciente>("pacientes");
+            _paciente2 = database.GetCollection<Paciente2>("pacientes");
             _resultadosExamen = database.GetCollection<ResultadoExamen>("resultado_examen");
         }
         public async Task<List<ExamenAuxiliar>> GetAllExamenesAuxiliares_By_Paciente(string idUsuario)
@@ -222,9 +224,20 @@ namespace SISFAHD.Services
             return resultado;
         }
 
-        public async Task<ResultadoExamen> CrearResultadoExamen(ResultadoExamen resultados)
+        public async Task<ResultadoExamen> CrearResultadoExamen(ResultadoExamen resultados, string idusuario)
         {
+            Paciente2 paciente = new Paciente2();
+            paciente = _paciente2.Find(paciente => paciente.id_usuario == idusuario).FirstOrDefault();
+
             await _resultadosExamen.InsertOneAsync(resultados);
+
+            paciente.archivos.Add(new Archivos2() { id_resultado = resultados.id.ToString(), id_acto_medico = "" });
+
+            var filter = Builders<Paciente2>.Filter.Eq("id_usuario", idusuario);
+            var update = Builders<Paciente2>.Update
+                .Set("archivos", paciente.archivos);
+            _paciente2.UpdateOne(filter, update);
+
             return resultados;
         }
 

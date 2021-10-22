@@ -37,7 +37,7 @@ namespace SISFAHD.Controllers
         {
             return await _examenesservice.GetByNombre(nombre);
         }
-        [HttpGet("allByPaciente")]
+        [HttpGet("allByUsuario")]
         public async Task<ActionResult<List<Examenes>>> GetAllExamenes_By_Paciente([FromQuery] string idUsuario)
         {
             return await _examenesservice.GetAllExamenes_By_Paciente(idUsuario);
