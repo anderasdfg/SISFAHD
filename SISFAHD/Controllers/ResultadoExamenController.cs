@@ -48,17 +48,17 @@ namespace SISFAHD.Controllers
         {
             try
             {
-                if (resultadoExamen.documento_anexo.Count() != 0)
-                {
-                    for (int i = 0; i < resultadoExamen.documento_anexo.Count(); i++)
-                    {
-                        if (!string.IsNullOrWhiteSpace(resultadoExamen.documento_anexo[i]))
-                        {
-                            var solicitudBytes2 = Convert.FromBase64String(resultadoExamen.documento_anexo[i]);
-                            resultadoExamen.documento_anexo[i] = await _fileStorage.SaveDoc(solicitudBytes2, "pdf", "archivos");
-                        }
-                    }
-                }
+                //if (resultadoExamen.documento_anexo.Count() != 0)
+                //{
+                //    for (int i = 0; i < resultadoExamen.documento_anexo.Count(); i++)
+                //    {
+                //        if (!string.IsNullOrWhiteSpace(resultadoExamen.documento_anexo[i]))
+                //        {
+                //            var solicitudBytes2 = Convert.FromBase64String(resultadoExamen.documento_anexo[i]);
+                //            resultadoExamen.documento_anexo[i] = await _fileStorage.SaveDoc(solicitudBytes2, "pdf", "archivos");
+                //        }
+                //    }
+                //}
                 return await _resultadoExamenService.CrearResultadoExamen(resultadoExamen, idUsuario);
             }
             catch (Exception ex)
@@ -72,17 +72,17 @@ namespace SISFAHD.Controllers
         {
             try
             {
-                for (int i = 0; i < id.documento_anexo.Count(); i++)
-                {
-                    if (!id.documento_anexo[i].StartsWith("http"))
-                    {
-                        if (!string.IsNullOrWhiteSpace(id.documento_anexo[i]))
-                        {
-                            var profileimg = Convert.FromBase64String(id.documento_anexo[i]);
-                            id.documento_anexo[i] = await _fileStorage.EditFile(profileimg, "jpg", "especialidad", id.documento_anexo[i]);
-                        }
-                    }
-                } 
+                //for (int i = 0; i < id.documento_anexo.Count(); i++)
+                //{
+                //    if (!id.documento_anexo[i].StartsWith("http"))
+                //    {
+                //        if (!string.IsNullOrWhiteSpace(id.documento_anexo[i]))
+                //        {
+                //            var profileimg = Convert.FromBase64String(id.documento_anexo[i]);
+                //            id.documento_anexo[i] = await _fileStorage.EditFile(profileimg, "jpg", "especialidad", id.documento_anexo[i]);
+                //        }
+                //    }
+                //} 
                 ResultadoExamen objetoResultado = _resultadoExamenService.ModificarResultadoExamen(id);
                 return objetoResultado;
             }
