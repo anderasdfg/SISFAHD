@@ -94,9 +94,17 @@ namespace SISFAHD.Controllers
         }
 
         [HttpDelete("eliminar")]
-        public async Task<ActionResult<ResultadoExamen>> EliminarResultadosExamen([FromQuery] string id)
+        public async Task<ActionResult<ResultadoExamen>> EliminarResultadosExamen([FromQuery] string id, string idusuario)
         {
-            return await _resultadoExamenService.EliminarResultadosExamen(id);
+            try
+            {
+                return await _resultadoExamenService.EliminarResultadosExamen(id, idusuario);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+            
         }
     }
 }
