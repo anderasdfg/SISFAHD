@@ -15,7 +15,7 @@ namespace SISFAHD.Controllers
     public class CalificacionController : ControllerBase
     {
 
-        private readonly CalificacionService  _atencionservices;
+        private readonly CalificacionService _atencionservices;
         private readonly CitaService _cita;
         private readonly IFileStorage _fileStorage;
 
@@ -50,14 +50,14 @@ namespace SISFAHD.Controllers
             }
         }
 
-        [HttpGet("Registrar")]
+        [HttpPost("Registrar")]
         public async Task<ActionResult<Opiniones>> Calificar(Opiniones opiniones)
         {
             return await _atencionservices.CrearOpiniones(opiniones);
         }
 
-      
 
+     
 
     }
 }

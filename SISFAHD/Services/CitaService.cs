@@ -47,9 +47,18 @@ namespace SISFAHD.Services
             await _cita.UpdateOneAsync(filter, update);
             return true;
         }
+        public async Task<bool> PutSoloCitaEValuada(string idCita)
+        {
+            var filter = Builders<Cita>.Filter.Eq("id", ObjectId.Parse(idCita));
+            var update = Builders<Cita>.Update
+                .Set("estado_atencion", "evaluada");
+
+            await _cita.UpdateOneAsync(filter, update);
+            return true;
+        }
         public async Task<List<CitaDTO>> GetAllCitaPagadasNoPagadas()
         {
-            List<CitaDTO> PagoDTO = new List<CitaDTO>();
+            List<CitaDTO> PagoDTO = new List<CitaDTO>();2
 
             var addfields1 = new BsonDocument("$addFields",
                                 new BsonDocument("id_paciente_pro",

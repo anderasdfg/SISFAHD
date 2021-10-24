@@ -68,6 +68,11 @@ namespace SISFAHD.Controllers
         {
             return await _cita.PutSoloCitaAtendida(idCita);
         }
+        [HttpPut("actualizarCitaEvaluada")]
+        public async Task<ActionResult<bool>> PutSoloCitaEValuada([FromQuery] string idCita)
+        {
+            return await _cita.PutSoloCitaEValuada(idCita);
+        }
 
         [HttpGet("allCita")]
         public ActionResult<List<Cita>> GetAllCita()
