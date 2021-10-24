@@ -118,4 +118,31 @@ namespace SISFAHD.Entities
         public DateTime? fecha_observacion { get; set; }
     }
 
+
+    //mapeo version 2 de la bd
+
+    public class Paciente2
+    {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string id { get; set; }
+        [BsonElement("datos")]
+        public Datos_Paciente datos { get; set; }
+        [BsonElement("antecedentes")]
+        public Antecedentes antecedentes { get; set; }
+        [BsonElement("id_historia")]
+        public string id_historia { get; set; }
+        [BsonElement("id_usuario")]
+        public string id_usuario { get; set; }
+        [BsonElement("archivos")]
+        public List<Archivos2> archivos { get; set; } = new List<Archivos2>();
+    }
+
+    public class Archivos2
+    {
+        [BsonElement("id_resultado")]
+        public string id_resultado { get; set; }
+        [BsonElement("id_acto_medico")]
+        public string id_acto_medico { get; set; }
+    }
 }
