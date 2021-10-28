@@ -23,10 +23,13 @@ namespace SISFAHD.Entities
         public Datos_paciente datos_paciente { get; set; }
 
         [BsonElement("calificacion")]
-        public int calificacion { get; set; }
+        public Double calificacion { get; set; }
 
         [BsonElement("observacion")]
         public string observacion { get; set; }
+
+        [BsonElement("fecha_opinion")]
+        public DateTime fecha_opinion { get; set; }
 
         [BsonElement("datos_cita")]
         public Datos_cita datos_cita { get; set; }
@@ -45,7 +48,7 @@ namespace SISFAHD.Entities
         }
         public class Datos_cita
         {
-            public string fecha { get; set; }
+            public DateTime fecha { get; set; }
             public string id_cita { get; set; }
         }
     }
