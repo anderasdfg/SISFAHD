@@ -48,17 +48,17 @@ namespace SISFAHD.Controllers
         {
             try
             {
-                if (resultadoExamen.documento_anexo.Count() != 0)
-                {
-                    for (int i = 0; i < resultadoExamen.documento_anexo.Count(); i++)
-                    {
-                        if (!string.IsNullOrWhiteSpace(resultadoExamen.documento_anexo[i].url))
-                        {
-                            var solicitudBytes2 = Convert.FromBase64String(resultadoExamen.documento_anexo[i].url);
-                            resultadoExamen.documento_anexo[i].url = await _fileStorage.SaveDoc(solicitudBytes2, "pdf", "archivos");
-                        }
-                    }
-                }
+                //if (resultadoExamen.documento_anexo.Count() != 0)
+                //{
+                //    for (int i = 0; i < resultadoExamen.documento_anexo.Count(); i++)
+                //    {
+                //        if (!string.IsNullOrWhiteSpace(resultadoExamen.documento_anexo[i].url))
+                //        {
+                //            var solicitudBytes2 = Convert.FromBase64String(resultadoExamen.documento_anexo[i].url);
+                //            resultadoExamen.documento_anexo[i].url = await _fileStorage.SaveDoc(solicitudBytes2, "pdf", "archivos");
+                //        }
+                //    }
+                //}
                 return await _resultadoExamenService.CrearResultadoExamen(resultadoExamen, idUsuario);
             }
             catch (Exception ex)
