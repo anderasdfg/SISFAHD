@@ -52,10 +52,10 @@ namespace SISFAHD.Controllers
                 //{
                 //    for (int i = 0; i < resultadoExamen.documento_anexo.Count(); i++)
                 //    {
-                //        if (!string.IsNullOrWhiteSpace(resultadoExamen.documento_anexo[i]))
+                //        if (!string.IsNullOrWhiteSpace(resultadoExamen.documento_anexo[i].url))
                 //        {
-                //            var solicitudBytes2 = Convert.FromBase64String(resultadoExamen.documento_anexo[i]);
-                //            resultadoExamen.documento_anexo[i] = await _fileStorage.SaveDoc(solicitudBytes2, "pdf", "archivos");
+                //            var solicitudBytes2 = Convert.FromBase64String(resultadoExamen.documento_anexo[i].url);
+                //            resultadoExamen.documento_anexo[i].url = await _fileStorage.SaveDoc(solicitudBytes2, "pdf", "archivos");
                 //        }
                 //    }
                 //}
