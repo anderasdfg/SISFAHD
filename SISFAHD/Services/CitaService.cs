@@ -58,7 +58,7 @@ namespace SISFAHD.Services
         }
         public async Task<List<CitaDTO>> GetAllCitaPagadasNoPagadas()
         {
-            List<CitaDTO> PagoDTO = new List<CitaDTO>();2
+            List<CitaDTO> PagoDTO = new List<CitaDTO>();
 
             var addfields1 = new BsonDocument("$addFields",
                                 new BsonDocument("id_paciente_pro",

@@ -24,9 +24,14 @@ namespace SISFAHD.Entities
         public string observaciones { get; set; }
 
         [BsonElement("documento_anexo")]
-        public List<string> documento_anexo { get; set; }
+        public List<doc_Anexo> documento_anexo { get; set; }
 
         [BsonElement("codigo")]
         public string codigo { get; set; }
+    }
+    public class doc_Anexo
+    {
+        public string titulo { get; set; }
+        public string url { get; set; }
     }
 }
