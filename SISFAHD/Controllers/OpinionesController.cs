@@ -24,15 +24,9 @@ namespace SISFAHD.Controllers
         }
 
         [HttpGet("all")]
-        public ActionResult<List<Opiniones>> GetAll([FromQuery] string idMedico)
+        public ActionResult<Tuple<List<Opiniones>,Double>> GetAll([FromQuery] string idMedico)
         {
             return _opinionesService.GetAll_By_Medico(idMedico);
-        }
-
-        [HttpGet("promedio")]
-        public ActionResult<Double> GetPromedioCalificacion([FromQuery] string idMedico)
-        {
-            return _opinionesService.GetPromedioCalificacion(idMedico);
         }
     }
 }

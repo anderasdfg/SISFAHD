@@ -20,26 +20,19 @@ namespace SISFAHD.Services
             _opiniones = database.GetCollection<Opiniones>("opiniones");
         }
 
-        public List<Opiniones> GetAll_By_Medico(string idMedico)
-        {
-            List<Opiniones> opiniones = new List<Opiniones>();
-            opiniones = _opiniones.Find(opiniones => opiniones.datos_medico.id_medico == idMedico).ToList();
-            return opiniones;
-        }
-
-        public Double GetPromedioCalificacion(string idMedico)
+        public Tuple<List<Opiniones>,Double> GetAll_By_Medico(string idMedico)
         {
             List<Opiniones> opiniones = new List<Opiniones>();
             opiniones = _opiniones.Find(opiniones => opiniones.datos_medico.id_medico == idMedico).ToList();
             int contador = 0;
             double sumatoria = 0;
-            foreach(Opiniones opinion in opiniones)
+            foreach (Opiniones opinion in opiniones)
             {
                 sumatoria += opinion.calificacion;
                 contador++;
             }
             double promedio = sumatoria / contador;
-            return promedio;
+            return Tuple.Create(opiniones, promedio);
         }
     }
 }
