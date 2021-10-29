@@ -14,7 +14,8 @@ namespace SISFAHD.Controllers
     [ApiController]    
     public class ExamenesController : ControllerBase
     {
-        private readonly ExamenesService _examenesservice;        
+        private readonly ExamenesService _examenesservice;
+        private readonly IFileStorage _fileStorage;
         public ExamenesController(ExamenesService examenesService)
         {
             _examenesservice = examenesService;            
@@ -42,6 +43,49 @@ namespace SISFAHD.Controllers
         {
             return await _examenesservice.GetAllExamenes_By_Paciente(idUsuario);
         }
+
+        [HttpPost("Registrar")]
+        public async Task<ActionResult<Examenes>> CrearExamenes(Examenes examenes)
+        {
+            //if (!string.IsNullOrWhiteSpace(examenes.url))
+            //{
+            //    var profileimg = Convert.FromBase64String(examenes.url);
+            //    examenes.url = await _fileStorage.SaveFile(profileimg, "jpg", "examenes");
+            //}
+            Examenes objetoexamenes = _examenesservice.CrearExamenesAux(examenes);
+            return objetoexamenes;
+        }
+
+        [HttpPut("Modificar")]
+        public async Task<ActionResult<Examenes>> ModificarExamenes(Examenes examen)
+        {
+            try
+            {
+                //if (!id.url.StartsWith("http"))
+                //{
+                //    if (!string.IsNullOrWhiteSpace(id.url))
+                //    {
+                //        var profileimg = Convert.FromBase64String(id.url);
+                //        id.url = await _fileStorage.EditFile(profileimg, "jpg", "examenes", id.url);
+                //    }
+                //}
+
+                Examenes objetoexamenesbd = _examenesservice.ModificarExamenesAux(examen);
+                return objetoexamenesbd;
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+
+        }
+
+        [HttpDelete("Delete")]
+        public async Task<ActionResult<Examenes>> Delete(string id)
+        {
+            return await _examenesservice.RemoveExamenes(id);
+        }
+
 
     }
 }

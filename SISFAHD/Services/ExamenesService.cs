@@ -40,6 +40,41 @@ namespace SISFAHD.Services
             return examenes;
         }
 
+        public Examenes CrearExamenesAux(Examenes examenes)
+        {
+            _examenes.InsertOne(examenes);
+            return examenes;
+        }
+
+
+        public Examenes ModificarExamenesAux(Examenes examenes)
+        {
+
+            var filter = Builders<Examenes>.Filter.Eq("id", examenes.id);
+            var update = Builders<Examenes>.Update
+                .Set("descripcion", examenes.descripcion)
+                .Set("precio", examenes.precio);
+
+
+            examenes = _examenes.FindOneAndUpdate<Examenes>(filter, update, new FindOneAndUpdateOptions<Examenes>
+            {
+                ReturnDocument = ReturnDocument.After
+            });
+            
+
+            return examenes;
+        }
+
+        public async Task<Examenes> RemoveExamenes(string id)
+        {
+            var filter = Builders<Examenes>.Filter.Eq("id", id);
+            return await _examenes.FindOneAndDeleteAsync<Examenes>(filter, new FindOneAndDeleteOptions<Examenes> { });
+        }
+
+
+
+
+
         public Examenes GetByID(string id)
         {
             Examenes examen = new Examenes();

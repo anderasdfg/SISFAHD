@@ -20,5 +20,7 @@ namespace SISFAHD.Entities
         public string descripcion { get; set; }
         [BsonElement("precio")]
         public double precio { get; set; }
+
+        
     }
 }
