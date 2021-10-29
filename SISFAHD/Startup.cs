@@ -82,6 +82,9 @@ namespace SISFAHD
             services.AddScoped<AdicionalesServices>();
             services.AddScoped<ExamenesService>();
             services.AddScoped<ResultadoExamenService>();
+            services.AddScoped<MediaService>();
+            services.AddScoped<OpinionesService>();
+
             //Injectando dependecia de Azure FileStorage
             services.AddScoped<IFileStorage, AzureFileStorage>();
 

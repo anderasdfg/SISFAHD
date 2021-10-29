@@ -42,12 +42,12 @@ namespace SISFAHD.Services
 
         public async Task<ActionResult<Opiniones>> CrearOpiniones(Opiniones opiniones)
         {
+            opiniones.fecha_opinion = System.DateTime.Now;
             await _opiniones.InsertOneAsync(opiniones);
             return opiniones;
 
         }
 
-        
-        
+
     }
 }

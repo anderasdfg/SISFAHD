@@ -16,10 +16,10 @@ namespace SISFAHD.Controllers
     {
 
         private readonly CalificacionService _atencionservices;
-        private readonly CitaService _cita;
         private readonly IFileStorage _fileStorage;
 
-        public CalificacionController(CalificacionService atencionservices, IFileStorage fileStorage) {
+        public CalificacionController(CalificacionService atencionservices, IFileStorage fileStorage)
+        {
 
             _atencionservices = atencionservices;
             _fileStorage = fileStorage;
@@ -27,7 +27,8 @@ namespace SISFAHD.Controllers
 
         [HttpGet("all")]
 
-        public ActionResult<List<Opiniones>> GetAll() {
+        public ActionResult<List<Opiniones>> GetAll()
+        {
 
             return _atencionservices.GetaAll();
         }
@@ -44,12 +45,11 @@ namespace SISFAHD.Controllers
                 }
                 return 0;
             }
-            catch (Exception ex)
+            catch (Exception )
             {
                 return 0;
             }
         }
-
         [HttpPost("Registrar")]
         public async Task<ActionResult<Opiniones>> Calificar(Opiniones opiniones)
         {
@@ -57,7 +57,7 @@ namespace SISFAHD.Controllers
         }
 
 
-     
+
 
     }
 }

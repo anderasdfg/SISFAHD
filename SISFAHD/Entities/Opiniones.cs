@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Attributes;
-using SISFAHD.DTOs;
-using SISFAHD.Services;
 
 namespace SISFAHD.Entities
 {
@@ -27,12 +21,15 @@ namespace SISFAHD.Entities
 
         [BsonElement("observacion")]
         public string observacion { get; set; }
+        [BsonElement("fecha_opinion")]
+        public DateTime? fecha_opinion { get; set; }
 
         [BsonElement("datos_cita")]
         public Datos_cita datos_cita { get; set; }
 
 
-        public class Dato_medico { 
+        public class Dato_medico
+        {
             public string id_medico { get; set; }
             public string nombre { get; set; }
 
@@ -45,7 +42,7 @@ namespace SISFAHD.Entities
         }
         public class Datos_cita
         {
-            public string fecha { get; set; }
+            public DateTime? fecha { get; set; }
             public string id_cita { get; set; }
         }
     }
