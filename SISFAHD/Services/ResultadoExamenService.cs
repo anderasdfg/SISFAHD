@@ -239,6 +239,25 @@ namespace SISFAHD.Services
             return resultados;
         }
 
+        public async Task<ResultadoExamen> CrearResultadoExamen2(ResultadoExamenDTO resultados)
+        {
+            Paciente paciente = new Paciente();
+            paciente = _paciente.Find(paciente => paciente.id_usuario == resultados.idusuario).FirstOrDefault();
+            if(paciente.archivos is null) {
+                paciente.archivos = new List<Archivos>();
+            }
+            await _resultadosExamen.InsertOneAsync(resultados.resultadoExamen);
+
+            paciente.archivos.Add(new Archivos() { id_resultado = resultados.resultadoExamen.id.ToString(), id_acto_medico = "" });
+
+            var filter = Builders<Paciente>.Filter.Eq("id_usuario", resultados.idusuario);
+            var update = Builders<Paciente>.Update
+                .Set("archivos", paciente.archivos);
+            _paciente.UpdateOne(filter, update);
+
+            return resultados.resultadoExamen;
+        }
+
         public ResultadoExamen ModificarResultadoExamen(ResultadoExamen resultado)
         {
 

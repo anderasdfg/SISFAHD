@@ -48,17 +48,7 @@ namespace SISFAHD.Controllers
         {
             try
             {
-                //if (resultadoExamen.documento_anexo.Count() != 0)
-                //{
-                //    for (int i = 0; i < resultadoExamen.documento_anexo.Count(); i++)
-                //    {
-                //        if (!string.IsNullOrWhiteSpace(resultadoExamen.documento_anexo[i].url))
-                //        {
-                //            var solicitudBytes2 = Convert.FromBase64String(resultadoExamen.documento_anexo[i].url);
-                //            resultadoExamen.documento_anexo[i].url = await _fileStorage.SaveDoc(solicitudBytes2, "pdf", "archivos");
-                //        }
-                //    }
-                //}
+               
                 return await _resultadoExamenService.CrearResultadoExamen(resultadoExamen, idUsuario);
             }
             catch (Exception ex)
@@ -67,22 +57,28 @@ namespace SISFAHD.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex);
             }
         }
-        [HttpPut("Modificar")]
-        public async Task<ActionResult<ResultadoExamen>> ModificarResultadoExamen(ResultadoExamen id)
+
+        [HttpPost("RegistrarDTO")]
+        public async Task<ActionResult<ResultadoExamen>> CrearResultadoExamen2([FromBody] ResultadoExamenDTO resultadoExamen)
         {
             try
             {
-                //for (int i = 0; i < id.documento_anexo.Count(); i++)
-                //{
-                //    if (!id.documento_anexo[i].StartsWith("http"))
-                //    {
-                //        if (!string.IsNullOrWhiteSpace(id.documento_anexo[i]))
-                //        {
-                //            var profileimg = Convert.FromBase64String(id.documento_anexo[i]);
-                //            id.documento_anexo[i] = await _fileStorage.EditFile(profileimg, "jpg", "especialidad", id.documento_anexo[i]);
-                //        }
-                //    }
-                //} 
+                return await _resultadoExamenService.CrearResultadoExamen2(resultadoExamen);
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+        }
+
+
+        [HttpPut("Modificar")]
+        public ActionResult<ResultadoExamen> ModificarResultadoExamen(ResultadoExamen id)
+        {
+            try
+            {
+                
                 ResultadoExamen objetoResultado = _resultadoExamenService.ModificarResultadoExamen(id);
                 return objetoResultado;
             }
