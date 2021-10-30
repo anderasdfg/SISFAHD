@@ -44,5 +44,36 @@ namespace SISFAHD.Services
             enfermedad = await _EnfermdedadCollection.Aggregate().AppendStage<Enfermedad>(match).ToListAsync();
             return enfermedad;
         }
+        /// 
+        public List<Enfermedad> GetAll()
+        {
+            List<Enfermedad> enfermedades = new List<Enfermedad>();
+            enfermedades = _EnfermdedadCollection.Find(Enfermedad => true).ToList();
+            return enfermedades;
+        }
+        public Enfermedad RegistrarEnfermedad(Enfermedad enfermedad)
+        {
+            _EnfermdedadCollection.InsertOne(enfermedad);
+            return enfermedad;
+        }
+
+        public Enfermedad ModificarEnfermedad(Enfermedad enfermedad)
+        {
+            var filter = Builders<Enfermedad>.Filter.Eq("id", enfermedad.id);
+            var update = Builders<Enfermedad>.Update
+                                 .Set("codigo_cie", enfermedad.codigo_cie)
+                                 .Set("descripcion", enfermedad.descripcion);
+            enfermedad = _EnfermdedadCollection.FindOneAndUpdate<Enfermedad>(filter, update, new FindOneAndUpdateOptions<Enfermedad>
+            { 
+                ReturnDocument = ReturnDocument.After
+            });
+            return enfermedad;
+        }
+
+        public async Task<Enfermedad> EliminarEnfermedad(string id)
+        {
+            var filter = Builders<Enfermedad>.Filter.Eq("id", id);
+            return await _EnfermdedadCollection.FindOneAndDeleteAsync<Enfermedad>(filter, new FindOneAndDeleteOptions<Enfermedad> {});
+        }
     }
 }

@@ -35,20 +35,6 @@ namespace SISFAHD.Services
             return especialidad;
 
         }
-           public Task<Especialidad> ModificarEspecialidad(Especialidad especialidad) {
-
-              var filter = Builders<Especialidad>.Filter.Eq("id", especialidad.id);
-              var update = Builders<Especialidad>.Update
-                  .Set("nombre", especialidad.nombre)
-                  .Set("codigo", especialidad.codigo)
-                  .Set("descripcion", especialidad.descripcion)
-                  .Set("url",especialidad.url);
-            var resultado = _especialidades.FindOneAndUpdateAsync<Especialidad>(filter, update, new FindOneAndUpdateOptions<Especialidad>
-              {
-                  ReturnDocument = ReturnDocument.After
-              });
-              return resultado;
-          }
         public Especialidad ModificarEspecialidad2(Especialidad especialidad)
         {
 
@@ -57,7 +43,8 @@ namespace SISFAHD.Services
                 .Set("nombre", especialidad.nombre)
                 .Set("codigo", especialidad.codigo)
                 .Set("descripcion", especialidad.descripcion)
-                .Set("url", especialidad.url);
+                .Set("url", especialidad.url)
+                .Set("estado", especialidad.estado);
             especialidad = _especialidades.FindOneAndUpdate<Especialidad>(filter, update, new FindOneAndUpdateOptions<Especialidad>
             {
                 ReturnDocument = ReturnDocument.After
@@ -66,6 +53,7 @@ namespace SISFAHD.Services
         }
         public Especialidad CrearEspecialdiad2(Especialidad especialidad) 
         {
+            
             _especialidades.InsertOne(especialidad);
             return especialidad;
         }
