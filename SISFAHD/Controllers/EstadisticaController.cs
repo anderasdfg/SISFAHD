@@ -120,7 +120,7 @@ namespace SISFAHD.Controllers
             return await _estadistica.EstadisticasAllCitasxPaciente();
         }
         [HttpGet("PacienteyEspecialidad")]
-        public async Task<ActionResult<List<CitasxPacienteyEstadoAtencion>>> ECitasxPacienteyEspecialidad(string idpaciente=null,string estado=null)
+        public async Task<ActionResult<List<CitasxPacienteyEstadoAtencion>>> ECitasxPacienteyEspecialidad(string idpaciente="",string estado=null)
         {
             if (String.IsNullOrEmpty(estado))
             {

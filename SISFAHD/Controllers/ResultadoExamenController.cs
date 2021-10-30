@@ -44,7 +44,7 @@ namespace SISFAHD.Controllers
         }
 
         [HttpPost("Registrar")]
-        public async Task<ActionResult<ResultadoExamen>> CrearResultadoExamen([FromBody] ResultadoExamen resultadoExamen, string idUsuario)
+        public async Task<ActionResult<ResultadoExamen>> CrearResultadoExamen([FromBody] ResultadoExamen resultadoExamen, [FromQuery] string idUsuario)
         {
             try
             {
