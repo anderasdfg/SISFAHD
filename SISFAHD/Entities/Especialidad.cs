@@ -27,7 +27,10 @@ namespace SISFAHD.Entities
 
         [BsonElement("url")]
         public string url { get; set; }
-      
+
+        [BsonElement("estado")]
+        public string estado { get; set; }
+
     }
 
 }

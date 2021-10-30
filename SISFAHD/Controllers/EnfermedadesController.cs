@@ -25,12 +25,37 @@ namespace SISFAHD.Controllers
         [HttpGet("Filter")]
         public async Task<ActionResult<List<Enfermedad>>> GetByCieDescription(string cie = "", string descripcion = "")
         {
-            return await _enfermedadesService.GetByCieDescription(cie,descripcion);
+            return await _enfermedadesService.GetByCieDescription(cie, descripcion);
         }
         [HttpGet("obtenerporcodigo")]
         public async Task<List<Enfermedad>> GetByCodigo([FromQuery] string codigo)
         {
             return await _enfermedadesService.GetByCodigo(codigo);
         }
+        /// 
+        [HttpGet("all")]
+        public ActionResult<List<Enfermedad>> GetAll()
+        {
+            return _enfermedadesService.GetAll();
+        }
+
+        [HttpPost("Registrar")]
+        public ActionResult<Enfermedad> Create(Enfermedad enfermedad)
+        {
+            Enfermedad objetoEnfermedad = _enfermedadesService.RegistrarEnfermedad(enfermedad);
+            return objetoEnfermedad;
+        }
+        [HttpPut("Modificar")]
+        public ActionResult<Enfermedad> Update(Enfermedad id)
+        {
+            Enfermedad objetoEnfermedad = _enfermedadesService.ModificarEnfermedad(id);
+            return objetoEnfermedad;
+        }
+        [HttpDelete("Delete")]
+        public async Task<ActionResult<Enfermedad>> Delete(string id)
+        {
+            return await _enfermedadesService.EliminarEnfermedad(id);
+        }
+
     }
 }
