@@ -38,7 +38,7 @@ namespace SISFAHD.Services
                             new BsonDocument("$sum", 1) }
                         });
             var project = new BsonDocument("$project",
-                         new BsonDocument("_id", 0));
+                         new BsonDocument("_id", 1));
             EstadisticaDTO eDTO = new EstadisticaDTO();
             eDTO = await _cita.Aggregate()
                    .AppendStage<dynamic>(match)
@@ -88,14 +88,17 @@ namespace SISFAHD.Services
             var match = new BsonDocument("$match",
                         new BsonDocument("especialidad.nombre", especialidad));
             var group = new BsonDocument("$group",
-    new BsonDocument
-        {
+                        new BsonDocument
+                            {
                                 { "_id", "$especialidad.nombre" },
                                 { "cantidad",
-                        new BsonDocument("$sum", 1) }
-        });
-            var project = new BsonDocument("$project",
-                          new BsonDocument("_id", 0));
+                                new BsonDocument("$sum", 1) }
+                            });
+            //var addFields3 = new BsonDocument("$addFields",
+            //                new BsonDocument("_id",
+            //                new BsonDocument("$toString", "$_id")));
+            //var project = new BsonDocument("$project",
+            //              new BsonDocument("_id", 1));
             EstadisticaDTO eDTO = new EstadisticaDTO();
             eDTO = await _cita.Aggregate()
                    .AppendStage<dynamic>(addFields1)
@@ -105,7 +108,7 @@ namespace SISFAHD.Services
                    .AppendStage<dynamic>(lookup2)
                    .AppendStage<dynamic>(unwind2)
                    .AppendStage<dynamic>(match)
-                   .AppendStage<EstadisticaDTO>(project).FirstAsync();
+                   .AppendStage<EstadisticaDTO>(group).FirstAsync();//<------
             return eDTO;
         }
         public async Task<EstadisticaDTO> CitasxEspecialidad_yEstado(string especialidad, string estado)
@@ -148,8 +151,8 @@ namespace SISFAHD.Services
             var match = new BsonDocument("$match",
             new BsonDocument
                 {
-                    { "especialidad.nombre", "Cardiología" },
-                    { "estado_atencion", "no atendido" }
+                    { "especialidad.nombre", especialidad },
+                    { "estado_atencion", estado }
                 });
             var group = new BsonDocument("$group",
             new BsonDocument
@@ -159,7 +162,7 @@ namespace SISFAHD.Services
             new BsonDocument("$sum", 1) }
                 });
             var project = new BsonDocument("$project",
-            new BsonDocument("_id", 0));
+            new BsonDocument("_id", 1));
             EstadisticaDTO eDTO = new EstadisticaDTO();
             eDTO = await _cita.Aggregate()
                    .AppendStage<dynamic>(addfields)
@@ -322,8 +325,8 @@ namespace SISFAHD.Services
             var match = new BsonDocument("$match",
             new BsonDocument
                 {
-                    { "id_paciente", "608f70f2a47f0a6734f6db18" },
-                    { "estado_atencion", "no atendido" }
+                    { "id_paciente", idpaciente },
+                    { "estado_atencion", estado }
                 });
             var group = new BsonDocument("$group",
             new BsonDocument
@@ -913,6 +916,8 @@ namespace SISFAHD.Services
                                     { "path", "$datos_especialidad" },
                                     { "preserveNullAndEmptyArrays", true }
                                 });
+            var addfields3 = new BsonDocument("$addFields",
+                             new BsonDocument("nombre", "$datos_especialidad.nombre"));
             List<CitasxEspecialidad> estadisticaDTO = new List<CitasxEspecialidad>();
             estadisticaDTO = await _medicos.Aggregate()
                    .AppendStage<dynamic>(addfields)
@@ -921,7 +926,8 @@ namespace SISFAHD.Services
                    .AppendStage<dynamic>(group)
                    .AppendStage<dynamic>(addfields2)
                    .AppendStage<dynamic>(lookup2)
-                   .AppendStage<CitasxEspecialidad>(unwind2).ToListAsync();
+                   .AppendStage<dynamic>(unwind2)
+                   .AppendStage<CitasxEspecialidad>(addfields3).ToListAsync();
 
             return estadisticaDTO;
 
@@ -1338,36 +1344,38 @@ namespace SISFAHD.Services
         /////------------Citas x Paciente y Estado Atencion--------------//////
         public async Task<List<CitasxPacienteyEstadoAtencion>> EstadisticasCitasxPacienteyEstadoAtencion(string id_paciente)
         {
-            var project = new BsonDocument("$project",
-                            new BsonDocument
-                                {
-                                    { "estado_atencion", 1 },
-                                    { "estado_pago", 1 },
-                                    { "fecha_cita", 1 },
-                                    { "id_paciente", 1 },
-                                    { "id_medico", 1 },
-                                    { "cantidad",
-                            new BsonDocument("$sum", 1) }
-                                });
-            var group = new BsonDocument("$group",
-                            new BsonDocument
-                                {
-                                    { "_id",
-                            new BsonDocument
+                var project = new BsonDocument("$project",
+                                new BsonDocument
                                     {
-                                        { "id_paciente", "$id_paciente" },
-                                        { "estado", "$estado_atencion" }
-                                    } },
-                                    { "cantidad",
+                                        { "estado_atencion", 1 },
+                                        { "estado_pago", 1 },
+                                        { "fecha_cita", 1 },
+                                        { "id_paciente", 1 },
+                                        { "id_medico", 1 },
+                                        { "cantidad",
+                                        new BsonDocument("$sum", 1) }
+                                    });
+                var group = new BsonDocument("$group",
+                            new BsonDocument
+                                {
+                            { "_id",
+                            new BsonDocument
+                            {
+                                { "id_paciente", "$id_paciente" },
+                                { "estado", "$estado_atencion" }
+                            } },
+                            { "cantidad",
                             new BsonDocument("$sum", 1) }
                                 });
-            var addfields = new BsonDocument("$addFields",
-                            new BsonDocument("estado_cita",
-                            new BsonDocument("$toString", "$_id.estado")));
-            var addfields2 = new BsonDocument("$addFields",
-                            new BsonDocument("_id.id_paciente",
-                            new BsonDocument("$toObjectId", "$_id.id_paciente")));
-            var lookup = new BsonDocument("$lookup",
+                var addfields = new BsonDocument("$addFields",
+                                new BsonDocument("estado_cita",
+                                new BsonDocument("$toString", "$_id.estado")));
+
+                var addfields2 =new BsonDocument("$addFields",
+                                new BsonDocument("_id.id_paciente",
+                                new BsonDocument("$toObjectId", "$_id.id_paciente")));
+
+                var lookup =new BsonDocument("$lookup",
                             new BsonDocument
                                 {
                                     { "from", "pacientes" },
@@ -1375,16 +1383,17 @@ namespace SISFAHD.Services
                                     { "foreignField", "_id" },
                                     { "as", "paciente" }
                                 });
-            var unwind = new BsonDocument("$unwind",
+                var unwind =new BsonDocument("$unwind",
                             new BsonDocument
                                 {
                                     { "path", "$paciente" },
                                     { "preserveNullAndEmptyArrays", true }
                                 });
-            var addfields3 = new BsonDocument("$addFields",
+                var addfields3 = new BsonDocument("$addFields",
                             new BsonDocument("paciente.id_usuario",
                             new BsonDocument("$toObjectId", "$paciente.id_usuario")));
-            var lookup2 = new BsonDocument("$lookup",
+
+                var lookup2=new BsonDocument("$lookup",
                             new BsonDocument
                                 {
                                     { "from", "usuarios" },
@@ -1392,41 +1401,41 @@ namespace SISFAHD.Services
                                     { "foreignField", "_id" },
                                     { "as", "datos_usuario" }
                                 });
-            var unwind2 = new BsonDocument("$unwind",
-                            new BsonDocument
-                                {
-                                    { "path", "$datos_usuario" },
-                                    { "preserveNullAndEmptyArrays", true }
-                                });
-            var addfields4 = new BsonDocument("$addFields",
-                            new BsonDocument("id_usuario",
-                            new BsonDocument("$toString", "$_id.id_paciente")));
-            var project2 = new BsonDocument("$project",
-                            new BsonDocument
-                                {
-                                    { "_id", 0 },
-                                    { "paciente", 0 }
-                                });
-            var match = new BsonDocument("$match",
-                            new BsonDocument
-                                {
-                                    
-                                    { "id_usuario", id_paciente }
-                                });
-            List<CitasxPacienteyEstadoAtencion> estadisticaDTO = new List<CitasxPacienteyEstadoAtencion>();
-            estadisticaDTO = await _pacientes.Aggregate()
-                   .AppendStage<dynamic>(project)
-                   .AppendStage<dynamic>(group)
-                   .AppendStage<dynamic>(addfields)
-                   .AppendStage<dynamic>(addfields2)
-                   .AppendStage<dynamic>(lookup)
-                   .AppendStage<dynamic>(unwind)
-                   .AppendStage<dynamic>(addfields3)
-                   .AppendStage<dynamic>(lookup2)
-                   .AppendStage<dynamic>(unwind2)
-                   .AppendStage<dynamic>(addfields4)
-                   .AppendStage<dynamic>(project2)
-                   .AppendStage<CitasxPacienteyEstadoAtencion>(match).ToListAsync();
+
+                var unwind2 = new BsonDocument("$unwind",
+        new BsonDocument
+            {
+                { "path", "$datos_usuario" },
+                { "preserveNullAndEmptyArrays", true }
+            });
+
+                var addfields4 = new BsonDocument("$addFields",
+        new BsonDocument("id_usuario",
+        new BsonDocument("$toString", "$_id.id_paciente")));
+
+                var project2 = new BsonDocument("$project",
+                new BsonDocument
+                    {
+                { "_id", 0 },
+                { "paciente", 0 }
+                    });
+                var match = new BsonDocument("$match",
+                new BsonDocument("id_usuario", id_paciente));
+
+                List<CitasxPacienteyEstadoAtencion> estadisticaDTO = new List<CitasxPacienteyEstadoAtencion>();
+                estadisticaDTO = await _cita.Aggregate()
+                       .AppendStage<dynamic>(project)
+                       .AppendStage<dynamic>(group)
+                       .AppendStage<dynamic>(addfields)
+                       .AppendStage<dynamic>(addfields2)
+                       .AppendStage<dynamic>(lookup)
+                       .AppendStage<dynamic>(unwind)
+                       .AppendStage<dynamic>(addfields3)
+                       .AppendStage<dynamic>(lookup2)
+                       .AppendStage<dynamic>(unwind2)
+                       .AppendStage<dynamic>(addfields4)
+                       .AppendStage<dynamic>(project2)
+                       .AppendStage<CitasxPacienteyEstadoAtencion>(match).ToListAsync();
 
             return estadisticaDTO;
         }
@@ -1602,7 +1611,7 @@ namespace SISFAHD.Services
                                     { "id_usuario", id_paciente }
                                 });
             List<CitasxPacienteyEstadoAtencion> estadisticaDTO = new List<CitasxPacienteyEstadoAtencion>();
-            estadisticaDTO = await _pacientes.Aggregate()
+            estadisticaDTO = await _cita.Aggregate()
                    .AppendStage<dynamic>(project)
                    .AppendStage<dynamic>(group)
                    .AppendStage<dynamic>(addfields)

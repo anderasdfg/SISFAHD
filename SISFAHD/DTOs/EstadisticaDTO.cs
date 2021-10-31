@@ -13,6 +13,7 @@ namespace SISFAHD.DTOs
 {
     public class EstadisticaDTO
     {
+        public string _id { get; set; }
         public int cantidad { get; set; }
     }
     public class EspecialidadesMPedidas
@@ -68,6 +69,7 @@ namespace SISFAHD.DTOs
         public string _id { get; set; }
         public int cantidad { get; set; }
         public Especialidad datos_especialidad { get; set; }
+        public string nombre { get; set; }
     }
     public class CitasxEspecialidadyEstadoAtencion
     {
