@@ -34,9 +34,9 @@ namespace SISFAHD.Controllers
         }
         /// 
         [HttpGet("all")]
-        public ActionResult<List<Enfermedad>> GetAll()
+        public async Task<List<Enfermedad>> GetAll()
         {
-            return _enfermedadesService.GetAll();
+            return await _enfermedadesService.GetAll();
         }
 
         [HttpPost("Registrar")]

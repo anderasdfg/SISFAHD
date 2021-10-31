@@ -45,10 +45,12 @@ namespace SISFAHD.Services
             return enfermedad;
         }
         /// 
-        public List<Enfermedad> GetAll()
+        public async Task<List<Enfermedad>> GetAll()
         {
             List<Enfermedad> enfermedades = new List<Enfermedad>();
-            enfermedades = _EnfermdedadCollection.Find(Enfermedad => true).ToList();
+            //  enfermedades = _EnfermdedadCollection.Find(Enfermedad => true).ToList();
+            var limit = new BsonDocument("$limit", 1000);
+            enfermedades = await _EnfermdedadCollection.Aggregate().AppendStage<Enfermedad>(limit).ToListAsync();
             return enfermedades;
         }
         public Enfermedad RegistrarEnfermedad(Enfermedad enfermedad)
