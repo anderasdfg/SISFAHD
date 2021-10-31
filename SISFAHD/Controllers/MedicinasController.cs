@@ -27,5 +27,19 @@ namespace SISFAHD.Controllers
         {
             return await _medicinasService.GetByDescripcionFiltrer(descripcion);
         }
+        [HttpPost("Registrar")]
+        public ActionResult<Medicinas> Create(Medicinas medicinas)
+        {
+           
+            Medicinas objmedicina = _medicinasService.CreateMedicinas(medicinas);
+            return objmedicina;
+        }
+        
+        [HttpPut("Modificar")]
+        public ActionResult<Medicinas> Update(Medicinas id)
+        {
+            Medicinas objmedicina = _medicinasService.UpdateMedicinas(id);
+            return objmedicina;
+        }
     }
 }

@@ -34,5 +34,24 @@ namespace SISFAHD.Services
             medicina = await _MedicinasCollection.Aggregate().AppendStage<Medicinas>(match).ToListAsync();
             return medicina;
         }
+        public Medicinas CreateMedicinas(Medicinas medicinas)
+        {
+            _MedicinasCollection.InsertOne(medicinas);
+            return medicinas;
+        }
+        public Medicinas UpdateMedicinas(Medicinas medicinas)
+        {
+            var filter = Builders<Medicinas>.Filter.Eq("id", medicinas.id);
+            var update = Builders<Medicinas>.Update
+                                 .Set("descripcion", medicinas.descripcion)
+                                 .Set("generico", medicinas.generico)
+                                 .Set("precio", medicinas.precio);
+            medicinas = _MedicinasCollection.FindOneAndUpdate<Medicinas>(filter, update, new FindOneAndUpdateOptions<Medicinas>
+            {
+                ReturnDocument = ReturnDocument.After
+            });
+            return medicinas;
+        }
+
     }
 }
