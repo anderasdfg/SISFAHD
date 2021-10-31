@@ -49,7 +49,7 @@ namespace SISFAHD.Services
         {
             List<Enfermedad> enfermedades = new List<Enfermedad>();
             //  enfermedades = _EnfermdedadCollection.Find(Enfermedad => true).ToList();
-            var limit = new BsonDocument("$limit", 1000);
+            var limit = new BsonDocument("$limit", 100);
             enfermedades = await _EnfermdedadCollection.Aggregate().AppendStage<Enfermedad>(limit).ToListAsync();
             return enfermedades;
         }
