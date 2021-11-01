@@ -44,6 +44,22 @@ namespace SISFAHD.Services
             enfermedad = await _EnfermdedadCollection.Aggregate().AppendStage<Enfermedad>(match).ToListAsync();
             return enfermedad;
         }
+        /// PRUEBA
+        public async Task<List<Enfermedad>> GetAllByDescrip(string descrip)
+        {
+            List<Enfermedad> enfermedad = new List<Enfermedad>();
+            var match = new BsonDocument("$match",
+                        new BsonDocument("descripcion",
+                        new BsonDocument
+                        {
+                            { "$regex", descrip.ToUpper() },
+                            { "$options", "g" }
+                        }));
+
+            enfermedad = await _EnfermdedadCollection.Aggregate().AppendStage<Enfermedad>(match).ToListAsync();
+            return enfermedad;
+        }
+        
         /// 
         public async Task<List<Enfermedad>> GetAll()
         {

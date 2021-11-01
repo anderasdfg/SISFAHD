@@ -57,5 +57,11 @@ namespace SISFAHD.Controllers
             return await _enfermedadesService.EliminarEnfermedad(id);
         }
 
+        [HttpGet("obtenerpordescripcion")]
+        public async Task<List<Enfermedad>> GetByDesp([FromQuery] string descripcion)
+        {
+            return await _enfermedadesService.GetAllByDescrip(descripcion);
+        }
+
     }
 }
