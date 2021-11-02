@@ -32,9 +32,9 @@ namespace SISFAHD.Controllers
             return await _resultadoExamenService.GetAllExamenesSubidos(idUsuario);
         }
         [HttpGet("id")]
-        public async Task<ActionResult<ResultadoExamen>> GetByIdExamenesSubidos([FromQuery] string id)
+        public ActionResult<ResultadoExamen> GetByIdExamenesSubidos([FromQuery] string id)
         {
-            return await _resultadoExamenService.GetByIdExamenesSubidos(id);
+            return _resultadoExamenService.GetByIdExamenesSubidos(id);
         }
 
         [HttpGet("TraerExamenesSolicitados")]
@@ -43,27 +43,12 @@ namespace SISFAHD.Controllers
             return await _resultadoExamenService.GetAllExamenesAuxiliares_By_Paciente(idUsuario);
         }
 
-        [HttpPost("Registrar")]
-        public async Task<ActionResult<ResultadoExamen>> CrearResultadoExamen([FromBody] ResultadoExamen resultadoExamen, [FromQuery] string idUsuario)
-        {
-            try
-            {
-               
-                return await _resultadoExamenService.CrearResultadoExamen(resultadoExamen, idUsuario);
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, ex);
-            }
-        }
-
         [HttpPost("RegistrarDTO")]
         public async Task<ActionResult<ResultadoExamen>> CrearResultadoExamen2([FromBody] ResultadoExamenDTO resultadoExamen)
         {
             try
             {
-                return await _resultadoExamenService.CrearResultadoExamen2(resultadoExamen);
+                return await _resultadoExamenService.CrearResultadoExamen(resultadoExamen);
             }
             catch (Exception ex)
             {
@@ -90,11 +75,11 @@ namespace SISFAHD.Controllers
         }
 
         [HttpDelete("eliminar")]
-        public async Task<ActionResult<ResultadoExamen>> EliminarResultadosExamen([FromQuery] string id, string idusuario)
+        public async Task<ActionResult<ResultadoExamen>> EliminarResultadosExamen([FromQuery] ResultadoExamenEliminarDTO resultado)
         {
             try
             {
-                return await _resultadoExamenService.EliminarResultadosExamen(id, idusuario);
+                return await _resultadoExamenService.EliminarResultadosExamen2(resultado);
             }
             catch (Exception ex)
             {

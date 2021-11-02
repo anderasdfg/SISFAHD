@@ -13,4 +13,10 @@ namespace SISFAHD.DTOs
         public ResultadoExamen resultadoExamen { get; set; } = new ResultadoExamen();
         public string idusuario { get; set; }
     }
+
+    public class ResultadoExamenEliminarDTO
+    {
+        public string idResultado { get; set; }
+        public string idUsuario { get; set; }
+    }
 }

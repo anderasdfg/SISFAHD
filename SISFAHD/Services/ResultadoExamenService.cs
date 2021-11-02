@@ -214,32 +214,16 @@ namespace SISFAHD.Services
                                 .ToListAsync();
             return lstResultadoExamen;
         }
-        
-        public async Task<ResultadoExamen> GetByIdExamenesSubidos(string id)
+
+        public ResultadoExamen GetByIdExamenesSubidos(string id)
         {
             ResultadoExamen resultado = new ResultadoExamen();
             resultado = _resultadosExamen.Find(resultado => resultado.id == id).FirstOrDefault();
             return resultado;
         }
 
-        public async Task<ResultadoExamen> CrearResultadoExamen(ResultadoExamen resultados, string idusuario)
-        {
-            Paciente paciente = new Paciente();
-            paciente = _paciente.Find(paciente => paciente.id_usuario == idusuario).FirstOrDefault();
 
-            await _resultadosExamen.InsertOneAsync(resultados);
-
-            paciente.archivos.Add(new Archivos() { id_resultado = resultados.id.ToString(), id_acto_medico = "" });
-
-            var filter = Builders<Paciente>.Filter.Eq("id_usuario", idusuario);
-            var update = Builders<Paciente>.Update
-                .Set("archivos", paciente.archivos);
-            _paciente.UpdateOne(filter, update);
-
-            return resultados;
-        }
-
-        public async Task<ResultadoExamen> CrearResultadoExamen2(ResultadoExamenDTO resultados)
+        public async Task<ResultadoExamen> CrearResultadoExamen(ResultadoExamenDTO resultados)
         {
             Paciente paciente = new Paciente();
             paciente = _paciente.Find(paciente => paciente.id_usuario == resultados.idusuario).FirstOrDefault();
@@ -286,6 +270,22 @@ namespace SISFAHD.Services
             _paciente.UpdateOne(filter, update);
 
             var filtro = Builders<ResultadoExamen>.Filter.Eq("id", idResultado);
+
+            return await _resultadosExamen.FindOneAndDeleteAsync<ResultadoExamen>(filtro);
+        }
+
+        public async Task<ResultadoExamen> EliminarResultadosExamen2(ResultadoExamenEliminarDTO resultado)
+        {
+            Paciente paciente = new Paciente();
+            paciente = _paciente.Find(paciente => paciente.id_usuario == resultado.idUsuario).FirstOrDefault();
+            var ItemArchivos = paciente.archivos.Single(archivos => archivos.id_resultado == resultado.idResultado);
+            paciente.archivos.Remove(ItemArchivos);
+            var filter = Builders<Paciente>.Filter.Eq("id_usuario", resultado.idUsuario);
+            var update = Builders<Paciente>.Update
+                .Set("archivos", paciente.archivos);
+            _paciente.UpdateOne(filter, update);
+
+            var filtro = Builders<ResultadoExamen>.Filter.Eq("id", resultado.idResultado);
 
             return await _resultadosExamen.FindOneAndDeleteAsync<ResultadoExamen>(filtro);
         }
