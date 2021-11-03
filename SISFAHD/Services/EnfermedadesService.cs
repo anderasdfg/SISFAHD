@@ -45,6 +45,12 @@ namespace SISFAHD.Services
             return enfermedad;
         }
         /// PRUEBA
+        public Enfermedad GetByID(string id)
+        {
+            Enfermedad enfermedad = new Enfermedad();
+            enfermedad = _EnfermdedadCollection.Find(Enfermeda => Enfermeda.id == id).FirstOrDefault();
+            return enfermedad;
+        }
         public async Task<List<Enfermedad>> GetAllByDescrip(string descrip)
         {
             List<Enfermedad> enfermedad = new List<Enfermedad>();

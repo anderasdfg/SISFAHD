@@ -30,7 +30,13 @@ namespace SISFAHD.Controllers
         [HttpGet("obtenerporcodigo")]
         public async Task<List<Enfermedad>> GetByCodigo([FromQuery] string codigo)
         {
-            return await _enfermedadesService.GetByCodigo(codigo);
+            List<Enfermedad> vacio = new List<Enfermedad>();
+            if (!string.IsNullOrEmpty(codigo))
+            {
+                return await _enfermedadesService.GetByCodigo(codigo);
+            }
+            
+            return vacio;
         }
         /// 
         [HttpGet("all")]
@@ -38,7 +44,11 @@ namespace SISFAHD.Controllers
         {
             return await _enfermedadesService.GetAll();
         }
-
+        [HttpGet("Id")]
+        public ActionResult<Enfermedad> GetActionResult([FromQuery] string id)
+        {
+            return _enfermedadesService.GetByID(id);
+        }
         [HttpPost("Registrar")]
         public ActionResult<Enfermedad> Create(Enfermedad enfermedad)
         {
