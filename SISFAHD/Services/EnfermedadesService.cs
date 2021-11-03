@@ -30,6 +30,7 @@ namespace SISFAHD.Services
             enfermedades = await _EnfermdedadCollection.Aggregate().AppendStage<Enfermedad>(match).ToListAsync();
             return enfermedades;
         }
+        /// Dividir
         public async Task<List<Enfermedad>> GetByCodigo(string codigo)
         {
             List<Enfermedad> enfermedad = new List<Enfermedad>();
@@ -42,13 +43,6 @@ namespace SISFAHD.Services
                         }));
 
             enfermedad = await _EnfermdedadCollection.Aggregate().AppendStage<Enfermedad>(match).ToListAsync();
-            return enfermedad;
-        }
-        /// PRUEBA
-        public Enfermedad GetByID(string id)
-        {
-            Enfermedad enfermedad = new Enfermedad();
-            enfermedad = _EnfermdedadCollection.Find(Enfermeda => Enfermeda.id == id).FirstOrDefault();
             return enfermedad;
         }
         public async Task<List<Enfermedad>> GetAllByDescrip(string descrip)
@@ -65,7 +59,13 @@ namespace SISFAHD.Services
             enfermedad = await _EnfermdedadCollection.Aggregate().AppendStage<Enfermedad>(match).ToListAsync();
             return enfermedad;
         }
-        
+        /// 
+        public Enfermedad GetByID(string id)
+        {
+            Enfermedad enfermedad = new Enfermedad();
+            enfermedad = _EnfermdedadCollection.Find(Enfermeda => Enfermeda.id == id).FirstOrDefault();
+            return enfermedad;
+        }
         /// 
         public async Task<List<Enfermedad>> GetAll()
         {
