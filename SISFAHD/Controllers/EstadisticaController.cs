@@ -68,6 +68,11 @@ namespace SISFAHD.Controllers
         {
             return await _estadistica.MedicamentosMasPedidos(fecha);
         }
+        [HttpGet("xMedico_y_EstadoPago")]
+        public async Task<ActionResult<List<CitasDeMedicoXIdUsuario_y_EstadoPago>>> CitasDeMedicoXIdUsuario_y_EstadoPago(string idUser, string estadoPago)
+        {
+            return await _estadistica.CitasDeMedicoXIdUsuario_y_EstadoPago(idUser,estadoPago);
+        }
         [HttpGet("laboratoriopedidos")]
         public async Task<ActionResult<List<LaboratorioPedidos>>> LaboratorioMasPedidos(DateTime fecha)
         {

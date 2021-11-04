@@ -99,4 +99,12 @@ namespace SISFAHD.DTOs
         public Usuario datos_usuario { get; set; }      
         public string id_usuario { get; set; }
     }
+    public class CitasDeMedicoXIdUsuario_y_EstadoPago
+    {
+        public int cantidad { get; set; }
+        public string estado_cita { get; set; }
+        public string estado_pago { get; set; }
+        public string id_usuario { get; set; }
+        public string Nombre_medico { get; set; }
+    }
 }
