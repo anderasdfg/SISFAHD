@@ -27,18 +27,18 @@ namespace SISFAHD.Controllers
         {
             return await _enfermedadesService.GetByCieDescription(cie, descripcion);
         }
-        [HttpGet("obtenerporcodigo")]
-        public async Task<List<Enfermedad>> GetByCodigo([FromQuery] string codigo)
-        {
-            return await _enfermedadesService.GetByCodigo(codigo);
-        }
+      
         /// 
         [HttpGet("all")]
         public async Task<List<Enfermedad>> GetAll()
         {
             return await _enfermedadesService.GetAll();
         }
-
+        [HttpGet("Id")]
+        public ActionResult<Enfermedad> GetActionResult([FromQuery] string id)
+        {
+            return _enfermedadesService.GetByID(id);
+        }
         [HttpPost("Registrar")]
         public ActionResult<Enfermedad> Create(Enfermedad enfermedad)
         {
@@ -57,10 +57,26 @@ namespace SISFAHD.Controllers
             return await _enfermedadesService.EliminarEnfermedad(id);
         }
 
+        /// 
+        [HttpGet("obtenerporcodigo")]
+        public async Task<List<Enfermedad>> GetByCodigo([FromQuery] string codigo)
+        {
+            if (!string.IsNullOrEmpty(codigo))
+            {
+                return await _enfermedadesService.GetByCodigo(codigo);
+            }
+
+            return await _enfermedadesService.GetAll();
+        }
         [HttpGet("obtenerpordescripcion")]
         public async Task<List<Enfermedad>> GetByDesp([FromQuery] string descripcion)
         {
-            return await _enfermedadesService.GetAllByDescrip(descripcion);
+            if (!string.IsNullOrEmpty(descripcion))
+            {
+                return await _enfermedadesService.GetAllByDescrip(descripcion);
+            }
+
+            return await _enfermedadesService.GetAll();
         }
 
     }
