@@ -578,6 +578,66 @@ namespace SISFAHD.Services
             listaLabo = listaLabo.OrderByDescending(x => x.cantidad).ToList();
             return listaLabo;
         }
+        public async Task<List<ExamenLaboratorio>> AllExamenesSolicitados()
+        {
+            List<ExamenLaboratorio> listaLabo = new List<ExamenLaboratorio>();
+
+            var unwind = new BsonDocument("$unwind",
+                        new BsonDocument
+                            {
+                                { "path", "$diagnostico" },
+                                { "preserveNullAndEmptyArrays", false }
+                            });
+            var unwind2 = new BsonDocument("$unwind",
+                        new BsonDocument
+                            {
+                                { "path", "$diagnostico.examenes_auxiliares" },
+                                { "preserveNullAndEmptyArrays", false }
+                            });
+            var addfields = new BsonDocument("$addFields",
+                            new BsonDocument
+                                {
+                                    { "id_examen",
+                            new BsonDocument("$toObjectId", "$diagnostico.examenes_auxiliares.codigo") },
+                                    { "nombre", "$diagnostico.examenes_auxiliares.nombre" }
+                                });
+            var group = new BsonDocument("$group",
+                    new BsonDocument
+                        {
+                            { "_id", "$id_examen" },
+                            { "cantidad",
+                    new BsonDocument("$sum", 1) }
+                        });
+            var lookup = new BsonDocument("$lookup",
+                        new BsonDocument
+                            {
+                                { "from", "examenes" },
+                                { "localField", "_id" },
+                                { "foreignField", "_id" },
+                                { "as", "datos" }
+                            });
+            var unwind3 = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                                    { "path", "$datos" },
+                                    { "preserveNullAndEmptyArrays", false }
+                                });
+            var addfields2 = new BsonDocument("$addFields",
+                            new BsonDocument("nombre", "$datos.descripcion"));
+            var project = new BsonDocument("$project",
+                        new BsonDocument("datos", 0));
+            listaLabo = await _acto.Aggregate()
+                .AppendStage<dynamic>(unwind)
+                .AppendStage<dynamic>(unwind2)
+                .AppendStage<dynamic>(addfields)
+                .AppendStage<dynamic>(group)
+                .AppendStage<dynamic>(lookup)
+                .AppendStage<dynamic>(unwind3)
+                .AppendStage<dynamic>(addfields2).
+                AppendStage<ExamenLaboratorio>(project).ToListAsync();
+            return listaLabo;
+        }
+
         public async Task<List<CitasDeMedicoXIdUsuario_y_EstadoPago>> CitasDeMedicoXIdUsuario_y_EstadoPago(string idUser, string estadoPago)
         {
 
@@ -769,7 +829,7 @@ namespace SISFAHD.Services
                             new BsonDocument
                                 {
                                     { "path", "$usuario" },
-                                    { "preserveNullAndEmptyArrays", true }
+                                    { "preserveNullAndEmptyArrays", false }
                                 });
 
             var project = new BsonDocument("$project",
@@ -1024,7 +1084,7 @@ namespace SISFAHD.Services
                             new BsonDocument
                                 {
                                     { "path", "$cita" },
-                                    { "preserveNullAndEmptyArrays", false }
+                                    { "preserveNullAndEmptyArrays", true }
                                 });
             var group = new BsonDocument("$group",
                         new BsonDocument
@@ -1048,7 +1108,7 @@ namespace SISFAHD.Services
                             new BsonDocument
                                 {
                                     { "path", "$datos_especialidad" },
-                                    { "preserveNullAndEmptyArrays", true }
+                                    { "preserveNullAndEmptyArrays", false }
                                 });
             var addfields3 = new BsonDocument("$addFields",
                              new BsonDocument("nombre", "$datos_especialidad.nombre"));
