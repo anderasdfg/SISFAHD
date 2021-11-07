@@ -64,6 +64,12 @@ namespace SISFAHD.DTOs
         public List<Cita> citas { get; set; }
         public int cantidad { get; set; }
     }
+    public class CitaxMedicoNombre
+    {
+        public int cantidad { get; set; }
+        public string id_usuario { get; set; }
+        public string Nombre_medico { get; set; }
+    }
     public class CitasxMedicosyEstadoAtencion
     {
         public int cantidad { get; set; }

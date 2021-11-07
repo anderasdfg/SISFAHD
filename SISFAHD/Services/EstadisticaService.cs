@@ -730,12 +730,12 @@ namespace SISFAHD.Services
             var addfields4 = new BsonDocument("$addFields",
                 new BsonDocument("id_usuario",
                 new BsonDocument("$toString", "$id_usuario")));
-               var match= new BsonDocument("$match",
-                new BsonDocument
-                    {
+            var match = new BsonDocument("$match",
+             new BsonDocument
+                 {
                         { "id_usuario", idUser },
                         { "estado_pago", estadoPago }
-                    });
+                 });
             List<CitasDeMedicoXIdUsuario_y_EstadoPago> edto = new List<CitasDeMedicoXIdUsuario_y_EstadoPago>();
             edto = await _medicos.Aggregate()
                 .AppendStage<dynamic>(addfields)
@@ -854,6 +854,107 @@ namespace SISFAHD.Services
                    .AppendStage<CitasxMedicos>(sort).ToListAsync();
 
             return estadisticaDTO;
+        }
+        public async Task<List<CitaxMedicoNombre>> AllCistasxMedico_con_nombre()
+        {
+            var addfields = new BsonDocument("$addFields",
+            new BsonDocument("id_med",
+            new BsonDocument("$toString", "$_id")));
+            var lookup = new BsonDocument("$lookup",
+            new BsonDocument
+                {
+            { "from", "citas" },
+            { "localField", "id_med" },
+            { "foreignField", "id_medico" },
+            { "as", "cita" }
+                });
+            var unwind = new BsonDocument("$unwind",
+            new BsonDocument
+                {
+            { "path", "$cita" },
+            { "preserveNullAndEmptyArrays", false }
+                });
+            var group = new BsonDocument("$group",
+            new BsonDocument
+                {
+            { "_id",
+            new BsonDocument
+            {
+                { "id_medico", "$_id" }
+            } },
+            { "cantidad",
+            new BsonDocument("$sum", 1) }
+                });
+            var lookup2 = new BsonDocument("$lookup",
+            new BsonDocument
+                {
+            { "from", "medicos" },
+            { "localField", "_id.id_medico" },
+            { "foreignField", "_id" },
+            { "as", "datos_medico" }
+                });
+            var unwind2 = new BsonDocument("$unwind",
+            new BsonDocument
+                {
+            { "path", "$datos_medico" },
+            { "preserveNullAndEmptyArrays", true }
+                });
+            var addfields2 = new BsonDocument("$addFields",
+            new BsonDocument
+                {
+            { "estado_atencion", "$_id.estado" },
+            { "estado_pago", "$_id.estadoPago" }
+                });
+            var addfields3 = new BsonDocument("$addFields",
+            new BsonDocument("id_usuario",
+            new BsonDocument("$toObjectId", "$datos_medico.id_usuario")));
+            var lookup3=new BsonDocument("$lookup",
+            new BsonDocument
+                {
+                    { "from", "usuarios" },
+                    { "localField", "id_usuario" },
+                    { "foreignField", "_id" },
+                    { "as", "usuario" }
+                });
+            var unwind3 = new BsonDocument("$unwind",
+            new BsonDocument
+                {
+            { "path", "$usuario" },
+            { "preserveNullAndEmptyArrays", true }
+                });
+            var project = new BsonDocument("$project",
+            new BsonDocument
+                {
+            { "Nombre_medico",
+            new BsonDocument("$concat",
+            new BsonArray
+                {
+                    "$usuario.datos.nombre",
+                    " ",
+                    "$usuario.datos.apellido_paterno"
+                }) },
+            { "id_usuario", 1 },
+            { "cantidad", 1 },
+            { "_id", 0 }
+                });
+            var addfields4 = new BsonDocument("$addFields",
+            new BsonDocument("id_usuario",
+            new BsonDocument("$toString", "$id_usuario")));
+            List<CitaxMedicoNombre> medicos = new List<CitaxMedicoNombre>();
+            medicos = await _medicos.Aggregate()
+                .AppendStage<dynamic>(addfields)
+                .AppendStage<dynamic>(lookup)
+                .AppendStage<dynamic>(unwind)
+                .AppendStage<dynamic>(group)
+                .AppendStage<dynamic>(lookup2)
+                .AppendStage<dynamic>(unwind2)
+                .AppendStage<dynamic>(addfields2)                
+                .AppendStage<dynamic>(addfields3)
+                .AppendStage<dynamic>(lookup3)
+                .AppendStage<dynamic>(unwind3)
+                .AppendStage<dynamic>(project)
+                .AppendStage<CitaxMedicoNombre>(addfields4).ToListAsync();
+            return medicos;
         }
 
         /////------------Citas x Médicos y Estado Atencion--------------//////

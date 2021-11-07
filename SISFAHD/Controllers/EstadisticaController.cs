@@ -88,6 +88,11 @@ namespace SISFAHD.Controllers
         {
                 return await _estadistica.EstadisticasAllCitasxMedico();           
         }
+        [HttpGet("Medico_Nombre")]
+        public async Task<ActionResult<List<CitaxMedicoNombre>>> TotalCitasxMedico()
+        {
+            return await _estadistica.AllCistasxMedico_con_nombre();
+        }
         [HttpGet("MedicoyEstado")]
         public async Task<ActionResult<List<CitasxMedicosyEstadoAtencion>>> ECitasxMedicoyEstado(string idMedico = null,string estado = null)
         {
