@@ -26,12 +26,17 @@ namespace SISFAHD.Services
             opiniones = _opiniones.Find(opiniones => opiniones.datos_medico.id_medico == idMedico).ToList();
             int contador = 0;
             double sumatoria = 0;
-            foreach (Opiniones opinion in opiniones)
+            double promedio;
+            if(opiniones.Count > 0)
             {
-                sumatoria += opinion.calificacion;
-                contador++;
+                foreach (Opiniones opinion in opiniones)
+                {
+                    sumatoria += opinion.calificacion;
+                    contador++;
+                }
+                promedio = sumatoria / contador;
             }
-            double promedio = sumatoria / contador;
+            else { promedio = 0; }
             return Tuple.Create(opiniones, promedio);
         }
     }
