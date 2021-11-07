@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SISFAHD.DTOs;
 using SISFAHD.Entities;
 using SISFAHD.Services;
 using System;
@@ -37,6 +38,16 @@ namespace SISFAHD.Controllers
         public async Task<ActionResult<List<Pedidos>>> GetByIdPaciente(string id_paciente)
         {
             return await _pedidosService.GetByIdPaciente(id_paciente);
+        }
+        [HttpGet("pacientepedidopendiente")]
+        public async Task<ActionResult<List<PedidoDTO>>> GetPacientesPedidosPendientes()
+        {
+            return await _pedidosService.GetPacientesPedidosPendientes();
+        }
+        [HttpGet("byidpacientepedidospendiente")]
+        public async Task<ActionResult<List<Pedidos>>> GetByPacientePendiente(string id_paciente)
+        {
+            return await _pedidosService.GetByPacientePendiente(id_paciente);
         }
     }
 }

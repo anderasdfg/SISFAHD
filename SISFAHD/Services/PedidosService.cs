@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
+using SISFAHD.DTOs;
 using SISFAHD.Entities;
 using System;
 using System.Collections.Generic;
@@ -69,6 +70,103 @@ namespace SISFAHD.Services
                         new BsonDocument("paciente.id_paciente", id_paciente));
             pedidos = await _PedidosCollection.Aggregate().AppendStage<Pedidos>(match).ToListAsync();
             return pedidos;
+        }
+        public async Task<List<Pedidos>> GetByPacientePendiente(string id_paciente)
+        {
+            List<Pedidos> pedidos = new List<Pedidos>();
+            var match = new BsonDocument("$match",
+                        new BsonDocument
+                        {
+                            { "$or", new BsonArray {
+                                new BsonDocument("estado_pago", "pagado"),
+                                new BsonDocument("estado_pago", "en proceso")
+                            } },
+                            { "tipo", "Examenes" },
+                            { "paciente.id_paciente", id_paciente }
+                        });
+            pedidos = await _PedidosCollection.Aggregate().AppendStage<Pedidos>(match).ToListAsync();
+            return pedidos;
+        }
+        public async Task<List<PedidoDTO>> GetPacientesPedidosPendientes()
+        {
+            List<PedidoDTO> pacientes = new List<PedidoDTO>();
+            var match = new BsonDocument("$match",
+                        new BsonDocument
+                        {
+                            { "$or",
+                            new BsonArray
+                            {
+                                new BsonDocument("estado_pago", "pagado"),
+                                new BsonDocument("estado_pago", "pendiente")
+                            } },
+                            { "tipo", "Examenes" }
+                        });
+            var group = new BsonDocument("$group",
+                        new BsonDocument
+                        {
+                            { "_id", "$paciente.id_paciente" },
+                            { "cantidad", new BsonDocument("$sum", 1) }
+                        });
+            var addfields = new BsonDocument("$addFields",
+                            new BsonDocument("id_paciente_object",
+                            new BsonDocument("$toObjectId", "$_id")));
+            var lookup = new BsonDocument("$lookup",
+                            new BsonDocument
+                            {
+                                { "from", "pacientes" },
+                                { "localField", "id_paciente_object" },
+                                { "foreignField", "_id" },
+                                { "as", "paciente" }
+                            });
+            var unwind = new BsonDocument("$unwind",
+                            new BsonDocument
+                            {
+                                { "path", "$paciente" },
+                                { "preserveNullAndEmptyArrays", true }
+                            });
+            var addfields1 = new BsonDocument("$addFields",
+                             new BsonDocument("id_usuario_object",
+                             new BsonDocument("$toObjectId", "$paciente.id_usuario")));
+            var lookup1 = new BsonDocument("$lookup",
+                            new BsonDocument
+                            {
+                                { "from", "usuarios" },
+                                { "localField", "id_usuario_object" },
+                                { "foreignField", "_id" },
+                                { "as", "datos_usuario" }
+                            });
+            var unwind1 = new BsonDocument("$unwind",
+                            new BsonDocument
+                            {
+                                { "path", "$datos_usuario" },
+                                { "preserveNullAndEmptyArrays", true }
+                            });
+            var addfields2 = new BsonDocument("$addFields",
+                                new BsonDocument
+                                {
+                                    { "datos_usua", "$datos_usuario.datos" },
+                                    { "id_usuario", new BsonDocument("$toString", "$id_usuario_object") }});
+            var project = new BsonDocument("$project",
+                            new BsonDocument
+                            {
+                                { "id_paciente_object", 0 },
+                                { "paciente._id", 0 },
+                                { "paciente.antecedentes", 0 },
+                                { "id_usuario_object", 0 },
+                                { "datos_usuario", 0 }
+                            });
+            pacientes = await _PedidosCollection.Aggregate()
+                        .AppendStage<dynamic>(match)
+                        .AppendStage<dynamic>(group)
+                        .AppendStage<dynamic>(addfields)
+                        .AppendStage<dynamic>(lookup)
+                        .AppendStage<dynamic>(unwind)
+                        .AppendStage<dynamic>(addfields1)
+                        .AppendStage<dynamic>(lookup1)
+                        .AppendStage<dynamic>(unwind1)
+                        .AppendStage<dynamic>(addfields2)
+                        .AppendStage<PedidoDTO>(project).ToListAsync();
+            return pacientes;
         }
     }
 }

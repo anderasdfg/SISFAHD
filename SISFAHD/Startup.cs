@@ -75,7 +75,7 @@ namespace SISFAHD
             services.AddScoped<ProcedimientoService>();
             services.AddScoped<MedicinasServices>();
             services.AddScoped<PedidosService>();
-
+            services.AddScoped<Turno_OrdenService>();
             services.AddScoped<ContraseñaService>();
             services.AddScoped<EstadisticaService>();
             services.AddScoped<CalificacionService>();
