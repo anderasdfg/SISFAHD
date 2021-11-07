@@ -17,7 +17,7 @@ namespace SISFAHD.Services
         {
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
-            _turnosOr = database.GetCollection<Turno_Ordenes>("turnos");
+            _turnosOr = database.GetCollection<Turno_Ordenes>("turnos_ordenes");
         }
         public List<Turno_Ordenes> GetAll()
         {
