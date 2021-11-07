@@ -27,6 +27,11 @@ namespace SISFAHD.Controllers
         {
             return await _medicinasService.GetByDescripcionFiltrer(descripcion);
         }
+        [HttpGet("generico")]
+        public async Task<ActionResult<List<Medicinas>>> GetByGenerico(string generico)
+        {
+            return await _medicinasService.GetByGenericoFiltrer(generico);
+        }
         [HttpPost("Registrar")]
         public ActionResult<Medicinas> Create(Medicinas medicinas)
         {
