@@ -73,6 +73,11 @@ namespace SISFAHD.Controllers
         {
             return await _estadistica.CitasDeMedicoXIdUsuario_y_EstadoPago(idUser,estadoPago);
         }
+        [HttpGet("AllExamenes")]
+        public async Task<List<ExamenLaboratorio>> AllExamenesSolicitados()
+        {
+            return await _estadistica.AllExamenesSolicitados();
+        }
         [HttpGet("laboratoriopedidos")]
         public async Task<ActionResult<List<LaboratorioPedidos>>> LaboratorioMasPedidos(DateTime fecha)
         {
@@ -82,6 +87,11 @@ namespace SISFAHD.Controllers
         public async Task<ActionResult<List<CitasxMedicos>>> ECitasxMedico()
         {
                 return await _estadistica.EstadisticasAllCitasxMedico();           
+        }
+        [HttpGet("Medico_Nombre")]
+        public async Task<ActionResult<List<CitaxMedicoNombre>>> TotalCitasxMedico()
+        {
+            return await _estadistica.AllCistasxMedico_con_nombre();
         }
         [HttpGet("MedicoyEstado")]
         public async Task<ActionResult<List<CitasxMedicosyEstadoAtencion>>> ECitasxMedicoyEstado(string idMedico = null,string estado = null)
