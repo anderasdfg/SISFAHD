@@ -75,7 +75,7 @@ namespace SISFAHD.Controllers
         }
 
         [HttpDelete("eliminar")]
-        public async Task<ActionResult<ResultadoExamen>> EliminarResultadosExamen([FromQuery] ResultadoExamenEliminarDTO resultado)
+        public async Task<ActionResult<ResultadoExamen>> EliminarResultadosExamen([FromBody] ResultadoExamenEliminarDTO resultado)
         {
             try
             {

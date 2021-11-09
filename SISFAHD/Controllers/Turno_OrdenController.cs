@@ -23,6 +23,11 @@ namespace SISFAHD.Controllers
         {
             return _turnoservice.GetAll();
         }
+        [HttpGet("GetByID")]
+        public ActionResult<Turno_Ordenes> GetID(string id)
+        {
+            return _turnoservice.GetById(id);
+        }
         [HttpPost("Create")]
         public ActionResult<Turno_Ordenes> CreateTurno(Turno_Ordenes turno)
         {
@@ -39,6 +44,10 @@ namespace SISFAHD.Controllers
             
             return await _turnoservice.DeleteTurno(id);
         }
-
+        [HttpGet("listaturnosO/{idMedico}/{month}/{year}")]
+        public async Task<ActionResult<List<Turno_Ordenes>>> GetByIdMedico(string idMedico, int month, int year)
+        {
+            return await _turnoservice.GetByMedico(idMedico, month, year);
+        }
     }
 }

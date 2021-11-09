@@ -18,7 +18,7 @@ namespace SISFAHD.DTOs
     }
     public class EspecialidadesMPedidas
     {
-        public string _id { get; set;}
+        public string _id { get; set; }
         public Int32 cantidad { get; set; }
         public DatosEspecMPedidas datos { get; set; }
     }
@@ -44,6 +44,14 @@ namespace SISFAHD.DTOs
         public string _id { get; set; }
         public Int32 cantidad { get; set; }
     }
+    public class ExamenLaboratorio
+    {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string _id { get; set; }
+        public Int32 cantidad { get; set; }
+        public string nombre { get; set; }
+    }
     public class CitasxMedicos
     {
         [BsonId]
@@ -55,6 +63,12 @@ namespace SISFAHD.DTOs
         public string id_especialidad { get; set; }
         public List<Cita> citas { get; set; }
         public int cantidad { get; set; }
+    }
+    public class CitaxMedicoNombre
+    {
+        public int cantidad { get; set; }
+        public string id_usuario { get; set; }
+        public string Nombre_medico { get; set; }
     }
     public class CitasxMedicosyEstadoAtencion
     {

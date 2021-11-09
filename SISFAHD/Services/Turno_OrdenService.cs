@@ -17,7 +17,7 @@ namespace SISFAHD.Services
         {
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
-            _turnosOr = database.GetCollection<Turno_Ordenes>("turnos");
+            _turnosOr = database.GetCollection<Turno_Ordenes>("turnos_ordenes");
         }
         public List<Turno_Ordenes> GetAll()
         {
@@ -30,7 +30,32 @@ namespace SISFAHD.Services
             _turnosOr.InsertOne(turno);
             return turno;
         }
+        public async Task<List<Turno_Ordenes>> GetByMedico(string idMedico, int month, int year)
+        {
+            List<Turno_Ordenes> turnos = new List<Turno_Ordenes>();
+            DateTime firstDate = new DateTime(year, month, 1, 0, 0, 0);
+            DateTime lastDate = firstDate.AddMonths(2).AddDays(-1);
+            lastDate.AddHours(23);
+            lastDate.AddMinutes(59);
+            lastDate.AddSeconds(59);
 
+            var match = new BsonDocument("$match",
+                                new BsonDocument("$and",
+                                new BsonArray
+                                        {
+                                            new BsonDocument("fecha_inicio",
+                                            new BsonDocument("$gte",firstDate)),
+                                            new BsonDocument("fecha_fin",
+                                            new BsonDocument("$lte",lastDate)),
+                                            new BsonDocument("id_medico", idMedico)
+                                        }));
+
+            turnos = await _turnosOr.Aggregate()
+                .AppendStage<Turno_Ordenes>(match)
+                .ToListAsync();
+
+            return turnos;
+        }
         public Turno_Ordenes ModifyTurno(Turno_Ordenes turno)
         {
             var filter = Builders<Turno_Ordenes>.Filter.Eq("id", turno.id);
