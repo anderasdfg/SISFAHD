@@ -34,6 +34,15 @@ namespace SISFAHD.Services
             medicina = await _MedicinasCollection.Aggregate().AppendStage<Medicinas>(match).ToListAsync();
             return medicina;
         }
+        public async Task<List<Medicinas>> GetByGenericoFiltrer(string generico)
+        {
+            List<Medicinas> medicina = new List<Medicinas>();
+            var match = new BsonDocument("$match",
+                        new BsonDocument("generico",
+                        new BsonDocument("$regex", generico)));
+            medicina = await _MedicinasCollection.Aggregate().AppendStage<Medicinas>(match).ToListAsync();
+            return medicina;
+        }
         public Medicinas CreateMedicinas(Medicinas medicinas)
         {
             _MedicinasCollection.InsertOne(medicinas);
