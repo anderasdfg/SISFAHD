@@ -21,6 +21,18 @@ namespace SISFAHD.Entities
         [BsonElement("precio")]
         public double precio { get; set; }
 
-        
+        [BsonElement("id_especialidad")]
+        public string id_especialidad { get; set; }
+
+        [BsonElement("duracion")]
+        public string duracion { get; set; }
+
+        [BsonElement("recomendaciones_previas")]
+        public string recomendaciones_previas { get; set; }
+
+        [BsonElement("recomendaciones_posteriores")]
+        public string recomendaciones_posteriores { get; set; }
+
+
     }
 }

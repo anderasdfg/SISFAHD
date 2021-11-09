@@ -53,8 +53,11 @@ namespace SISFAHD.Services
             var filter = Builders<Examenes>.Filter.Eq("id", examenes.id);
             var update = Builders<Examenes>.Update
                 .Set("descripcion", examenes.descripcion)
-                .Set("precio", examenes.precio);
-
+                .Set("precio", examenes.precio)
+                .Set("id_especialidad", examenes.id_especialidad)
+                .Set("duracion", examenes.duracion)
+                .Set("recomendaciones_previas", examenes.recomendaciones_previas)
+                .Set("recomendaciones_posteriores", examenes.recomendaciones_posteriores);
 
             examenes = _examenes.FindOneAndUpdate<Examenes>(filter, update, new FindOneAndUpdateOptions<Examenes>
             {

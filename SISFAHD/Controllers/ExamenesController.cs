@@ -45,14 +45,14 @@ namespace SISFAHD.Controllers
         }
 
         [HttpPost("Registrar")]
-        public async Task<ActionResult<Examenes>> CrearExamenes(Examenes examenes)
+        public async Task<ActionResult<Examenes>> CrearExamenes(Examenes examen)
         {
             //if (!string.IsNullOrWhiteSpace(examenes.url))
             //{
             //    var profileimg = Convert.FromBase64String(examenes.url);
             //    examenes.url = await _fileStorage.SaveFile(profileimg, "jpg", "examenes");
             //}
-            Examenes objetoexamenes = _examenesservice.CrearExamenesAux(examenes);
+            Examenes objetoexamenes = _examenesservice.CrearExamenesAux(examen);
             return objetoexamenes;
         }
 
