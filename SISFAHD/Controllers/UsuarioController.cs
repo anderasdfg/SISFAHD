@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Threading.Tasks;
 using SISFAHD.DTOs;
+using SISFAHD.Helpers;
+using Microsoft.AspNetCore.Http;
 
 namespace SISFAHD.Controllers
 {
@@ -16,31 +18,56 @@ namespace SISFAHD.Controllers
     public class UsuarioController : ControllerBase
     {
         private readonly UsuarioService _usuarioservice;
-        public UsuarioController(UsuarioService usuarioservice)
+        private readonly IFileStorage _fileStorage;
+        public UsuarioController(UsuarioService usuarioservice, IFileStorage fileStorage)
         {
-            _usuarioservice = usuarioservice;            
+            _usuarioservice = usuarioservice;
+            _fileStorage = fileStorage;
         }
 
-        [HttpGet("all")]
+        /*[HttpGet("all")]
         public ActionResult<List<Usuario>> GetAll()
         {
             return _usuarioservice.GetAll();
+        }*/
+        [HttpGet("all")]
+        public async Task<ActionResult<List<UsuarioDTO>>> GetAllUsuarios()
+        {
+            return await _usuarioservice.GetAllUsuarios();
         }
-        [HttpGet("id")]
+        [HttpGet("usuarioId")]
         public ActionResult<Usuario> Get([FromQuery] string id)
         {
             return _usuarioservice.GetById(id);
+        }
+        [HttpGet("usuarioIdMedico")]
+        public async Task<ActionResult<UsuarioMedico>> GetUsuarioMedicoById([FromQuery] string id)
+        {
+
+            return await _usuarioservice.GetByIDmedico(id);
         }
         [HttpGet("")]
         public ActionResult<Usuario> GetbyUsernameAndPassword([FromQuery] string username, string pass)
         {
             return _usuarioservice.GetByUserNameAndPass(username,pass);
         }
-        [HttpPost("")]
+        [HttpPost("Registrar")]
         public ActionResult<Usuario> CreateUsuario(Usuario usuario)
         {
             Usuario objUsuario = _usuarioservice.CreateUsuario(usuario);
             return objUsuario;
+        }
+        [HttpPost("RegistrarUsuarioMedico")]
+        public async Task<ActionResult<Usuario>> CreateUsuarioMedico(UsuarioMedico usuario)
+        {
+            if (!string.IsNullOrWhiteSpace(usuario.datos.foto))
+            {
+                var profileimg = Convert.FromBase64String(usuario.datos.foto);
+                usuario.datos.foto = await _fileStorage.SaveFile(profileimg, "jpg", "usuario");
+            }
+
+            Usuario objetousuario = await _usuarioservice.CreateUsuarioMedico(usuario);
+            return objetousuario;
         }
         [HttpGet("correo")]
         public ActionResult<Usuario> GetByCorreo([FromQuery] string correo)
@@ -56,6 +83,107 @@ namespace SISFAHD.Controllers
         public async Task<ActionResult<List<Usuario>>> GetbyRolFechaCreacion([FromQuery] string rol, DateTime fecha)
         {
             return await _usuarioservice.GetByFechaCreacion(rol, fecha);
+        }
+        [HttpPut("ModificarPerfilUsuario")]
+        public async Task<ActionResult<Usuario>> ModificarPerfilUsuario(Usuario id)
+        {
+
+            try
+            {
+                if (!id.datos.foto.StartsWith("http"))
+                {
+                    if (!string.IsNullOrWhiteSpace(id.datos.foto))
+                    {
+                        var profileimg = Convert.FromBase64String(id.datos.foto);
+                        id.datos.foto = await _fileStorage.EditFile(profileimg, "jpg", "usuario", id.datos.foto);
+                    }
+                }
+
+                Usuario usuario = _usuarioservice.ModificarPerfilUsuario(id);
+                return usuario;
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+
+
+        }
+
+        [HttpPut("ModificarUsuario")]
+        public async Task<ActionResult<Usuario>> ModificarUsuario(Usuario id)
+        {
+
+            try
+            {
+                if (!id.datos.foto.StartsWith("http"))
+                {
+                    if (!string.IsNullOrWhiteSpace(id.datos.foto))
+                    {
+                        var profileimg = Convert.FromBase64String(id.datos.foto);
+                        id.datos.foto = await _fileStorage.EditFile(profileimg, "jpg", "usuario", id.datos.foto);
+                    }
+                }
+
+                Usuario usuario = _usuarioservice.ModificarUsuario(id);
+                return usuario;
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+
+
+        }
+
+        [HttpPut("ModificarUsuarioMedico")]
+        public async Task<ActionResult<Usuario>> ModificarUsuarioMedico(UsuarioMedico usuario)
+        {
+            try
+            {
+                if (!usuario.datos.foto.StartsWith("http"))
+                {
+                    if (!string.IsNullOrWhiteSpace(usuario.datos.foto))
+                    {
+                        var profileimg = Convert.FromBase64String(usuario.datos.foto);
+                        usuario.datos.foto = await _fileStorage.EditFile(profileimg, "jpg", "usuario", usuario.datos.foto);
+                    }
+                }
+
+                Usuario usuarioM = await _usuarioservice.UpdateUsuarioMedico(usuario);
+                return usuarioM;
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+
+
+        }
+
+        [HttpPut("ModificarPerfilMedico")]
+        public async Task<ActionResult<Usuario>> ModificarPerfilMedico(UsuarioMedico user)
+        {
+            try
+            {
+                if (!user.datos.foto.StartsWith("http"))
+                {
+                    if (!string.IsNullOrWhiteSpace(user.datos.foto))
+                    {
+                        var profileimg = Convert.FromBase64String(user.datos.foto);
+                        user.datos.foto = await _fileStorage.EditFile(profileimg, "jpg", "user", user.datos.foto);
+                    }
+                }
+
+                Usuario usuarioM = await _usuarioservice.ModificarPerfilMedico(user);
+                return usuarioM;
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+
+
         }
     }
 }
