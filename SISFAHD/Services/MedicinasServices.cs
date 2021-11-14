@@ -21,8 +21,8 @@ namespace SISFAHD.Services
         {
             List<Medicinas> medicina = new List<Medicinas>();
             var project = new BsonDocument("$project", new BsonDocument { { "descripcion", 1 }, { "generico", 1 }, { "precio", 1 } });
-            var limit = new BsonDocument("$limit", 1000);
-            medicina = await _MedicinasCollection.Aggregate().AppendStage<dynamic>(project).AppendStage<Medicinas>(limit).ToListAsync();
+            //var limit = new BsonDocument("$limit", 1000);
+            medicina = await _MedicinasCollection.Aggregate().AppendStage<Medicinas>(project).ToListAsync();
             return medicina;
         }
         public async Task<List<Medicinas>> GetByDescripcionFiltrer(string descripcion)
