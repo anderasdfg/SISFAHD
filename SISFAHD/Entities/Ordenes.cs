@@ -19,9 +19,9 @@ namespace SISFAHD.Entities
         [BsonElement("fecha_orden")]
         public DateTime fecha_orden { get; set; }
         [BsonElement("fecha_pago")]
-        public DateTime fecha_pago { get; set; }
+        public DateTime? fecha_pago { get; set; }
         [BsonElement("fecha_reserva")]
-        public DateTime fecha_reserva { get; set; }
+        public DateTime? fecha_reserva { get; set; }
         [BsonElement("id_paciente")]
         public string id_paciente { get; set; }
         [BsonElement("precio_neto")]

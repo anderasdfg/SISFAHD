@@ -30,5 +30,11 @@ namespace SISFAHD.Controllers
         {
             return await _ordenesService.GetAllExamenesAuxiliares_By_Paciente(idUsuario);
         }
+        [HttpPost("")]
+        public ActionResult<Ordenes> CreateOrdenes(Ordenes ordenes)
+        {
+            Ordenes objeOrden = _ordenesService.CreateOrdenes(ordenes);
+            return objeOrden;
+        }
     }
 }

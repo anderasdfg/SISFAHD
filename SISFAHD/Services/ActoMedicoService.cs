@@ -18,7 +18,8 @@ namespace SISFAHD.Services
         private readonly IMongoCollection<Cita> _cita;
         private readonly IMongoCollection<Paciente> _paciente;
         private MedicoService medicoService;
-        
+        private OrdenesService ordenService;
+
         public ActoMedicoService(ISisfahdDatabaseSettings settings)
         {
             var client = new MongoClient(settings.ConnectionString);
@@ -28,7 +29,7 @@ namespace SISFAHD.Services
             _paciente = database.GetCollection<Paciente>("pacientes");
             _cita = database.GetCollection<Cita>("citas");
             medicoService = new MedicoService(settings);
-
+            ordenService = new OrdenesService(settings);
 
         }
 
@@ -50,17 +51,53 @@ namespace SISFAHD.Services
             return actomedico;
         }
 
-        public async Task<ActoMedico> ModificarActoMedico(ActoMedico actomedico)
+        public async Task<ActoMedico> ModificarActoMedico(ActoMedicoDTO2 actomedico)
         {
-            var filter = Builders<ActoMedico>.Filter.Eq("id", ObjectId.Parse(actomedico.id));
+            var filter = Builders<ActoMedico>.Filter.Eq("id", ObjectId.Parse(actomedico.acto_medico.id));
             var update = Builders<ActoMedico>.Update
-                .Set("medicacion", actomedico.medicacion)
-                .Set("diagnostico", actomedico.diagnostico)
-                .Set("signos_vitales", actomedico.signos_vitales)
-                .Set("anamnesis", actomedico.anamnesis)
-                .Set("indicaciones", actomedico.indicaciones);
+                .Set("medicacion", actomedico.acto_medico.medicacion)
+                .Set("diagnostico", actomedico.acto_medico.diagnostico)
+                .Set("signos_vitales", actomedico.acto_medico.signos_vitales)
+                .Set("anamnesis", actomedico.acto_medico.anamnesis)
+                .Set("indicaciones", actomedico.acto_medico.indicaciones);
             await _actoMedico.UpdateOneAsync(filter, update);
-            return actomedico;
+            //Agregado por mi persona :)
+            List<Procedimientos> listPro = new List<Procedimientos>();
+            Procedimientos pro = new Procedimientos();
+            for(int i=0; i<actomedico.acto_medico.diagnostico.Count; i++)
+            {
+                for(int j= 0; j<actomedico.acto_medico.diagnostico[i].examenes_auxiliares.Count; j++)
+                {
+                    pro.id_examen = actomedico.acto_medico.diagnostico[i].examenes_auxiliares[j].codigo;
+                    pro.estado = "no subido";
+                    pro.id_resultado_examen = "";
+                    pro.id_turno_orden = "";
+                    listPro.Add(pro);
+                }
+            }
+            Ordenes orden = new Ordenes();
+            orden.estado_atencion = "no atendido";
+            orden.estado_pago = "no reservado";
+            orden.fecha_orden = DateTime.Now;
+            orden.fecha_pago = null;
+            orden.fecha_reserva = null;
+            orden.id_paciente = actomedico.datos_orden.id_paciente;
+            orden.precio_neto = actomedico.datos_orden.precio_neto;
+            orden.tipo_pago = "";
+            orden.id_acto_medico = actomedico.acto_medico.id;
+            orden.id_medico_orden = actomedico.datos_orden.id_medico;
+            orden.procedimientos = listPro;
+
+            if(await ordenService.VerifyOrdenesByActoMedicoAsync(actomedico.acto_medico.id))
+            {
+                await ordenService.ModificarOrdenes(orden);
+            }
+            else
+            {
+                ordenService.CreateOrdenes(orden);
+            }
+            // hasta aca llega lo agregado por mi :)
+            return actomedico.acto_medico;
         }
 
         public void sendNotificationDiagnostico(string idCita)

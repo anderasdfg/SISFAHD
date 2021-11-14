@@ -33,4 +33,11 @@ namespace SISFAHD.DTOs
         public string tipo { get; set; }
         public List<doc_Anexo> resultado { get; set; }
     }
+
+    public class DatosOrden
+    {
+        public string id_paciente { get; set; }
+        public Int32 precio_neto { get; set; }
+        public string id_medico { get; set; }
+    }
 }

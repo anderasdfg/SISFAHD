@@ -16,4 +16,9 @@ namespace SISFAHD.DTOs
         public DateTime? fecha_creacion { get; set; }
         public string indicaciones { get; set; }
     }
+    public class ActoMedicoDTO2
+    {
+        public ActoMedico acto_medico { get; set; }
+        public DatosOrden datos_orden { get; set; }
+    }
 }

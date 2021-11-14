@@ -23,6 +23,46 @@ namespace SISFAHD.Services
             var database = client.GetDatabase(settings.DatabaseName);
             _ordenes = database.GetCollection<Ordenes>("ordenes");
         }
+        public Ordenes CreateOrdenes(Ordenes medicinas)
+        {
+            _ordenes.InsertOne(medicinas);
+            return medicinas;
+        }
+        public async Task<bool> VerifyOrdenesByActoMedicoAsync(string id_acto_medico)
+        {
+            var match = new BsonDocument("$match",
+                        new BsonDocument("id_acto_medico", id_acto_medico));
+            List<Ordenes> ordenes = new List<Ordenes>();
+            ordenes = await _ordenes.Aggregate()
+                                .AppendStage<Ordenes>(match)
+                                .ToListAsync();
+            if(ordenes.Count == 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        public async Task<Ordenes> ModificarOrdenes(Ordenes orden)
+        {
+            var filter = Builders<Ordenes>.Filter.Eq("id", ObjectId.Parse(orden.id));
+            var update = Builders<Ordenes>.Update
+                .Set("estado_atencion", orden.estado_atencion)
+                .Set("estado_pago", orden.estado_pago)
+                .Set("fecha_orden", orden.fecha_orden)
+                .Set("fecha_pago", orden.fecha_pago)
+                .Set("fecha_reserva", orden.fecha_reserva)
+                .Set("id_paciente", orden.id_paciente)
+                .Set("precio_neto", orden.precio_neto)
+                .Set("tipo_pago",orden.tipo_pago)
+                .Set("id_acto_medico", orden.id_acto_medico)
+                .Set("id_medico_orden", orden.id_medico_orden)
+                .Set("procedimientos", orden.procedimientos);
+            await _ordenes.UpdateOneAsync(filter, update);
+            return orden;
+        }
         public async Task<List<OrdenesDTO>> GetAllExamenesAuxiliares_By_Paciente(string idUsuario)
         {
             List<OrdenesDTO> lstordenes_Examenes = new List<OrdenesDTO>();
