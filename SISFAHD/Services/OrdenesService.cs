@@ -267,5 +267,146 @@ namespace SISFAHD.Services
                                 .ToListAsync();
             return lstordenes_Examenes;
         }
+
+        public async Task<List<OrdenesDTO_GetAll>> GetAll_By_Paciente(string idUsuario)
+        {
+            List<OrdenesDTO_GetAll> lstordenes = new List<OrdenesDTO_GetAll>();
+
+            var addFields = new BsonDocument("$addFields",
+                                new BsonDocument("id_paciente",
+                                new BsonDocument("$toObjectId", "$id_paciente")));
+            var lookup = new BsonDocument("$lookup",
+                                new BsonDocument
+                                    {
+                                        { "from", "pacientes" },
+                                        { "localField", "id_paciente" },
+                                        { "foreignField", "_id" },
+                                        { "as", "datos_paciente" }
+                                    });
+            var unwind = new BsonDocument("$unwind",
+                                new BsonDocument
+                                    {
+                                        { "path", "$datos_paciente" },
+                                        { "preserveNullAndEmptyArrays", true }
+                                    });
+            var addFields2 = new BsonDocument("$addFields",
+                                new BsonDocument("usuario", "$datos_paciente.id_usuario"));
+            var match = new BsonDocument("$match",
+                                new BsonDocument("usuario", idUsuario));
+            var unwind2 = new BsonDocument("$unwind",
+                                new BsonDocument
+                                    {
+                                        { "path", "$procedimientos" },
+                                        { "preserveNullAndEmptyArrays", true }
+                                    });
+            var addFields3 = new BsonDocument("$addFields",
+                                new BsonDocument
+                                    {
+                                        { "id_acto_medico",
+                                new BsonDocument("$toObjectId", "$id_acto_medico") },
+                                        { "id_medico_orden",
+                                new BsonDocument("$toObjectId", "$id_medico_orden") },
+                                        { "procedimientos.id_examen",
+                                new BsonDocument("$toObjectId", "$procedimientos.id_examen_pro") }
+                                    });
+            var lookup2 = new BsonDocument("$lookup",
+                                new BsonDocument
+                                    {
+                                        { "from", "examenes" },
+                                        { "localField", "procedimientos.id_examen_pro" },
+                                        { "foreignField", "_id" },
+                                        { "as", "procedimientos.datos_examen" }
+                                    });
+            var project = new BsonDocument("$project",
+                                new BsonDocument("procedimientos",
+                                new BsonDocument("id_examen_pro", 0)));
+            var unwind3 = new BsonDocument("$unwind",
+                                new BsonDocument
+                                    {
+                                        { "path", "$procedimientos.datos_examen" },
+                                        { "preserveNullAndEmptyArrays", true }
+                                    });
+            var group = new BsonDocument("$group",
+                                new BsonDocument
+                                    {
+                                        { "_id", "$_id" },
+                                        { "estado_atencion",
+                                new BsonDocument("$first", "$estado_atencion") },
+                                        { "estado_pago",
+                                new BsonDocument("$first", "$estado_pago") },
+                                        { "fecha_orden",
+                                new BsonDocument("$first", "$fecha_orden") },
+                                        { "fecha_pago",
+                                new BsonDocument("$first", "$fecha_pago") },
+                                        { "fecha_reserva",
+                                new BsonDocument("$first", "$fecha_reserva") },
+                                        { "precio_neto",
+                                new BsonDocument("$first", "$precio_neto") },
+                                        { "tipo_pago",
+                                new BsonDocument("$first", "$tipo_pago") },
+                                        { "usuario",
+                                new BsonDocument("$first", "$usuario") },
+                                        { "id_acto_medico",
+                                new BsonDocument("$first", "$id_acto_medico") },
+                                        { "id_medico_orden",
+                                new BsonDocument("$first", "$id_medico_orden") },
+                                        { "procedimientos",
+                                new BsonDocument("$addToSet", "$procedimientos") }
+                                    });
+            var lookup3 = new BsonDocument("$lookup",
+                                new BsonDocument
+                                    {
+                                        { "from", "acto_medico" },
+                                        { "localField", "id_acto_medico" },
+                                        { "foreignField", "_id" },
+                                        { "as", "datos_acto_medico" }
+                                    });
+            var unwind4 = new BsonDocument("$unwind",
+                                new BsonDocument
+                                    {
+                                        { "path", "$datos_acto_medico" },
+                                        { "preserveNullAndEmptyArrays", true }
+                                    });
+            var lookup4 = new BsonDocument("$lookup",
+                                new BsonDocument
+                                    {
+                                        { "from", "medicos" },
+                                        { "localField", "id_medico_orden" },
+                                        { "foreignField", "_id" },
+                                        { "as", "datos_medico_orden" }
+                                    });
+            var unwind5 = new BsonDocument("$unwind",
+                                new BsonDocument
+                                    {
+                                        { "path", "$datos_medico_orden" },
+                                        { "preserveNullAndEmptyArrays", true }
+                                    });
+            var project2 = new BsonDocument("$project",
+                                new BsonDocument
+                                    {
+                                        { "id_acto_medico", 0 },
+                                        { "id_medico_orden", 0 }
+                                    });
+
+            lstordenes = await _ordenes.Aggregate()
+                                .AppendStage<dynamic>(addFields)
+                                .AppendStage<dynamic>(lookup)
+                                .AppendStage<dynamic>(unwind)
+                                .AppendStage<dynamic>(addFields2)
+                                .AppendStage<dynamic>(match)
+                                .AppendStage<dynamic>(unwind2)
+                                .AppendStage<dynamic>(addFields3)
+                                .AppendStage<dynamic>(lookup2)
+                                .AppendStage<dynamic>(project)
+                                .AppendStage<dynamic>(unwind3)
+                                .AppendStage<dynamic>(group)
+                                .AppendStage<dynamic>(lookup3)
+                                .AppendStage<dynamic>(unwind4)
+                                .AppendStage<dynamic>(lookup4)
+                                .AppendStage<dynamic>(unwind5)
+                                .AppendStage<OrdenesDTO_GetAll>(project2)
+                                .ToListAsync();
+            return lstordenes;
+        }
     }
 }
