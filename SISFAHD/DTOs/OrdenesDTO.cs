@@ -34,10 +34,31 @@ namespace SISFAHD.DTOs
         public List<doc_Anexo> resultado { get; set; }
     }
 
-    public class DatosOrden
+    public class OrdenesDTO_GetAll
     {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string id { get; set; }
+        public string estado_atencion { get; set; }
+        public string estado_pago { get; set; }
+        public DateTime fecha_orden { get; set; }
+        public DateTime fecha_pago { get; set; }
+        public DateTime fecha_reserva { get; set; }
         public string id_paciente { get; set; }
         public Int32 precio_neto { get; set; }
-        public string id_medico { get; set; }
+        public string tipo_pago { get; set; }
+        public string usuario { get; set; }
+        public List<ProcedimientosDetallado> procedimientos { get; set; }
+        public ActoMedico datos_acto_medico { get; set; }
+        public Medico datos_medico_orden { get; set; }
+    }
+    public class ProcedimientosDetallado
+    {
+
+        public string id_examen { get; set; }
+        public string estado { get; set; }
+        public string id_turno_orden { get; set; }
+        public string id_resultado_examen { get; set; }
+        public Examenes datos_examen { get; set; }
     }
 }
