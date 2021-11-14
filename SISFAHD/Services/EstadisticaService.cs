@@ -1828,6 +1828,218 @@ namespace SISFAHD.Services
 
             return estadisticaDTO;
         }
+        public async Task<List<ExamenesFecha>> ExamenesHoy()
+        {
+            var unwind = new BsonDocument("$unwind",
+    new BsonDocument
+        {
+            { "path", "$diagnostico" },
+            { "preserveNullAndEmptyArrays", false }
+        });
+    var unwind2 = new BsonDocument("$unwind",
+    new BsonDocument
+        {
+            { "path", "$diagnostico.examenes_auxiliares" },
+            { "preserveNullAndEmptyArrays", false }
+        });
+    var addfields = new BsonDocument("$addFields",
+    new BsonDocument
+        {
+            { "id_examen",
+    new BsonDocument("$toObjectId", "$diagnostico.examenes_auxiliares.codigo") },
+            { "nombre", "$diagnostico.examenes_auxiliares.nombre" },
+            { "fecha_atencion_dia",
+    new BsonDocument("$dayOfMonth", "$fecha_atencion") },
+            { "fecha_atencion_mes",
+    new BsonDocument("$month", "$fecha_atencion") },
+            { "fecha_atencion_anio",
+    new BsonDocument("$year", "$fecha_atencion") }
+        });
+    var group = new BsonDocument("$group",
+    new BsonDocument
+        {
+            { "_id",
+    new BsonDocument
+            {
+                { "id", "$id_examen" },
+                { "dia", "$fecha_atencion_dia" },
+                { "mes", "$fecha_atencion_mes" },
+                { "anio", "$fecha_atencion_anio" }
+            } },
+            { "cantidad",
+    new BsonDocument("$sum", 1) }
+        });
+    var lookup = new BsonDocument("$lookup",
+    new BsonDocument
+        {
+            { "from", "examenes" },
+            { "localField", "_id.id" },
+            { "foreignField", "_id" },
+            { "as", "datos" }
+        });
+    var unwind3 = new BsonDocument("$unwind",
+    new BsonDocument
+        {
+            { "path", "$datos" },
+            { "preserveNullAndEmptyArrays", false }
+        });
+    var addfields2 = new BsonDocument("$addFields",
+    new BsonDocument
+        {
+            { "nombre", "$datos.descripcion" },
+            { "fecha_atencion_string",
+    new BsonDocument("$concat",
+    new BsonArray
+                {
+                    new BsonDocument("$toString", "$_id.anio"),
+                    "/",
+                    new BsonDocument("$toString", "$_id.mes"),
+                    "/",
+                    new BsonDocument("$toString", "$_id.dia"),
+                    "T00:00:00.000+00:00"
+                }) }
+        });
+    var addfields3 = new BsonDocument("$addFields",
+    new BsonDocument("fecha_atencion",
+    new BsonDocument("$toDate", "$fecha_atencion_string")));
+    var project = new BsonDocument("$project",
+    new BsonDocument
+        {
+            { "_id", 0 },
+            { "datos", 0 }
+        });
+    var match = new BsonDocument("$match",
+    new BsonDocument("fecha_atencion",
+    new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0)));
+            List<ExamenesFecha> estadisticaDTO = new List<ExamenesFecha>();
+            estadisticaDTO = await _cita.Aggregate()
+                .AppendStage<dynamic>(unwind)
+                .AppendStage<dynamic>(unwind2)
+                .AppendStage<dynamic>(addfields)
+                .AppendStage<dynamic>(group)
+                .AppendStage<dynamic>(lookup)
+                .AppendStage<dynamic>(unwind3)
+                .AppendStage<dynamic>(addfields2)
+                .AppendStage<dynamic>(addfields3)
+                .AppendStage<dynamic>(project)
+                .AppendStage<ExamenesFecha>(match).ToListAsync();
+            return estadisticaDTO;
+        }
+        public async Task<List<CitasxEspecialidadFecha>> CitasxEspecialidadHoy()
+        {
+            var addfields = new BsonDocument("$addFields",
+                             new BsonDocument
+                                 {
+                                    { "fecha_cita_dia",
+                            new BsonDocument("$dayOfMonth", "$fecha_cita") },
+                                    { "fecha_cita_mes",
+                            new BsonDocument("$month", "$fecha_cita") },
+                                    { "fecha_cita_anio",
+                            new BsonDocument("$year", "$fecha_cita") }
+                                 });
+            var addfields2 = new BsonDocument("$addFields",
+                                new BsonDocument("id_medico",
+                                new BsonDocument("$toObjectId", "$id_medico")));
+            var lookup = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                                    { "from", "medicos" },
+                                    { "localField", "id_medico" },
+                                    { "foreignField", "_id" },
+                                    { "as", "datos_medico" }
+                                });
+            var unwind = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                            { "path", "$datos_medico" },
+                            { "preserveNullAndEmptyArrays", true }
+                                });
+            var addfields3 = new BsonDocument("$addFields",
+                                new BsonDocument("datos_medico",
+                                new BsonDocument("id_especialidad",
+                                new BsonDocument("$toObjectId", "$datos_medico.id_especialidad"))));
+            var lookup2 = new BsonDocument("$lookup",
+                            new BsonDocument
+                                {
+                            { "from", "especialidades" },
+                            { "localField", "datos_medico.id_especialidad" },
+                            { "foreignField", "_id" },
+                            { "as", "especialidad" }
+                                });
+            var unwind2 = new BsonDocument("$unwind",
+                            new BsonDocument
+                                {
+                            { "path", "$especialidad" },
+                            { "preserveNullAndEmptyArrays", true }
+                                });
+            var group = new BsonDocument("$group",
+                        new BsonDocument
+                            {
+                        { "_id",
+                        new BsonDocument
+                                {
+                                    { "dia", "$fecha_cita_dia" },
+                                    { "mes", "$fecha_cita_mes" },
+                                    { "anio", "$fecha_cita_anio" },
+                                    { "especialidad", "$especialidad.nombre" }
+                                } },
+                                { "cantidad",
+                        new BsonDocument("$sum", 1) }
+                                    });
+            var addfields4 = new BsonDocument("$addFields",
+                                new BsonDocument
+                                    {
+                                { "fecha_cita_string",
+                                new BsonDocument("$concat",
+                                new BsonArray
+                                            {
+                                                new BsonDocument("$toString", "$_id.anio"),
+                                                "/",
+                                                new BsonDocument("$toString", "$_id.mes"),
+                                                "/",
+                                                new BsonDocument("$toString", "$_id.dia"),
+                                                "T00:00:00.000+00:00"
+                                            }) },
+                                        { "fecha_cita_d_m_y",
+                                new BsonDocument("$concat",
+                                new BsonArray
+                                            {
+                                                new BsonDocument("$toString", "$_id.dia"),
+                                                "/",
+                                                new BsonDocument("$toString", "$_id.mes"),
+                                                "/",
+                                                new BsonDocument("$toString", "$_id.anio")
+                                            }) },
+                                        { "estado_atencion", "$_id.estado_atencion" },
+                                        { "estado_pago", "$_id.estado_pago" }
+                                            });
+            var addfields5 = new BsonDocument("$addFields",
+                                new BsonDocument
+                                    {
+                                { "fecha_cita",
+                                new BsonDocument("$toDate", "$fecha_cita_string") },
+                                        { "especialidad", "$_id.especialidad" }
+                                            });
+            var project = new BsonDocument("$project",
+                            new BsonDocument("_id", 0));
+            var match = new BsonDocument("$match",
+                        new BsonDocument("fecha_cita", new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0)));
+            List<CitasxEspecialidadFecha> estadisticaDTO = new List<CitasxEspecialidadFecha>();
+            estadisticaDTO = await _cita.Aggregate()
+                .AppendStage<dynamic>(addfields)
+                .AppendStage<dynamic>(addfields2)
+                .AppendStage<dynamic>(lookup)
+                .AppendStage<dynamic>(unwind)
+                .AppendStage<dynamic>(addfields3)
+                .AppendStage<dynamic>(lookup2)
+                .AppendStage<dynamic>(unwind2)
+                .AppendStage<dynamic>(group)
+                .AppendStage<dynamic>(addfields4)
+                .AppendStage<dynamic>(addfields5)
+                .AppendStage<dynamic>(project)
+                .AppendStage<CitasxEspecialidadFecha>(match).ToListAsync();
+            return estadisticaDTO;
+        }
         public async Task<List<CitasxPacienteyEstadoAtencion>> EstadisticasCitasxPacienteyEstadoAtencion(string id_paciente, string estado_atencion)
         {
             var project = new BsonDocument("$project",

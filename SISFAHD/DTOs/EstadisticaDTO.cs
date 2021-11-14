@@ -16,6 +16,21 @@ namespace SISFAHD.DTOs
         public string _id { get; set; }
         public int cantidad { get; set; }
     }
+    public class CitasxEspecialidadFecha
+    {
+        public Int32? cantidad { get; set; }
+        public string fecha_cita_string { get; set; }
+        public string fecha_cita_d_m_y { get; set; }
+        public DateTime? fecha_cita { get; set; }
+        public string especialidad { get; set; }
+    }
+    public class ExamenesFecha
+    {
+        public Int32? cantidad { get; set; }
+        public string nombre { get; set; }
+        public string fecha_atencion_string { get; set; }
+        public DateTime? fecha_atencion { get; set; }
+    }
     public class EspecialidadesMPedidas
     {
         public string _id { get; set; }
