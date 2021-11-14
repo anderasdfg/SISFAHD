@@ -61,4 +61,10 @@ namespace SISFAHD.DTOs
         public string id_resultado_examen { get; set; }
         public Examenes datos_examen { get; set; }
     }
+    public class DatosOrden
+    {
+        public string id_paciente { get; set; }
+        public Int32 precio_neto { get; set; }
+        public string id_medico { get; set; }
+    }
 }
