@@ -62,39 +62,47 @@ namespace SISFAHD.Services
                 .Set("indicaciones", actomedico.acto_medico.indicaciones);
             await _actoMedico.UpdateOneAsync(filter, update);
             //Agregado por mi persona :)
-            List<Procedimientos> listPro = new List<Procedimientos>();
-            Procedimientos pro = new Procedimientos();
-            for(int i=0; i<actomedico.acto_medico.diagnostico.Count; i++)
+            List<Ordenes> ordenes = await ordenService.VerifyOrdenesByActoMedicoAsync(actomedico.acto_medico.id);
+            if (actomedico.acto_medico.diagnostico.Count > 0)
             {
-                for(int j= 0; j<actomedico.acto_medico.diagnostico[i].examenes_auxiliares.Count; j++)
+                if (actomedico.acto_medico.diagnostico[0].examenes_auxiliares.Count > 0)
                 {
-                    pro.id_examen = actomedico.acto_medico.diagnostico[i].examenes_auxiliares[j].codigo;
-                    pro.estado = "no subido";
-                    pro.id_resultado_examen = "";
-                    pro.id_turno_orden = "";
-                    listPro.Add(pro);
-                }
-            }
-            Ordenes orden = new Ordenes();
-            orden.estado_atencion = "no atendido";
-            orden.estado_pago = "no reservado";
-            orden.fecha_orden = DateTime.Now;
-            orden.fecha_pago = null;
-            orden.fecha_reserva = null;
-            orden.id_paciente = actomedico.datos_orden.id_paciente;
-            orden.precio_neto = actomedico.datos_orden.precio_neto;
-            orden.tipo_pago = "";
-            orden.id_acto_medico = actomedico.acto_medico.id;
-            orden.id_medico_orden = actomedico.datos_orden.id_medico;
-            orden.procedimientos = listPro;
+                    List<Procedimientos> listPro = new List<Procedimientos>();
+                    for (int i = 0; i < actomedico.acto_medico.diagnostico.Count; i++)
+                    {
+                        for (int j = 0; j < actomedico.acto_medico.diagnostico[i].examenes_auxiliares.Count; j++)
+                        {
+                            Procedimientos pro = new Procedimientos();
+                            pro.id_examen = actomedico.acto_medico.diagnostico[i].examenes_auxiliares[j].codigo;
+                            pro.estado = "no subido";
+                            pro.id_resultado_examen = "";
+                            pro.id_turno_orden = "";
+                            listPro.Add(pro);
+                        }
+                    }
+                    Ordenes orden = new Ordenes();
+                    orden.estado_atencion = "no atendido";
+                    orden.estado_pago = "no reservado";
+                    orden.fecha_orden = DateTime.Now;
+                    orden.fecha_pago = null;
+                    orden.fecha_reserva = null;
+                    orden.id_paciente = actomedico.datos_orden.id_paciente;
+                    orden.precio_neto = actomedico.datos_orden.precio_neto;
+                    orden.tipo_pago = "";
+                    orden.id_acto_medico = actomedico.acto_medico.id;
+                    orden.id_medico_orden = actomedico.datos_orden.id_medico;
+                    orden.procedimientos = listPro;
 
-            if(await ordenService.VerifyOrdenesByActoMedicoAsync(actomedico.acto_medico.id))
-            {
-                await ordenService.ModificarOrdenes(orden);
-            }
-            else
-            {
-                ordenService.CreateOrdenes(orden);
+                    if (ordenes.Count > 0)
+                    {
+                        orden.id = ordenes[0].id;
+                        await ordenService.ModificarOrdenes(orden);
+                    }
+                    else
+                    {
+                        ordenService.CreateOrdenes(orden);
+                    }
+                }
             }
             // hasta aca llega lo agregado por mi :)
             return actomedico.acto_medico;

@@ -28,7 +28,7 @@ namespace SISFAHD.Services
             _ordenes.InsertOne(medicinas);
             return medicinas;
         }
-        public async Task<bool> VerifyOrdenesByActoMedicoAsync(string id_acto_medico)
+        public async Task<List<Ordenes>> VerifyOrdenesByActoMedicoAsync(string id_acto_medico)
         {
             var match = new BsonDocument("$match",
                         new BsonDocument("id_acto_medico", id_acto_medico));
@@ -36,14 +36,7 @@ namespace SISFAHD.Services
             ordenes = await _ordenes.Aggregate()
                                 .AppendStage<Ordenes>(match)
                                 .ToListAsync();
-            if(ordenes.Count == 0)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            return ordenes;
         }
         public async Task<Ordenes> ModificarOrdenes(Ordenes orden)
         {
