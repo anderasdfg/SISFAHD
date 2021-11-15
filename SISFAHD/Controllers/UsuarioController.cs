@@ -35,6 +35,11 @@ namespace SISFAHD.Controllers
         {
             return await _usuarioservice.GetAllUsuarios();
         }
+        [HttpGet("id")]
+        public ActionResult<Usuario> GetUsuarioById([FromQuery] string id)
+        {
+            return _usuarioservice.GetById(id);
+        }
         [HttpGet("usuarioId")]
         public ActionResult<Usuario> Get([FromQuery] string id)
         {
