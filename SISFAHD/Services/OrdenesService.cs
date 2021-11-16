@@ -228,14 +228,36 @@ namespace SISFAHD.Services
                                         { "path", "$examenes" },
                                         { "preserveNullAndEmptyArrays", true }
                                     });
+            var project = new BsonDocument("$project",
+                                new BsonDocument
+                                    {
+                                        { "fecha_orden", 1 },
+                                        { "id_usuario", 1 },
+                                        { "id_resultados",
+                                new BsonDocument("$cond",
+                                new BsonDocument
+                                            {
+                                                { "if",
+                                new BsonDocument("$eq",
+                                new BsonArray
+                                                    {
+                                                        "$examenes.id_resultado_examen",
+                                                        ""
+                                                    }) },
+                                                { "then", BsonNull.Value },
+                                                { "else", "$examenes.id_resultado_examen" }
+                                            }) },
+                                        { "datos_medico", 1 },
+                                        { "examenes", 1 }
+                                    });
             var addFields3 = new BsonDocument("$addFields",
-                                new BsonDocument("examenes.id_resultado_examen",
-                                new BsonDocument("$toObjectId", "$examenes.id_resultado_examen")));
+                                new BsonDocument("id_resultados",
+                                new BsonDocument("$toObjectId", "$id_resultados")));
             var lookup6 = new BsonDocument("$lookup",
                                 new BsonDocument
                                     {
                                         { "from", "resultado_examen" },
-                                        { "localField", "examenes.id_resultado_examen" },
+                                        { "localField", "id_resultados" },
                                         { "foreignField", "_id" },
                                         { "as", "examenes.resultado" }
                                     });
@@ -290,6 +312,9 @@ namespace SISFAHD.Services
                                 .AppendStage<dynamic>(unwind7)
                                 .AppendStage<dynamic>(project2)
                                 .AppendStage<dynamic>(unwind8)
+
+                                .AppendStage<dynamic>(project)
+
                                 .AppendStage<dynamic>(addFields3)
                                 .AppendStage<dynamic>(lookup6)
                                 .AppendStage<dynamic>(unwind9)

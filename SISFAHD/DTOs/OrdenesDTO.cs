@@ -42,8 +42,8 @@ namespace SISFAHD.DTOs
         public string estado_atencion { get; set; }
         public string estado_pago { get; set; }
         public DateTime fecha_orden { get; set; }
-        public DateTime fecha_pago { get; set; }
-        public DateTime fecha_reserva { get; set; }
+        public DateTime? fecha_pago { get; set; }
+        public DateTime? fecha_reserva { get; set; }
         public string id_paciente { get; set; }
         public Int32 precio_neto { get; set; }
         public string tipo_pago { get; set; }
