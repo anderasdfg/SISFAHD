@@ -384,6 +384,33 @@ namespace SISFAHD.Services
                                         { "path", "$procedimientos.datos_examen" },
                                         { "preserveNullAndEmptyArrays", true }
                                     });
+
+            var addFields6 = new BsonDocument("$addFields",
+                                new BsonDocument("id_especialidad_resultado",
+                                new BsonDocument("$toObjectId", "$procedimientos.datos_examen.id_especialidad")));
+            var lookup7 = new BsonDocument("$lookup",
+                                new BsonDocument
+                                    {
+                                        { "from", "especialidades" },
+                                        { "localField", "id_especialidad_resultado" },
+                                        { "foreignField", "_id" },
+                                        { "as", "especialidad_resultado" }
+                                    });
+            var unwind8 = new BsonDocument("$unwind",
+                                new BsonDocument
+                                    {
+                                        { "path", "$especialidad_resultado" },
+                                        { "preserveNullAndEmptyArrays", true }
+                                    });
+            var addFields7 = new BsonDocument("$addFields",
+                                new BsonDocument("procedimientos.especialidad_examen", "$especialidad_resultado.nombre"));
+            var project4 = new BsonDocument("$project",
+                                new BsonDocument
+                                    {
+                                        { "especialidad_resultado", 0 },
+                                        { "id_especialidad_resultado", 0 }
+                                    });
+
             var group = new BsonDocument("$group",
                                 new BsonDocument
                                     {
@@ -517,15 +544,17 @@ namespace SISFAHD.Services
                                 .AppendStage<dynamic>(lookup2)
                                 .AppendStage<dynamic>(project)
                                 .AppendStage<dynamic>(unwind3)
+                                .AppendStage<dynamic>(addFields6)
+                                .AppendStage<dynamic>(lookup7)
+                                .AppendStage<dynamic>(unwind8)
+                                .AppendStage<dynamic>(addFields7)
+                                .AppendStage<dynamic>(project4)
                                 .AppendStage<dynamic>(group)
                                 .AppendStage<dynamic>(lookup3)
                                 .AppendStage<dynamic>(unwind4)
                                 .AppendStage<dynamic>(lookup4)
                                 .AppendStage<dynamic>(unwind5)
                                 .AppendStage<dynamic>(project2)
-
-
-
                                 .AppendStage<dynamic>(addFields4)
                                 .AppendStage<dynamic>(lookup5)
                                 .AppendStage<dynamic>(unwind6)

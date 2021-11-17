@@ -63,6 +63,7 @@ namespace SISFAHD.DTOs
         public string id_turno_orden { get; set; }
         public string id_resultado_examen { get; set; }
         public Examenes datos_examen { get; set; }
+        public string especialidad_examen { get; set; }
     }
     public class DatosOrden
     {

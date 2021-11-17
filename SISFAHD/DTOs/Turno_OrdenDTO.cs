@@ -22,5 +22,6 @@ namespace SISFAHD.DTOs
         public string idExamen { get; set; }
         public string idUsuario { get; set; }
         public string idOrden { get; set; }
+        public DateTime fecha { get; set; }
     }
 }

@@ -15,7 +15,10 @@ namespace SISFAHD.Services
         private readonly IMongoCollection<Turno_Ordenes> _turnosOr;
         private readonly IMongoCollection<Examenes> _examen;
         private readonly IMongoCollection<Paciente> _paciente;
+        private readonly IMongoCollection<Medico> _medico;
         private readonly IMongoCollection<Ordenes> _ordenes;
+        private readonly IMongoCollection<Usuario> _usuarios;
+
         public Turno_OrdenService(ISisfahdDatabaseSettings settings)
         {
             var client = new MongoClient(settings.ConnectionString);
@@ -24,6 +27,9 @@ namespace SISFAHD.Services
             _examen = database.GetCollection<Examenes>("examenes");
             _ordenes = database.GetCollection<Ordenes>("ordenes");
             _paciente = database.GetCollection<Paciente>("pacientes");
+            _medico = database.GetCollection<Medico>("medicos");
+            _usuarios = database.GetCollection<Usuario>("usuarios");
+
         }
         public List<Turno_Ordenes> GetAll()
         {
@@ -90,9 +96,11 @@ namespace SISFAHD.Services
             turno = _turnosOr.Find(turno => turno.id == id).FirstOrDefault();
             return turno;
         }
-        public async Task<List<Turno_Ordenes>> GetBy_Especialidad_Fecha(Turno_OrdenDTO_By_Especialidad_Fecha consultas)
+        public async Task<List<Tuple< Turno_Ordenes,Usuario >>> GetBy_Especialidad_Fecha(Turno_OrdenDTO_By_Especialidad_Fecha consultas)
         {
             List<Turno_Ordenes> turnos = new List<Turno_Ordenes>();
+            List<Tuple< Turno_Ordenes,Usuario>> tuple = new List<Tuple<Turno_Ordenes, Usuario>>();
+
             DateTime firstDate = new DateTime(consultas.año, consultas.mes, consultas.dia, 0, 0, 0);
             DateTime lastDate = firstDate;
             lastDate.AddHours(23);
@@ -114,8 +122,17 @@ namespace SISFAHD.Services
             turnos = await _turnosOr.Aggregate()
                 .AppendStage<Turno_Ordenes>(match)
                 .ToListAsync();
-
-            return turnos;
+            Medico medico = new Medico();
+            Usuario usuario = new Usuario();
+            foreach (Turno_Ordenes turnOrdenes in turnos)
+            {
+                
+                medico = _medico.Find(medico => medico.id == turnOrdenes.id_medico).FirstOrDefault();
+                usuario = _usuarios.Find(usuario => usuario.id == medico.id_usuario).FirstOrDefault();
+                Tuple<Turno_Ordenes, Usuario> tuple1 = new Tuple<Turno_Ordenes, Usuario>(turnOrdenes, usuario);
+                tuple.Add(tuple1);
+            }
+            return tuple;
         }
 
         public Turno_Ordenes Modificar_Turno_By_Reserva(Turno_OrdenDTO_By_Reserva turno)
@@ -126,38 +143,43 @@ namespace SISFAHD.Services
             Turno_Ordenes turnosOrdenes = new Turno_Ordenes();
             turnosOrdenes = _turnosOr.Find(turnosOrdenes => turnosOrdenes.id == turno.idTurnoOrden).FirstOrDefault();
             DateTime fecha_hora_inicio = turnosOrdenes.fecha_inicio;
+            //DateTime fecha_hora_fin = turnosOrdenes.fecha_fin;
             string[] separador;
             int hora_separador;
             int minuto_separador;
             int contador = 0;
             int duracion_total = 0;
+            separador = turnosOrdenes.hora_inicio.Split(':');
+            hora_separador = Convert.ToInt32(separador[0]);
+            minuto_separador = Convert.ToInt32(separador[1]);
+            if(fecha_hora_inicio.ToShortDateString() != turno.fecha.ToShortDateString())
+            {
+
+            }
             if (turnosOrdenes.cupos is null)
             {
                 turnosOrdenes.cupos = new List<CuposTO>();
-                separador = turnosOrdenes.hora_inicio.Split(':');
-                hora_separador = Convert.ToInt32(separador[0]);
-                minuto_separador = Convert.ToInt32(separador[1]);
-                fecha_hora_inicio=fecha_hora_inicio.AddHours(hora_separador);
-                fecha_hora_inicio=fecha_hora_inicio.AddMinutes(minuto_separador);
-                fecha_hora_inicio=fecha_hora_inicio.AddSeconds(0);
+                fecha_hora_inicio = new DateTime(turno.fecha.Year, turno.fecha.Month, turno.fecha.Day, hora_separador, minuto_separador, 0);
             }
             else
             {
+
                 foreach(CuposTO cupones in turnosOrdenes.cupos)
                 {
-                    duracion_total += cupones.duracion;
-                    contador++;
+                    if (cupones.hora_inicio.ToShortDateString() != turno.fecha.ToShortDateString())
+                    {
+                        duracion_total += 0;
+                    }
+                    else
+                    {
+                        duracion_total += cupones.duracion;
+                        contador++;
+                    }
+                    
                 }
                 double contador_inicio = duracion_total;
-                //75 -->1.25 -->1 hora y 0.25 x60 =minutos
-                double tiempo_añadir = (contador_inicio / 60);
-                long hora_añadir = (long)tiempo_añadir;
-                double decimales = tiempo_añadir - hora_añadir;
-                double minutos_añadir = (decimales * 60);
-                fecha_hora_inicio=fecha_hora_inicio.AddHours(Convert.ToInt32(hora_añadir));
-                fecha_hora_inicio=fecha_hora_inicio.AddMinutes(Convert.ToInt32(minutos_añadir));
-                fecha_hora_inicio=fecha_hora_inicio.AddSeconds(0);
-
+                fecha_hora_inicio = new DateTime(turno.fecha.Year, turno.fecha.Month, turno.fecha.Day, hora_separador, minuto_separador, 0);
+                fecha_hora_inicio=fecha_hora_inicio.AddMinutes(Convert.ToInt32(contador_inicio));
             }
             Paciente pacienteReservado = new Paciente();
             pacienteReservado = _paciente.Find(paciente => paciente.id_usuario == turno.idUsuario).FirstOrDefault();
