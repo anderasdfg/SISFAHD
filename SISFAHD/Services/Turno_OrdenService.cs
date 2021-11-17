@@ -152,10 +152,7 @@ namespace SISFAHD.Services
             separador = turnosOrdenes.hora_inicio.Split(':');
             hora_separador = Convert.ToInt32(separador[0]);
             minuto_separador = Convert.ToInt32(separador[1]);
-            if(fecha_hora_inicio.ToShortDateString() != turno.fecha.ToShortDateString())
-            {
 
-            }
             if (turnosOrdenes.cupos is null)
             {
                 turnosOrdenes.cupos = new List<CuposTO>();
@@ -194,6 +191,11 @@ namespace SISFAHD.Services
             });
 
             //Linea para modificar el turno_orden
+            var filter = Builders<Turno_Ordenes>.Filter.Eq("id", ObjectId.Parse(turnosOrdenes.id));
+            var update = Builders<Turno_Ordenes>.Update
+                .Set("cupos", turnosOrdenes.cupos);
+            _turnosOr.UpdateOne(filter, update);
+
 
             Ordenes ordenesReservado = new Ordenes();
             ordenesReservado = _ordenes.Find(ordenesReservado => ordenesReservado.id == turno.idOrden).FirstOrDefault();
@@ -208,6 +210,11 @@ namespace SISFAHD.Services
             }
             Console.WriteLine(ordenesReservado);
             //Linea para modificar ordenes
+            var filteOrden = Builders<Ordenes>.Filter.Eq("id", ObjectId.Parse(ordenesReservado.id));
+            var updateOrden = Builders<Ordenes>.Update
+                .Set("procedimientos", ordenesReservado.procedimientos);
+            _ordenes.UpdateOne(filteOrden, updateOrden);
+
             return turnosOrdenes;
         }
     }
