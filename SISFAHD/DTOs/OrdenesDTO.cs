@@ -50,6 +50,10 @@ namespace SISFAHD.DTOs
         public List<ProcedimientosDetallado> procedimientos { get; set; }
         public ActoMedico datos_acto_medico { get; set; }
         public Medico datos_medico_orden { get; set; }
+        public string especialidad { get; set; }
+        public string nombre_medico { get; set; }
+        public string apellido_medico { get; set; }
+
     }
     public class ProcedimientosDetallado
     {

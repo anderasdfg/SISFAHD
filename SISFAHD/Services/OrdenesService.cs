@@ -446,6 +446,66 @@ namespace SISFAHD.Services
                                         { "id_medico_orden", 0 }
                                     });
 
+
+
+            var addFields4 = new BsonDocument("$addFields",
+                                new BsonDocument
+                                    {
+                                        { "id_medico_pro",
+                                new BsonDocument("$toObjectId", "$datos_medico_orden.id_usuario") },
+                                        { "id_especialidad_pro",
+                                new BsonDocument("$toObjectId", "$datos_medico_orden.id_especialidad") }
+                                    });
+            var lookup5 = new BsonDocument("$lookup",
+                                new BsonDocument
+                                    {
+                                        { "from", "usuarios" },
+                                        { "localField", "id_medico_pro" },
+                                        { "foreignField", "_id" },
+                                        { "as", "medico" }
+                                    });
+            var unwind6 = new BsonDocument("$unwind",
+                                new BsonDocument
+                                    {
+                                        { "path", "$medico" },
+                                        { "preserveNullAndEmptyArrays", true }
+                                    });
+            var lookup6 = new BsonDocument("$lookup",
+                                new BsonDocument
+                                    {
+                                        { "from", "especialidades" },
+                                        { "localField", "id_especialidad_pro" },
+                                        { "foreignField", "_id" },
+                                        { "as", "especialidad" }
+                                    });
+            var unwind7 = new BsonDocument("$unwind",
+                                new BsonDocument
+                                    {
+                                        { "path", "$especialidad" },
+                                        { "preserveNullAndEmptyArrays", true }
+                                    });
+            var addFields5 = new BsonDocument("$addFields",
+                                new BsonDocument
+                                    {
+                                        { "nombre_medico", "$medico.datos.nombre" },
+                                        { "apellido_medico",
+                                new BsonDocument("$concat",
+                                new BsonArray
+                                            {
+                                                "$medico.datos.apellido_paterno",
+                                                " ",
+                                                "$medico.datos.apellido_materno"
+                                            }) },
+                                        { "especialidad", "$especialidad.nombre" }
+                                    });
+            var project3 = new BsonDocument("$project",
+                                new BsonDocument
+                                    {
+                                        { "medico", 0 },
+                                        { "id_medico_pro", 0 },
+                                        { "id_especialidad_pro", 0 }
+                                    });
+
             lstordenes = await _ordenes.Aggregate()
                                 .AppendStage<dynamic>(addFields)
                                 .AppendStage<dynamic>(lookup)
@@ -462,7 +522,17 @@ namespace SISFAHD.Services
                                 .AppendStage<dynamic>(unwind4)
                                 .AppendStage<dynamic>(lookup4)
                                 .AppendStage<dynamic>(unwind5)
-                                .AppendStage<OrdenesDTO_GetAll>(project2)
+                                .AppendStage<dynamic>(project2)
+
+
+
+                                .AppendStage<dynamic>(addFields4)
+                                .AppendStage<dynamic>(lookup5)
+                                .AppendStage<dynamic>(unwind6)
+                                .AppendStage<dynamic>(lookup6)
+                                .AppendStage<dynamic>(unwind7)
+                                .AppendStage<dynamic>(addFields5)
+                                .AppendStage<OrdenesDTO_GetAll>(project3)
                                 .ToListAsync();
             return lstordenes;
         }
