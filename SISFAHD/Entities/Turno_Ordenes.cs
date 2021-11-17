@@ -31,6 +31,9 @@ namespace SISFAHD.Entities
         public string id_medico { get; set; }
         [BsonElement("cupos")]
        public List<CuposTO> cupos = new List<CuposTO> {};
+        [BsonElement("id_examen")]
+        public string id_examen { get; set; }
+
     }
     public class EspecialidadTO
     {

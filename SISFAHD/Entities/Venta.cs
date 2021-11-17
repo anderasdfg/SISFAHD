@@ -37,6 +37,9 @@ namespace SISFAHD.Entities
         public string codigo_referencia { get; set; }
         [BsonElement("pago")]
         public DatosPago pago { get; set; } = new DatosPago();
+
+        [BsonElement("id_examen")]
+        public string id_examen { get; set; }
     }
     public class DatosPago
     {
