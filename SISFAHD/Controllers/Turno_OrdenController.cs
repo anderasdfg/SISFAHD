@@ -54,5 +54,10 @@ namespace SISFAHD.Controllers
         {
             return await _turnoservice.GetBy_Especialidad_Fecha(consultas);
         }
+        [HttpPost("ReservarTurnoOrden")]
+        public  Turno_Ordenes Modificar_Turno_By_Reserva(Turno_OrdenDTO_By_Reserva consultas)
+        {
+            return  _turnoservice.Modificar_Turno_By_Reserva(consultas);
+        }
     }
 }

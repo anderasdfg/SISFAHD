@@ -15,4 +15,12 @@ namespace SISFAHD.DTOs
         public int mes { get; set; }
         public int dia { get; set; }
     }
+
+    public class Turno_OrdenDTO_By_Reserva
+    {
+        public string idTurnoOrden { get; set; }
+        public string idExamen { get; set; }
+        public string idUsuario { get; set; }
+        public string idOrden { get; set; }
+    }
 }

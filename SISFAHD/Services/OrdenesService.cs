@@ -364,8 +364,8 @@ namespace SISFAHD.Services
                                 new BsonDocument("$toObjectId", "$id_acto_medico") },
                                         { "id_medico_orden",
                                 new BsonDocument("$toObjectId", "$id_medico_orden") },
-                                        { "procedimientos.id_examen",
-                                new BsonDocument("$toObjectId", "$procedimientos.id_examen_pro") }
+                                        { "procedimientos.id_examen_pro",
+                                new BsonDocument("$toObjectId", "$procedimientos.id_examen") }
                                     });
             var lookup2 = new BsonDocument("$lookup",
                                 new BsonDocument
