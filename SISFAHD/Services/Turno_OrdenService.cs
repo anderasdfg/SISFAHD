@@ -104,9 +104,10 @@ namespace SISFAHD.Services
                                 new BsonArray
                                         {
                                             new BsonDocument("fecha_inicio",
-                                            new BsonDocument("$gte",firstDate)),
+                                            new BsonDocument("$lte",firstDate)),
+                                            
                                             new BsonDocument("fecha_fin",
-                                            new BsonDocument("$lte",lastDate)),
+                                            new BsonDocument("$gte",lastDate)),
                                             new BsonDocument("especialidad.codigo", consultas.idespecialidad)
                                         }));
 
@@ -136,9 +137,9 @@ namespace SISFAHD.Services
                 separador = turnosOrdenes.hora_inicio.Split(':');
                 hora_separador = Convert.ToInt32(separador[0]);
                 minuto_separador = Convert.ToInt32(separador[1]);
-                fecha_hora_inicio.AddHours(hora_separador);
-                fecha_hora_inicio.AddMinutes(minuto_separador);
-                fecha_hora_inicio.AddSeconds(0);
+                fecha_hora_inicio=fecha_hora_inicio.AddHours(hora_separador);
+                fecha_hora_inicio=fecha_hora_inicio.AddMinutes(minuto_separador);
+                fecha_hora_inicio=fecha_hora_inicio.AddSeconds(0);
             }
             else
             {
@@ -183,6 +184,8 @@ namespace SISFAHD.Services
                 }
 
             }
+            Console.WriteLine(ordenesReservado);
+            //Linea para modificar ordenes
             return turnosOrdenes;
         }
     }

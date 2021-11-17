@@ -29,9 +29,9 @@ namespace SISFAHD.Controllers
         public async Task<ActionResult<List<OrdenesDTO>>> GetAllOrdenes([FromQuery] string idUsuario)
         {
             return await _ordenesService.GetAllExamenesAuxiliares_By_Paciente(idUsuario);
-        }//GetAll_By_Paciente
-        [HttpGet("allOrdenes/{idUsuario}")]
-        public async Task<ActionResult<List<OrdenesDTO_GetAll>>> GetAll_By_Paciente(string idUsuario)
+        }
+        [HttpGet("allOrdenes")]
+        public async Task<ActionResult<List<OrdenesDTO_GetAll>>> GetAll_By_Paciente([FromQuery] string idUsuario)
         {
             return await _ordenesService.GetAll_By_Paciente(idUsuario);
         }
