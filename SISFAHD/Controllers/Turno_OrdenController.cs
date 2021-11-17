@@ -49,5 +49,10 @@ namespace SISFAHD.Controllers
         {
             return await _turnoservice.GetByMedico(idMedico, month, year);
         }
+        [HttpPost("listaturnosO")]
+        public async Task<ActionResult<List<Turno_Ordenes>>> GetBy_Especialidad_Fecha(Turno_OrdenDTO_By_Especialidad_Fecha consultas)
+        {
+            return await _turnoservice.GetBy_Especialidad_Fecha(consultas);
+        }
     }
 }

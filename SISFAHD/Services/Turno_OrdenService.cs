@@ -84,5 +84,31 @@ namespace SISFAHD.Services
             turno = _turnosOr.Find(turno => turno.id == id).FirstOrDefault();
             return turno;
         }
+        public async Task<List<Turno_Ordenes>> GetBy_Especialidad_Fecha(Turno_OrdenDTO_By_Especialidad_Fecha consultas)
+        {
+            List<Turno_Ordenes> turnos = new List<Turno_Ordenes>();
+            DateTime firstDate = new DateTime(consultas.año, consultas.mes, consultas.dia, 0, 0, 0);
+            DateTime lastDate = firstDate;
+            lastDate.AddHours(23);
+            lastDate.AddMinutes(59);
+            lastDate.AddSeconds(59);
+
+            var match = new BsonDocument("$match",
+                                new BsonDocument("$and",
+                                new BsonArray
+                                        {
+                                            new BsonDocument("fecha_inicio",
+                                            new BsonDocument("$gte",firstDate)),
+                                            new BsonDocument("fecha_fin",
+                                            new BsonDocument("$lte",lastDate)),
+                                            new BsonDocument("especialidad.codigo", consultas.idespecialidad)
+                                        }));
+
+            turnos = await _turnosOr.Aggregate()
+                .AppendStage<Turno_Ordenes>(match)
+                .ToListAsync();
+
+            return turnos;
+        }
     }
 }
