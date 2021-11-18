@@ -62,5 +62,12 @@ namespace SISFAHD.Services
             return medicinas;
         }
 
+        public Medicinas GetByID(string id)
+        {
+            Medicinas medicinas = new Medicinas();
+            medicinas = _MedicinasCollection.Find(medicinas => medicinas.id == id).FirstOrDefault();
+            return medicinas;
+        }
+
     }
 }
