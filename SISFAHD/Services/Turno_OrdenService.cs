@@ -157,6 +157,7 @@ namespace SISFAHD.Services
             {
                 turnosOrdenes.cupos = new List<CuposTO>();
                 fecha_hora_inicio = new DateTime(turno.fecha.Year, turno.fecha.Month, turno.fecha.Day, hora_separador, minuto_separador, 0);
+                fecha_hora_inicio = fecha_hora_inicio.AddHours(-5);
             }
             else
             {
@@ -177,6 +178,8 @@ namespace SISFAHD.Services
                 double contador_inicio = duracion_total;
                 fecha_hora_inicio = new DateTime(turno.fecha.Year, turno.fecha.Month, turno.fecha.Day, hora_separador, minuto_separador, 0);
                 fecha_hora_inicio=fecha_hora_inicio.AddMinutes(Convert.ToInt32(contador_inicio));
+                fecha_hora_inicio = fecha_hora_inicio.AddHours(-5);
+
             }
             Paciente pacienteReservado = new Paciente();
             pacienteReservado = _paciente.Find(paciente => paciente.id_usuario == turno.idUsuario).FirstOrDefault();
@@ -214,7 +217,7 @@ namespace SISFAHD.Services
             var updateOrden = Builders<Ordenes>.Update
                 .Set("procedimientos", ordenesReservado.procedimientos);
             _ordenes.UpdateOne(filteOrden, updateOrden);
-
+            Console.WriteLine(turnosOrdenes);
             return turnosOrdenes;
         }
     }
