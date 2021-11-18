@@ -28,6 +28,12 @@ namespace SISFAHD.Services
             _ordenes.InsertOne(medicinas);
             return medicinas;
         }
+        public Ordenes GetById(string idOrden)
+        {
+            Ordenes orden = new Ordenes();
+            orden = _ordenes.Find(orden => orden.id == idOrden).FirstOrDefault();
+            return orden;
+        }
         public async Task<List<Ordenes>> VerifyOrdenesByActoMedicoAsync(string id_acto_medico)
         {
             var match = new BsonDocument("$match",
@@ -52,6 +58,26 @@ namespace SISFAHD.Services
                 .Set("tipo_pago",orden.tipo_pago)
                 .Set("id_acto_medico", orden.id_acto_medico)
                 .Set("id_medico_orden", orden.id_medico_orden)
+                .Set("procedimientos", orden.procedimientos);
+            await _ordenes.UpdateOneAsync(filter, update);
+            return orden;
+        }
+        public async Task<Ordenes> ModificarOrdenesEstado(string id_orden, string id_examen, string id_turno_orden, string estado, string id_resultado)
+        {
+            var orden = GetById(id_orden);
+            for (int i = 0; i < orden.procedimientos.Count; i++)
+            {
+                if (orden.procedimientos[i].id_examen == id_examen && orden.procedimientos[i].id_turno_orden == id_turno_orden)
+                {
+                    orden.procedimientos[i].estado = estado;
+                    if (estado == "subido")
+                    {
+                        orden.procedimientos[i].id_resultado_examen = id_resultado;
+                    }
+                }
+            }
+            var filter = Builders<Ordenes>.Filter.Eq("id", ObjectId.Parse(id_orden));
+            var update = Builders<Ordenes>.Update
                 .Set("procedimientos", orden.procedimientos);
             await _ordenes.UpdateOneAsync(filter, update);
             return orden;
@@ -564,6 +590,63 @@ namespace SISFAHD.Services
                                 .AppendStage<OrdenesDTO_GetAll>(project3)
                                 .ToListAsync();
             return lstordenes;
+        }
+        public async Task<List<OrdenDTO2>> GetOrdenesByPaciente(string id_paciente)
+        {
+            List<OrdenDTO2> ordenes = new List<OrdenDTO2>();
+            var match = new BsonDocument("$match",
+                            new BsonDocument
+                            {
+                                { "estado_atencion", "no atendido" },
+                                { "id_paciente", id_paciente }
+                            });
+            var unwind = new BsonDocument("$unwind",
+                        new BsonDocument
+                        {
+                            { "path", "$procedimientos" },
+                            { "preserveNullAndEmptyArrays", false }
+                        });
+            var match1 = new BsonDocument("$match",
+                            new BsonDocument("procedimientos.id_turno_orden",
+                            new BsonDocument("$ne", "")));
+            var addfields = new BsonDocument("$addFields",
+                            new BsonDocument("procedimientos.id_examen2",
+                            new BsonDocument("$toObjectId", "$procedimientos.id_examen")));
+            var lookup = new BsonDocument("$lookup",
+                            new BsonDocument
+                            {
+                                { "from", "examenes" },
+                                { "localField", "procedimientos.id_examen2" },
+                                { "foreignField", "_id" },
+                                { "as", "datosexamen" }
+                            });
+            var unwind1 = new BsonDocument("$unwind",
+                            new BsonDocument
+                            {
+                                { "path", "$datosexamen" },
+                                { "preserveNullAndEmptyArrays", false }
+                            });
+            var project = new BsonDocument("$project",
+                            new BsonDocument
+                            {
+                                { "estado_pago", 0 },
+                                { "fecha_pago", 0 },
+                                { "precio_neto", 0 },
+                                { "tipo_pago", 0 },
+                                { "procedimientos.id_examen2", 0 },
+                                { "datosexamen._id", 0 }
+                            });
+            ordenes = await _ordenes.Aggregate()
+                        .AppendStage<dynamic>(match)
+                        .AppendStage<dynamic>(unwind)
+                        .AppendStage<dynamic>(match1)
+                        .AppendStage<dynamic>(addfields)
+                        .AppendStage<dynamic>(lookup)
+                        .AppendStage<dynamic>(unwind1)
+                        .AppendStage<dynamic>(unwind)
+                        .AppendStage<OrdenDTO2>(project).ToListAsync();
+
+            return ordenes;
         }
     }
 }
