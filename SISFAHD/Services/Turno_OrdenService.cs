@@ -188,7 +188,7 @@ namespace SISFAHD.Services
                 hora_inicio=fecha_hora_inicio,
                 paciente=Convert.ToString(pacienteReservado.id),
                 duracion=Convert.ToInt32(examen.duracion),
-                estado="ocupado",
+                estado="no pagado",
                 id_orden=turno.idOrden,
                 id_examen= turno.idExamen
             });
