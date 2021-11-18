@@ -597,7 +597,7 @@ namespace SISFAHD.Services
             var match = new BsonDocument("$match",
                             new BsonDocument
                             {
-                                { "estado_atencion", "no atendido" },
+                                { "estado_pago", "pagado" },
                                 { "id_paciente", id_paciente }
                             });
             var unwind = new BsonDocument("$unwind",
@@ -643,7 +643,6 @@ namespace SISFAHD.Services
                         .AppendStage<dynamic>(addfields)
                         .AppendStage<dynamic>(lookup)
                         .AppendStage<dynamic>(unwind1)
-                        .AppendStage<dynamic>(unwind)
                         .AppendStage<OrdenDTO2>(project).ToListAsync();
 
             return ordenes;

@@ -74,7 +74,7 @@ namespace SISFAHD.Services
                         {
                             Procedimientos pro = new Procedimientos();
                             pro.id_examen = actomedico.acto_medico.diagnostico[i].examenes_auxiliares[j].codigo;
-                            pro.estado = "no subido";
+                            pro.estado = "no pagado";
                             pro.id_resultado_examen = "";
                             pro.id_turno_orden = "";
                             listPro.Add(pro);

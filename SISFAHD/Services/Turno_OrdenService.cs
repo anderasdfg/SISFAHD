@@ -247,7 +247,7 @@ namespace SISFAHD.Services
                                 { "preserveNullAndEmptyArrays", false }
                             });
             var match1 = new BsonDocument("$match",
-                            new BsonDocument("cupos.estado", "ocupado"));
+                            new BsonDocument("cupos.estado", "pagado"));
             var group = new BsonDocument("$group",
                         new BsonDocument
                         {
