@@ -597,7 +597,7 @@ namespace SISFAHD.Services
             var match = new BsonDocument("$match",
                             new BsonDocument
                             {
-                                { "estado_pago", "pagado" },
+                                { "estado_atencion", "no atendido" },
                                 { "id_paciente", id_paciente }
                             });
             var unwind = new BsonDocument("$unwind",
