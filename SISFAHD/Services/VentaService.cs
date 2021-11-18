@@ -22,6 +22,10 @@ namespace SISFAHD.Services
         private readonly IMongoCollection<Usuario> _UsuarioCollection;
         private readonly IMongoCollection<Medico> _MedicoCollection;
         private readonly IMongoCollection<Pedidos> _PedidoCollection;
+        private readonly IMongoCollection<Ordenes> _OrdenCollection;
+        private readonly IMongoCollection<Turno_Ordenes> _TurnoOrdCollection;
+
+
         public VentaService(ISisfahdDatabaseSettings settings)
         {
             var client = new MongoClient(settings.ConnectionString);
@@ -32,6 +36,10 @@ namespace SISFAHD.Services
             _UsuarioCollection = database.GetCollection<Usuario>("usuarios");
             _MedicoCollection = database.GetCollection<Medico>("medicos");
             _PedidoCollection = database.GetCollection<Pedidos>("pedidos");
+            _OrdenCollection = database.GetCollection<Ordenes>("ordenes");
+            _TurnoOrdCollection = database.GetCollection<Turno_Ordenes>("turnos_ordenes");
+
+
         }
 
 
@@ -670,6 +678,7 @@ namespace SISFAHD.Services
                         venta.moneda = pagoProcesado.order.currency;
                         ModifyVenta(id_cita, venta);
                         ModifyEstadoPagoPedido(id_cita);
+                        ModifyEstadoPagoOrden(id_cita);
                         //ENVIA CORREO
                         sendNotificationPedido(id_cita);
 
@@ -784,6 +793,64 @@ namespace SISFAHD.Services
                 .Set("estado_pago", "pagado");
             _PedidoCollection.UpdateOne(filter, update);
             return pedido;
+        }
+        public Turno_Ordenes ModifyEstadoPagoOrden(string idPedido)
+        {
+            Pedidos pedidoPagar = new Pedidos();
+            pedidoPagar = _PedidoCollection.Find(pedidoPagar => pedidoPagar.id == idPedido).FirstOrDefault();
+
+            Ordenes ordenPagar = new Ordenes();
+            ordenPagar = _OrdenCollection.Find(ordenPagar => ordenPagar.id_acto_medico == pedidoPagar.id_acto_medico).FirstOrDefault();
+            string id_turno_orden_pagar="";
+            foreach(Procedimientos proced in ordenPagar.procedimientos)
+            {
+                if(proced.id_examen == pedidoPagar.productos[0].codigo)
+                {
+                    proced.estado = "pagado";
+                    id_turno_orden_pagar = proced.id_turno_orden;
+                }
+            }
+
+            var filterOrden = Builders<Ordenes>.Filter.Eq("id", ObjectId.Parse(ordenPagar.id));
+            var updateOrden = Builders<Ordenes>.Update
+                .Set("procedimientos", ordenPagar.procedimientos);
+            _OrdenCollection.UpdateOne(filterOrden, updateOrden);
+
+
+            Turno_Ordenes turnoOrdenPagar = new Turno_Ordenes();
+            turnoOrdenPagar = _TurnoOrdCollection.Find(turnoOrdenPagar => turnoOrdenPagar.id == id_turno_orden_pagar).FirstOrDefault();
+            List<CuposTO> cuponesIguales = new List<CuposTO>();
+            List<CuposTO> cuponesNoIguales = new List<CuposTO>();
+            CuposTO UltimoCupoIgual = new CuposTO();
+
+            foreach (CuposTO cupos in turnoOrdenPagar.cupos)
+            {
+                if(cupos.id_examen == pedidoPagar.productos[0].codigo && cupos.id_orden == ordenPagar.id)
+                {
+                    cupos.estado = "pagado";
+                    cuponesIguales.Add(cupos);
+                }
+                else
+                {
+                    cuponesNoIguales.Add(cupos);
+                }
+                
+            }
+
+            foreach (CuposTO cuposEliminar in cuponesIguales)
+            {
+                UltimoCupoIgual = cuposEliminar;
+            }
+            cuponesNoIguales.Add(UltimoCupoIgual);
+
+            turnoOrdenPagar.cupos = cuponesNoIguales;
+
+            var filter = Builders<Turno_Ordenes>.Filter.Eq("id", ObjectId.Parse(turnoOrdenPagar.id));
+            var update = Builders<Turno_Ordenes>.Update
+                .Set("cupos", turnoOrdenPagar.cupos);
+            _TurnoOrdCollection.UpdateOne(filter, update);
+
+            return turnoOrdenPagar;
         }
         public void sendNotification(string idCita)
         {
