@@ -71,4 +71,27 @@ namespace SISFAHD.DTOs
         public Int32 precio_neto { get; set; }
         public string id_medico { get; set; }
     }
+    public class OrdenDTO2
+    {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string id { get; set; }
+        public string estado_atencion { get; set; }
+        public DateTime fecha_orden { get; set; }
+        public DateTime? fecha_reserva { get; set; }
+        public string id_paciente { get; set; }
+        public string id_acto_medico { get; set; }
+        public string id_medico_orden { get; set; }
+        public Procedimientos procedimientos { get; set; }
+        public DatosExamen datosexamen { get; set; }
+    }
+    public class DatosExamen
+    {
+        public string descripcion { get; set; }
+        public double precio { get; set; }
+        public string id_especialidad { get; set; }
+        public string duracion { get; set; }
+        public string recomendaciones_previas { get; set; }
+        public string recomendaciones_posteriores { get; set; }
+    }
 }

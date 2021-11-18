@@ -32,6 +32,13 @@ namespace SISFAHD.Controllers
         {
             return await _medicinasService.GetByGenericoFiltrer(generico);
         }
+
+        [HttpGet("Id")]
+        public ActionResult<Medicinas> GetActionResult([FromQuery] string id)
+        {
+            return _medicinasService.GetByID(id);
+        }
+
         [HttpPost("Registrar")]
         public ActionResult<Medicinas> Create(Medicinas medicinas)
         {

@@ -59,5 +59,15 @@ namespace SISFAHD.Controllers
         {
             return  _turnoservice.Modificar_Turno_By_Reserva(consultas);
         }
+        [HttpGet("GetByIdMedico")]
+        public async Task<ActionResult<List<Turno_Ordenes>>> GetByIdMedicoAsync(string id)
+        {
+            return await _turnoservice.GetByIdMedicoAsync(id);
+        }
+        [HttpGet("byidmedicopacientespendientes")]
+        public async Task<ActionResult<List<PedidoDTO>>> GetPacientebyExamenesPendientes(string id_medico)
+        {
+            return await _turnoservice.GetPacientebyExamenesPendientes(id_medico);
+        }
     }
 }

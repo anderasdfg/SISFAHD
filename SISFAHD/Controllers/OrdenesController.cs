@@ -41,5 +41,15 @@ namespace SISFAHD.Controllers
             Ordenes objeOrden = _ordenesService.CreateOrdenes(ordenes);
             return objeOrden;
         }
+        [HttpGet("ordenesbypaciente")]
+        public async Task<ActionResult<List<OrdenDTO2>>> GetOrdenesByIdPaciente(string id_paciente)
+        {
+            return await _ordenesService.GetOrdenesByPaciente(id_paciente);
+        }
+        [HttpPut("modificarestado/{id_orden}/{id_examen}/{id_turno_orden}/{estado}/{id_resultados}")]
+        public async Task<ActionResult<Ordenes>> ModifyState (string id_orden, string id_examen, string id_turno_orden, string estado, string id_resultados)
+        {
+            return await _ordenesService.ModificarOrdenesEstado(id_orden, id_examen, id_turno_orden, estado, id_resultados);
+        }
     }
 }
