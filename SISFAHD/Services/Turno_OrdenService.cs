@@ -208,6 +208,7 @@ namespace SISFAHD.Services
                 if (proced.id_examen == turno.idExamen)
                 {
                     proced.id_turno_orden = turno.idTurnoOrden;
+                    proced.fecha_reserva = fecha_hora_inicio;
                 }
 
             }

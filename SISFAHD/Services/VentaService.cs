@@ -808,6 +808,8 @@ namespace SISFAHD.Services
                 {
                     proced.estado = "pagado";
                     id_turno_orden_pagar = proced.id_turno_orden;
+                    proced.fecha_pago = DateTime.Now;
+                    proced.tipo_pago = "Niubiz";
                 }
             }
 
