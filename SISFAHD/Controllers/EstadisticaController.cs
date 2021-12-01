@@ -118,6 +118,11 @@ namespace SISFAHD.Controllers
         {
             return await _estadistica.ExamenesHoy();
         }
+        [HttpGet("MedicosHoy")]
+        public async Task<ActionResult<List<MedicosFecha>>> MedicosHoy()
+        {
+            return await _estadistica.MedicosHoy();
+        }
         [HttpGet("Especialidad")]
         public async Task<ActionResult<List<CitasxEspecialidad>>> ECitasxEspecialidad()
         {

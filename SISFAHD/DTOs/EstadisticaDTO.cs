@@ -31,6 +31,13 @@ namespace SISFAHD.DTOs
         public string fecha_atencion_string { get; set; }
         public DateTime? fecha_atencion { get; set; }
     }
+    public class MedicosFecha
+    {
+        public Int32? cantidad { get; set; }
+        public string fecha_cita_d_m_y { get; set; }
+        public DateTime? fecha_cita { get; set; }
+        public string Nombre_medico { get; set; }
+    }
     public class EspecialidadesMPedidas
     {
         public string _id { get; set; }
