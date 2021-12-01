@@ -75,20 +75,20 @@ namespace SISFAHD.Services
                             Procedimientos pro = new Procedimientos();
                             pro.id_examen = actomedico.acto_medico.diagnostico[i].examenes_auxiliares[j].codigo;
                             pro.estado = "no pagado";
+                            pro.estado_resultado = "pendiente";
                             pro.id_resultado_examen = "";
                             pro.id_turno_orden = "";
+                            pro.fecha_pago = null;
+                            pro.fecha_reserva = null;
+                            pro.precio_neto =Convert.ToDouble(actomedico.datos_orden.precio_neto);
+                            pro.tipo_pago = "";
                             listPro.Add(pro);
                         }
                     }
                     Ordenes orden = new Ordenes();
                     orden.estado_atencion = "no atendido";
-                    orden.estado_pago = "no reservado";
                     orden.fecha_orden = DateTime.Now;
-                    orden.fecha_pago = null;
-                    orden.fecha_reserva = null;
                     orden.id_paciente = actomedico.datos_orden.id_paciente;
-                    orden.precio_neto = actomedico.datos_orden.precio_neto;
-                    orden.tipo_pago = "";
                     orden.id_acto_medico = actomedico.acto_medico.id;
                     orden.id_medico_orden = actomedico.datos_orden.id_medico;
                     orden.procedimientos = listPro;

@@ -49,13 +49,13 @@ namespace SISFAHD.Services
             var filter = Builders<Ordenes>.Filter.Eq("id", ObjectId.Parse(orden.id));
             var update = Builders<Ordenes>.Update
                 .Set("estado_atencion", orden.estado_atencion)
-                .Set("estado_pago", orden.estado_pago)
+                //.Set("estado_pago", orden.estado_pago)
                 .Set("fecha_orden", orden.fecha_orden)
-                .Set("fecha_pago", orden.fecha_pago)
-                .Set("fecha_reserva", orden.fecha_reserva)
+                //.Set("fecha_pago", orden.fecha_pago)
+                //.Set("fecha_reserva", orden.fecha_reserva)
                 .Set("id_paciente", orden.id_paciente)
-                .Set("precio_neto", orden.precio_neto)
-                .Set("tipo_pago",orden.tipo_pago)
+                //.Set("precio_neto", orden.precio_neto)
+                //.Set("tipo_pago",orden.tipo_pago)
                 .Set("id_acto_medico", orden.id_acto_medico)
                 .Set("id_medico_orden", orden.id_medico_orden)
                 .Set("procedimientos", orden.procedimientos);
@@ -69,7 +69,7 @@ namespace SISFAHD.Services
             {
                 if (orden.procedimientos[i].id_examen == id_examen && orden.procedimientos[i].id_turno_orden == id_turno_orden)
                 {
-                    orden.procedimientos[i].estado = estado;
+                    orden.procedimientos[i].estado_resultado = estado;
                     if (estado == "subido")
                     {
                         orden.procedimientos[i].id_resultado_examen = id_resultado;
@@ -443,18 +443,8 @@ namespace SISFAHD.Services
                                         { "_id", "$_id" },
                                         { "estado_atencion",
                                 new BsonDocument("$first", "$estado_atencion") },
-                                        { "estado_pago",
-                                new BsonDocument("$first", "$estado_pago") },
                                         { "fecha_orden",
                                 new BsonDocument("$first", "$fecha_orden") },
-                                        { "fecha_pago",
-                                new BsonDocument("$first", "$fecha_pago") },
-                                        { "fecha_reserva",
-                                new BsonDocument("$first", "$fecha_reserva") },
-                                        { "precio_neto",
-                                new BsonDocument("$first", "$precio_neto") },
-                                        { "tipo_pago",
-                                new BsonDocument("$first", "$tipo_pago") },
                                         { "usuario",
                                 new BsonDocument("$first", "$usuario") },
                                         { "id_acto_medico",

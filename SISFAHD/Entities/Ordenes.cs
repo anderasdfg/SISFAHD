@@ -14,20 +14,14 @@ namespace SISFAHD.Entities
         public string id { get; set; }
         [BsonElement("estado_atencion")]
         public string estado_atencion { get; set; }
-        [BsonElement("estado_pago")]
-        public string estado_pago { get; set; }
+
         [BsonElement("fecha_orden")]
         public DateTime fecha_orden { get; set; }
-        [BsonElement("fecha_pago")]
-        public DateTime? fecha_pago { get; set; }
-        [BsonElement("fecha_reserva")]
-        public DateTime? fecha_reserva { get; set; }
+
         [BsonElement("id_paciente")]
         public string id_paciente { get; set; }
-        [BsonElement("precio_neto")]
-        public Int32 precio_neto { get; set; }
-        [BsonElement("tipo_pago")]
-        public string tipo_pago { get; set; }
+
+
         [BsonElement("id_acto_medico")]
         public string id_acto_medico { get; set; }
         [BsonElement("id_medico_orden")]
@@ -38,7 +32,12 @@ namespace SISFAHD.Entities
     public class Procedimientos
     {
         public string id_examen { get; set; }
+        public string estado_resultado { get; set; }
         public string estado { get; set; }
+        public DateTime? fecha_pago { get; set; }
+        public DateTime? fecha_reserva { get; set; }
+        public Double precio_neto { get; set; }
+        public string tipo_pago { get; set; }
         public string id_turno_orden { get; set; }
         public string id_resultado_examen { get; set; }
     }
