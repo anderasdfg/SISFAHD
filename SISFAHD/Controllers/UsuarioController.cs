@@ -56,11 +56,22 @@ namespace SISFAHD.Controllers
         {
             return _usuarioservice.GetByUserNameAndPass(username,pass);
         }
-        [HttpPost("Registrar")]
+        [HttpPost("")]
         public ActionResult<Usuario> CreateUsuario(Usuario usuario)
         {
             Usuario objUsuario = _usuarioservice.CreateUsuario(usuario);
             return objUsuario;
+        }
+        [HttpPost("Registrar")]
+        public async Task<ActionResult<Usuario>> CreateUsuario2(Usuario usuario)
+        {
+            if (!string.IsNullOrWhiteSpace(usuario.datos.foto))
+            {
+                var profileimg = Convert.FromBase64String(usuario.datos.foto);
+                usuario.datos.foto = await _fileStorage.SaveFile(profileimg, "jpg", "usuario");
+            }
+            Usuario objetousuario = _usuarioservice.CreateUsuario(usuario);
+            return objetousuario;
         }
         [HttpPost("RegistrarUsuarioMedico")]
         public async Task<ActionResult<Usuario>> CreateUsuarioMedico(UsuarioMedico usuario)
