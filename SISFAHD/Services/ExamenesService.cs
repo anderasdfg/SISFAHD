@@ -172,7 +172,6 @@ namespace SISFAHD.Services
         public async Task<List<Examenes>> GetLimit()
         {
             List<Examenes> examen = new List<Examenes>();
-            //  enfermedades = _EnfermdedadCollection.Find(Enfermedad => true).ToList();
             var limit = new BsonDocument("$limit", 100);
             examen = await _examenes.Aggregate().AppendStage<Examenes>(limit).ToListAsync();
             return examen;

@@ -69,5 +69,14 @@ namespace SISFAHD.Services
             return medicinas;
         }
 
+        // 100 Medicinas _ Comprar Servicios Adicionales
+        public async Task<List<Medicinas>> GetLimit()
+        {
+            List<Medicinas> examen = new List<Medicinas>();
+            var limit = new BsonDocument("$limit", 100);
+            examen = await _MedicinasCollection.Aggregate().AppendStage<Medicinas>(limit).ToListAsync();
+            return examen;
+        }
+
     }
 }

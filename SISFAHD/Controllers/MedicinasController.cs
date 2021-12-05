@@ -53,5 +53,11 @@ namespace SISFAHD.Controllers
             Medicinas objmedicina = _medicinasService.UpdateMedicinas(id);
             return objmedicina;
         }
+        // Comprar Servicios Adcionales :DD:D:D:D:D:D::D:D:D:D:D:D:D
+        [HttpGet("100Medicinas")]
+        public async Task<List<Medicinas>> ComprarServiciosA()
+        {
+            return await _medicinasService.GetLimit();
+        }
     }
 }
