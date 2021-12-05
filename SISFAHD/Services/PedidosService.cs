@@ -63,6 +63,7 @@ namespace SISFAHD.Services
 
             return pedido;
         }
+     
         public async Task<List<Pedidos>> GetByIdPaciente(string id_paciente)
         {
             List<Pedidos> pedidos = new List<Pedidos>();
@@ -167,6 +168,41 @@ namespace SISFAHD.Services
                         .AppendStage<dynamic>(addfields2)
                         .AppendStage<PedidoDTO>(project).ToListAsync();
             return pacientes;
+        }
+
+        // Comprar Servicios Adicionales
+
+        public Pedidos GetbyID(string id) {
+            Pedidos pedidos = new Pedidos();
+            pedidos = _PedidosCollection.Find(Pedido => Pedido.id == id).FirstOrDefault();
+            return pedidos;
+        }
+        public async Task<List<Pedidos>> Prueba(string id)
+        {
+
+            List<Pedidos> productos = new List<Pedidos>();
+
+            var filter = new BsonDocument("$match",
+                                 new BsonDocument("_id",
+                                     new ObjectId(id)));
+            var Object = new BsonDocument("$project",
+                                new BsonDocument("productos", 1));
+
+            productos = await _PedidosCollection.Aggregate()
+                                    .AppendStage<dynamic>(filter)
+                                    .AppendStage<Pedidos>(Object)
+                                    .ToListAsync();
+            return productos;
+        }
+
+        public Pedidos UpdateProductos(Pedidos pedidos)
+        {
+            var filter = Builders<Pedidos>.Filter.Eq("id", pedidos.id);
+            var update = Builders<Pedidos>.Update
+                         .Set("productos", pedidos.productos);
+            _PedidosCollection.UpdateOne(filter, update);
+            return pedidos;
+        
         }
     }
 }

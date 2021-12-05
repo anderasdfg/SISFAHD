@@ -49,5 +49,25 @@ namespace SISFAHD.Controllers
         {
             return await _pedidosService.GetByPacientePendiente(id_paciente);
         }
+        // Comprar Servicios Adicionales
+
+        [HttpGet("byID")]
+        public ActionResult<Pedidos> GetID( string id)
+        {
+            return _pedidosService.GetbyID(id);
+        }
+
+        [HttpGet("prueba")]
+        public async Task<ActionResult<List<Pedidos>>> GetProductos(string id)
+        {
+            return await _pedidosService.Prueba(id);
+        }
+        [HttpPut("Productos")]
+        public ActionResult<Pedidos> ModifyProductos(Pedidos pedido)
+        {
+            return _pedidosService.UpdateProductos(pedido);
+        }
+    
+
     }
 }

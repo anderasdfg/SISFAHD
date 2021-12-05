@@ -86,6 +86,12 @@ namespace SISFAHD.Controllers
             return await _examenesservice.RemoveExamenes(id);
         }
 
+        // Comprar Servicios Adcionales :DD:D:D:D:D:D::D:D:D:D:D:D:D
+        [HttpGet("100Examnes")]
+        public async Task<List<Examenes>> ComprarServiciosA()
+        {
+            return await _examenesservice.GetLimit();
+        }
 
     }
 }
