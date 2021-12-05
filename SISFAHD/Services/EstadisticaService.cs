@@ -1737,112 +1737,112 @@ namespace SISFAHD.Services
         public async Task<List<MedicosFecha>> MedicosHoy()
         {
             var addfields1 = new BsonDocument("$addFields",
-                            new BsonDocument("id_med",
-                            new BsonDocument("$toString", "$_id")));
+                new BsonDocument("id_med",
+                new BsonDocument("$toString", "$_id")));
             var lookup1 = new BsonDocument("$lookup",
-                            new BsonDocument
-        {
-            { "from", "citas" },
-            { "localField", "id_med" },
-            { "foreignField", "id_medico" },
-            { "as", "cita" }
-        });
+                new BsonDocument
+                    {
+                        { "from", "citas" },
+                        { "localField", "id_med" },
+                        { "foreignField", "id_medico" },
+                        { "as", "cita" }
+                    });
             var unwind1 = new BsonDocument("$unwind",
-                            new BsonDocument
-                {
-            { "path", "$cita" },
-            { "preserveNullAndEmptyArrays", false }
-                });
+                new BsonDocument
+                    {
+                        { "path", "$cita" },
+                        { "preserveNullAndEmptyArrays", false }
+                    });
             var addfields2 = new BsonDocument("$addFields",
-                                new BsonDocument
-                                    {
-                                { "fecha_cita_dia",
-                        new BsonDocument("$dayOfMonth", "$cita.fecha_cita") },
-                                { "fecha_cita_mes",
-                        new BsonDocument("$month", "$cita.fecha_cita") },
-                                { "fecha_cita_anio",
-                        new BsonDocument("$year", "$cita.fecha_cita") }
-                                    });
+                new BsonDocument
+                    {
+                        { "fecha_cita_dia",
+                new BsonDocument("$dayOfMonth", "$cita.fecha_cita") },
+                        { "fecha_cita_mes",
+                new BsonDocument("$month", "$cita.fecha_cita") },
+                        { "fecha_cita_anio",
+                new BsonDocument("$year", "$cita.fecha_cita") }
+                    });
             var group = new BsonDocument("$group",
-            new BsonDocument
-                {
-            { "_id",
-    new BsonDocument
-            {
-                { "id_Uusario_medico", "$id_usuario" },
-                { "dia", "$fecha_cita_dia" },
-                { "mes", "$fecha_cita_mes" },
-                { "anio", "$fecha_cita_anio" },
-                { "estado_atencion", "$estado_atencion" },
-                { "estado_pago", "$estado_pago" }
-            } },
-            { "cantidad",
-    new BsonDocument("$sum", 1) }
-                });
+                new BsonDocument
+                    {
+                        { "_id",
+                new BsonDocument
+                        {
+                            { "id_Uusario_medico", "$id_usuario" },
+                            { "dia", "$fecha_cita_dia" },
+                            { "mes", "$fecha_cita_mes" },
+                            { "anio", "$fecha_cita_anio" },
+                            { "estado_atencion", "$estado_atencion" },
+                            { "estado_pago", "$estado_pago" }
+                        } },
+                        { "cantidad",
+                new BsonDocument("$sum", 1) }
+                    });
             var addfields3 = new BsonDocument("$addFields",
-            new BsonDocument
-                {
-            { "fecha_cita_string",
-    new BsonDocument("$concat",
-    new BsonArray
-                {
-                    new BsonDocument("$toString", "$_id.anio"),
-                    "/",
-                    new BsonDocument("$toString", "$_id.mes"),
-                    "/",
-                    new BsonDocument("$toString", "$_id.dia"),
-                    "T00:00:00.000+00:00"
-                }) },
-            { "fecha_cita_d_m_y",
-    new BsonDocument("$concat",
-    new BsonArray
-                {
-                    new BsonDocument("$toString", "$_id.dia"),
-                    "/",
-                    new BsonDocument("$toString", "$_id.mes"),
-                    "/",
-                    new BsonDocument("$toString", "$_id.anio")
-                }) },
-            { "id_Uusario_medico",
-    new BsonDocument("$toObjectId", "$_id.id_Uusario_medico") }
-                });
+                new BsonDocument
+                    {
+                        { "fecha_cita_string",
+                new BsonDocument("$concat",
+                new BsonArray
+                            {
+                                new BsonDocument("$toString", "$_id.anio"),
+                                "/",
+                                new BsonDocument("$toString", "$_id.mes"),
+                                "/",
+                                new BsonDocument("$toString", "$_id.dia"),
+                                "T05:00:00.000+00:00"
+                            }) },
+                        { "fecha_cita_d_m_y",
+                new BsonDocument("$concat",
+                new BsonArray
+                            {
+                                new BsonDocument("$toString", "$_id.dia"),
+                                "/",
+                                new BsonDocument("$toString", "$_id.mes"),
+                                "/",
+                                new BsonDocument("$toString", "$_id.anio")
+                            }) },
+                        { "id_Uusario_medico",
+                new BsonDocument("$toObjectId", "$_id.id_Uusario_medico") }
+                    });
             var lookup3 = new BsonDocument("$lookup",
-            new BsonDocument
-                {
-            { "from", "usuarios" },
-            { "localField", "id_Uusario_medico" },
-            { "foreignField", "_id" },
-            { "as", "usuario" }
-                });
+                new BsonDocument
+                    {
+                        { "from", "usuarios" },
+                        { "localField", "id_Uusario_medico" },
+                        { "foreignField", "_id" },
+                        { "as", "usuario" }
+                    });
             var unwind2 = new BsonDocument("$unwind",
-            new BsonDocument
-                {
-                    { "path", "$usuario" },
-                    { "preserveNullAndEmptyArrays", true }
-                });
+                new BsonDocument
+                    {
+                        { "path", "$usuario" },
+                        { "preserveNullAndEmptyArrays", true }
+                    });
             var addfields4 = new BsonDocument("$addFields",
-                            new BsonDocument("fecha_cita",
-                            new BsonDocument("$toDate", "$fecha_cita_string")));
+                new BsonDocument("fecha_cita",
+                new BsonDocument("$toDate", "$fecha_cita_string")));
             var project = new BsonDocument("$project",
-                            new BsonDocument
-                                {
-                                    { "_id", 0 },
-                                    { "cantidad", 1 },
-                                    { "fecha_cita", 1 },
-                                    { "fecha_cita_d_m_y", 1 },
-                                    { "Nombre_medico",
-                            new BsonDocument("$concat",
-                            new BsonArray
-                                        {
-                                            "$usuario.datos.nombre",
-                                            " ",
-                                            "$usuario.datos.apellido_paterno"
-                                        }) }
-                                });
+                new BsonDocument
+                    {
+                        { "cantidad", 1 },
+                        { "fecha_cita", 1 },
+                        { "fecha_cita_d_m_y", 1 },
+                        { "_id", 0 },
+                        { "Nombre_medico",
+                new BsonDocument("$concat",
+                new BsonArray
+                            {
+                                "$usuario.datos.nombre",
+                                " ",
+                                "$usuario.datos.apellido_paterno"
+                            }) }
+                    });
             var match = new BsonDocument("$match",
-            new BsonDocument("fecha_cita",
-            new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0)));
-            List<MedicosFecha> estadisticaDTO = new List<MedicosFecha>();
+                new BsonDocument("fecha_cita",
+                new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0)));
+            List<MedicosFecha> estadisticaDTO;
             estadisticaDTO = await _medicos.Aggregate()
                 .AppendStage<dynamic>(addfields1)
                 .AppendStage<dynamic>(lookup1)
@@ -1856,6 +1856,7 @@ namespace SISFAHD.Services
                 .AppendStage<dynamic>(project)
                 .AppendStage<MedicosFecha>(match).ToListAsync();
             return estadisticaDTO;
+            //DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0
         }
         public async Task<List<CitasxPacienteyEstadoAtencion>> EstadisticasCitasxPacienteyEstadoAtencionByEstado(string estado_atencion)
         {
@@ -2019,7 +2020,7 @@ namespace SISFAHD.Services
                     new BsonDocument("$toString", "$_id.mes"),
                     "/",
                     new BsonDocument("$toString", "$_id.dia"),
-                    "T00:00:00.000+00:00"
+                    "T05:00:00.000+00:00"
                 }) }
         });
     var addfields3 = new BsonDocument("$addFields",
@@ -2121,7 +2122,7 @@ namespace SISFAHD.Services
                                                 new BsonDocument("$toString", "$_id.mes"),
                                                 "/",
                                                 new BsonDocument("$toString", "$_id.dia"),
-                                                "T00:00:00.000+00:00"
+                                                "T05:00:00.000+00:00"
                                             }) },
                                         { "fecha_cita_d_m_y",
                                 new BsonDocument("$concat",
