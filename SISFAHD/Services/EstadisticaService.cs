@@ -2035,8 +2035,8 @@ namespace SISFAHD.Services
     var match = new BsonDocument("$match",
     new BsonDocument("fecha_atencion",
     new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0)));
-            List<ExamenesFecha> estadisticaDTO = new List<ExamenesFecha>();
-            estadisticaDTO = await _cita.Aggregate()
+            List<ExamenesFecha> estadisticaDTO;
+            estadisticaDTO = await _acto.Aggregate()
                 .AppendStage<dynamic>(unwind)
                 .AppendStage<dynamic>(unwind2)
                 .AppendStage<dynamic>(addfields)
