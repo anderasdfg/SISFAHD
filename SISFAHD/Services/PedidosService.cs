@@ -198,10 +198,42 @@ namespace SISFAHD.Services
 
         public Pedidos UpdateProductos(Pedidos pedidos)
         {
+            List<Pedidos> ped = new List<Pedidos>();
+           
+            var match = new BsonDocument("$match",
+                                         new BsonDocument("_id",
+                                         new ObjectId(pedidos.id)));
+            var unwind = new BsonDocument("$unwind",
+                                         new BsonDocument("path", "$productos"));
+            var project = new BsonDocument("$project",
+                                         new BsonDocument
+                                                  {
+                                                    { "productos", 1 },
+                                                    { "value",
+                                                                new BsonDocument("$multiply",
+                                                                new BsonArray
+                                                            {
+                                                                new BsonDocument("$ifNull",new BsonArray {"$productos.precio",1}),
+                                                                new BsonDocument("$ifNull",new BsonArray {"$productos.cantidad",1})
+                                                    })}
+                                         });
+            var group = new BsonDocument("$group",
+                                         new BsonDocument{
+                                                           { "_id", "productos" },
+                                                            // total
+                                                           { "precio_neto", new BsonDocument("$sum", "$value")}});
+
+
+            ped = _PedidosCollection.Aggregate()
+                      .AppendStage<dynamic>(match)
+                      .AppendStage<dynamic>(unwind)
+                      .AppendStage<dynamic>(project)
+                      .AppendStage<Pedidos>(group).ToList();
+
             var filter = Builders<Pedidos>.Filter.Eq("id", pedidos.id);
             var update = Builders<Pedidos>.Update
                          .Set("productos", pedidos.productos)
-                         .Set("precio_neto",pedidos.precio_neto);
+                         .Set("precio_neto", ped[0].precio_neto);
             _PedidosCollection.UpdateOne(filter, update);
             return pedidos;
         
