@@ -13,6 +13,7 @@ namespace SISFAHD.Services
     {
         private readonly IMongoCollection<Pedidos> _PedidosCollection;
         private readonly VentaService _ventaservice;
+        
         public PedidosService(ISisfahdDatabaseSettings settings, VentaService ventaService)
         {
             var pedidos = new MongoClient(settings.ConnectionString);
@@ -177,7 +178,7 @@ namespace SISFAHD.Services
             pedidos = _PedidosCollection.Find(Pedido => Pedido.id == id).FirstOrDefault();
             return pedidos;
         }
-        public async Task<List<Pedidos>> Prueba(string id)
+        public async Task<List<Pedidos>> GetListProductos(string id)
         {
 
             List<Pedidos> productos = new List<Pedidos>();
@@ -204,5 +205,20 @@ namespace SISFAHD.Services
             return pedidos;
         
         }
+
+        public Pedidos CrearPedidos(Pedidos pedidos)
+        {
+            _PedidosCollection.InsertOne(pedidos);
+            return pedidos;
+        }
+
+        public void EliminarPedido(string pedido,string codigo) {
+            
+            var pull = Builders<Pedidos>.Filter.Where(pedidos => pedidos.id.Equals(pedido));
+            var update = Builders<Pedidos>.Update.PullFilter(codigo => codigo.productos, builder => builder.codigo == codigo);
+             _PedidosCollection.UpdateOne(pull, update);
+        }
+ 
+      
     }
 }
