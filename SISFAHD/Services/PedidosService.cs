@@ -200,16 +200,11 @@ namespace SISFAHD.Services
         {
             var filter = Builders<Pedidos>.Filter.Eq("id", pedidos.id);
             var update = Builders<Pedidos>.Update
-                         .Set("productos", pedidos.productos);
+                         .Set("productos", pedidos.productos)
+                         .Set("precio_neto",pedidos.precio_neto);
             _PedidosCollection.UpdateOne(filter, update);
             return pedidos;
         
-        }
-
-        public Pedidos CrearPedidos(Pedidos pedidos)
-        {
-            _PedidosCollection.InsertOne(pedidos);
-            return pedidos;
         }
 
         public void EliminarPedido(string pedido,string codigo) {
@@ -218,7 +213,16 @@ namespace SISFAHD.Services
             var update = Builders<Pedidos>.Update.PullFilter(codigo => codigo.productos, builder => builder.codigo == codigo);
              _PedidosCollection.UpdateOne(pull, update);
         }
- 
-      
+
+        public async Task<List<Pedidos>> GetCarritoPaciente(string id_paciente) 
+        {
+            List<Pedidos> pedidos = new List<Pedidos>();
+            var match = new BsonDocument("$match",
+                        new BsonDocument{
+                                            { "paciente.id_paciente", id_paciente },
+                                            { "id_acto_medico", "" }});
+            pedidos = await _PedidosCollection.Aggregate().AppendStage<Pedidos>(match).ToListAsync();
+            return pedidos;
+        }
     }
 }

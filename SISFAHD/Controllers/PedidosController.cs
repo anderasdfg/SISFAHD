@@ -68,18 +68,18 @@ namespace SISFAHD.Controllers
             return _pedidosService.UpdateProductos(pedido);
         }
 
-        [HttpPost("CrearPedidos")]
-        public ActionResult<Pedidos> CrearPedido(Pedidos pedido)
-        {
-            Pedidos Pedido = _pedidosService.CrearPedidos(pedido);
-            return Pedido;
-        }
-
         [HttpDelete("BorrarProducto")]
         // ID - CodigoProducto
         public void Delete(string id,string codigoproducto)
         {
             _pedidosService.EliminarPedido(id,codigoproducto);
         }
+        // :P
+        [HttpGet("byCarritoPaciente")]
+        public async Task<ActionResult<List<Pedidos>>> GetCarritoPaciente(string id_paciente)
+        {
+            return await _pedidosService.GetCarritoPaciente(id_paciente);
+        }
+
     }
 }
