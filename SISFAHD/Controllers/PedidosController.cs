@@ -80,6 +80,11 @@ namespace SISFAHD.Controllers
         {
             return await _pedidosService.GetCarritoPaciente(id_paciente);
         }
-
+        [HttpPost("soloPedidos")]
+        public ActionResult<Pedidos> CreatesoloPedido(Pedidos pedido)
+        {
+            Pedidos Pedido = _pedidosService.CrearSoloPedido(pedido);
+            return Pedido;
+        }
     }
 }

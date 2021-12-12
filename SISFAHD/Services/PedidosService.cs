@@ -173,6 +173,12 @@ namespace SISFAHD.Services
 
         // Comprar Servicios Adicionales
 
+        public Pedidos CrearSoloPedido(Pedidos pedido)
+        {
+            _PedidosCollection.InsertOne(pedido);
+            return pedido;
+
+        }
         public Pedidos GetbyID(string id) {
             Pedidos pedidos = new Pedidos();
             pedidos = _PedidosCollection.Find(Pedido => Pedido.id == id).FirstOrDefault();
