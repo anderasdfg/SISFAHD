@@ -15,6 +15,7 @@ namespace SISFAHD.Services
         private readonly IMongoCollection<ActoMedico> _acto;
         private readonly IMongoCollection<Medico> _medicos;
         private readonly IMongoCollection<Paciente> _pacientes;
+        private readonly IMongoCollection<Pedidos> _pedidos;
         public EstadisticaService(ISisfahdDatabaseSettings settings)
         {
             var paciente = new MongoClient(settings.ConnectionString);
@@ -2047,6 +2048,92 @@ namespace SISFAHD.Services
                 .AppendStage<dynamic>(addfields3)
                 .AppendStage<dynamic>(project)
                 .AppendStage<ExamenesFecha>(match).ToListAsync();
+            return estadisticaDTO;
+        }
+        public async Task<List<ExamenesPedidos>> ExamenesNOPagados()
+        {
+            var unwind = new BsonDocument("$unwind",
+ new BsonDocument
+     {
+            { "path", "$productos" },
+            { "preserveNullAndEmptyArrays", false }
+     });
+            var match = new BsonDocument("$match",
+             new BsonDocument("tipo", "Examenes"));
+            var group = new BsonDocument("$group",
+            new BsonDocument
+                {
+            { "_id",
+    new BsonDocument
+            {
+                { "codigo_producto", "$productos.codigo" },
+                { "nombre_producto", "$productos.nombre" },
+                { "estado_pago", "$estado_pago" }
+            } },
+            { "cantidad",
+    new BsonDocument("$sum", 1) }
+                });
+            var projetc = new BsonDocument("$project",
+            new BsonDocument
+                {
+            { "codigo_producto", "$_id.codigo_producto" },
+            { "nombre_producto", "$_id.nombre_producto" },
+            { "estado_pago", "$_id.estado_pago" },
+            { "cantidad", 1 },
+            { "_id", 0 }
+                });
+            var match2 = new BsonDocument("$match",
+    new BsonDocument("estado_pago", "No pagado"));
+            List<ExamenesPedidos> estadisticaDTO;
+            estadisticaDTO = await _pedidos.Aggregate()
+                .AppendStage<dynamic>(unwind)
+                .AppendStage<dynamic>(match)
+                .AppendStage<dynamic>(group)
+                .AppendStage<dynamic>(projetc)
+                .AppendStage<ExamenesPedidos>(match2).ToListAsync();
+            return estadisticaDTO;
+        }
+        public async Task<List<ExamenesPedidos>> ExamenesPagados()
+        {
+            var unwind = new BsonDocument("$unwind",
+ new BsonDocument
+     {
+            { "path", "$productos" },
+            { "preserveNullAndEmptyArrays", false }
+     });
+            var match = new BsonDocument("$match",
+             new BsonDocument("tipo", "Examenes"));
+            var group = new BsonDocument("$group",
+            new BsonDocument
+                {
+            { "_id",
+    new BsonDocument
+            {
+                { "codigo_producto", "$productos.codigo" },
+                { "nombre_producto", "$productos.nombre" },
+                { "estado_pago", "$estado_pago" }
+            } },
+            { "cantidad",
+    new BsonDocument("$sum", 1) }
+                });
+            var projetc = new BsonDocument("$project",
+            new BsonDocument
+                {
+            { "codigo_producto", "$_id.codigo_producto" },
+            { "nombre_producto", "$_id.nombre_producto" },
+            { "estado_pago", "$_id.estado_pago" },
+            { "cantidad", 1 },
+            { "_id", 0 }
+                });
+            var match2 = new BsonDocument("$match",
+    new BsonDocument("estado_pago", "Pagado"));
+            List<ExamenesPedidos> estadisticaDTO;
+            estadisticaDTO = await _pedidos.Aggregate()
+                .AppendStage<dynamic>(unwind)
+                .AppendStage<dynamic>(match)
+                .AppendStage<dynamic>(group)
+                .AppendStage<dynamic>(projetc)
+                .AppendStage<ExamenesPedidos>(match2).ToListAsync();
             return estadisticaDTO;
         }
         public async Task<List<CitasxEspecialidadFecha>> CitasxEspecialidadHoy()

@@ -66,6 +66,13 @@ namespace SISFAHD.DTOs
         public string _id { get; set; }
         public Int32 cantidad { get; set; }
     }
+    public class ExamenesPedidos
+    {
+        public int cantidad { get; set; }
+        public string codigo_producto { get; set; }
+        public string nombre_producto { get; set; }
+        public string estado_pago { get; set; }
+    }
     public class ExamenLaboratorio
     {
         [BsonId]
