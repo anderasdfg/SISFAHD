@@ -13,6 +13,7 @@ namespace SISFAHD.Services
     {
         private readonly IMongoCollection<Pedidos> _PedidosCollection;
         private readonly VentaService _ventaservice;
+        
         public PedidosService(ISisfahdDatabaseSettings settings, VentaService ventaService)
         {
             var pedidos = new MongoClient(settings.ConnectionString);
@@ -193,7 +194,7 @@ namespace SISFAHD.Services
             pedidos = _PedidosCollection.Find(Pedido => Pedido.id == id).FirstOrDefault();
             return pedidos;
         }
-        public async Task<List<Pedidos>> Prueba(string id)
+        public async Task<List<Pedidos>> GetListProductos(string id)
         {
 
             List<Pedidos> productos = new List<Pedidos>();
@@ -213,12 +214,63 @@ namespace SISFAHD.Services
 
         public Pedidos UpdateProductos(Pedidos pedidos)
         {
+            List<Pedidos> ped = new List<Pedidos>();
+           
+            var match = new BsonDocument("$match",
+                                         new BsonDocument("_id",
+                                         new ObjectId(pedidos.id)));
+            var unwind = new BsonDocument("$unwind",
+                                         new BsonDocument("path", "$productos"));
+            var project = new BsonDocument("$project",
+                                         new BsonDocument
+                                                  {
+                                                    { "productos", 1 },
+                                                    { "value",
+                                                                new BsonDocument("$multiply",
+                                                                new BsonArray
+                                                            {
+                                                                new BsonDocument("$ifNull",new BsonArray {"$productos.precio",1}),
+                                                                new BsonDocument("$ifNull",new BsonArray {"$productos.cantidad",1})
+                                                    })}
+                                         });
+            var group = new BsonDocument("$group",
+                                         new BsonDocument{
+                                                           { "_id", "productos" },
+                                                            // total
+                                                           { "precio_neto", new BsonDocument("$sum", "$value")}});
+
+
+            ped = _PedidosCollection.Aggregate()
+                      .AppendStage<dynamic>(match)
+                      .AppendStage<dynamic>(unwind)
+                      .AppendStage<dynamic>(project)
+                      .AppendStage<Pedidos>(group).ToList();
+
             var filter = Builders<Pedidos>.Filter.Eq("id", pedidos.id);
             var update = Builders<Pedidos>.Update
-                         .Set("productos", pedidos.productos);
+                         .Set("productos", pedidos.productos)
+                         .Set("precio_neto", ped[0].precio_neto);
             _PedidosCollection.UpdateOne(filter, update);
             return pedidos;
         
+        }
+
+        public void EliminarPedido(string pedido,string codigo) {
+            
+            var pull = Builders<Pedidos>.Filter.Where(pedidos => pedidos.id.Equals(pedido));
+            var update = Builders<Pedidos>.Update.PullFilter(codigo => codigo.productos, builder => builder.codigo == codigo);
+             _PedidosCollection.UpdateOne(pull, update);
+        }
+
+        public async Task<List<Pedidos>> GetCarritoPaciente(string id_paciente) 
+        {
+            List<Pedidos> pedidos = new List<Pedidos>();
+            var match = new BsonDocument("$match",
+                        new BsonDocument{
+                                            { "paciente.id_paciente", id_paciente },
+                                            { "id_acto_medico", "" }});
+            pedidos = await _PedidosCollection.Aggregate().AppendStage<Pedidos>(match).ToListAsync();
+            return pedidos;
         }
     }
 }
