@@ -29,7 +29,23 @@ namespace SISFAHD.Services
         public Pedidos CreatePedido(Pedidos pedido)
         {
             _PedidosCollection.InsertOne(pedido);
+            List<Pedidos> pedidos = new List<Pedidos>();
+            pedidos = _PedidosCollection.Find(pedidos => pedidos.id_acto_medico == pedido.id_acto_medico).ToList();
 
+            if (pedidos.Count > 1)
+            {
+                foreach (Pedidos pedidoRepetido in pedidos)
+                {
+                    var filter = Builders<Pedidos>.Filter.Eq("id", pedidoRepetido.id);
+                    _PedidosCollection.FindOneAndDeleteAsync<Pedidos>(filter, new FindOneAndDeleteOptions<Pedidos> { });
+                    List<Pedidos> pedidosRestantes = new List<Pedidos>();
+                    pedidosRestantes = _PedidosCollection.Find(pedidosRestantes => pedidosRestantes.id_acto_medico == pedidoRepetido.id_acto_medico).ToList();
+                    if(pedidosRestantes.Count == 0)
+                    {
+                        _PedidosCollection.InsertOne(pedido);
+                    }
+                }
+            }
             //Crea la venta en pendiente para esa cita
             Venta venta = new Venta();
             venta.codigo_orden = "";
