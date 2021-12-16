@@ -16,6 +16,7 @@ namespace SISFAHD.Services
         private readonly IMongoCollection<Medico> _medicos;
         private readonly IMongoCollection<Paciente> _pacientes;
         private readonly IMongoCollection<Pedidos> _pedidos;
+        private readonly IMongoCollection<Ordenes> _ordenes;
         public EstadisticaService(ISisfahdDatabaseSettings settings)
         {
             var paciente = new MongoClient(settings.ConnectionString);
@@ -26,6 +27,8 @@ namespace SISFAHD.Services
             /////////-----------Colecciones Usadas en Estadistica---------/////////////
             _medicos = database.GetCollection<Medico>("medicos");
             _pacientes = database.GetCollection<Paciente>("pacientes");
+            _pedidos = database.GetCollection<Pedidos>("pedidos");
+            _ordenes = database.GetCollection<Ordenes>("ordenes");
         }
         public async Task<EstadisticaDTO> CitasxEstadoAtencion(string estado)
         {
@@ -2126,7 +2129,7 @@ namespace SISFAHD.Services
             { "_id", 0 }
                 });
             var match2 = new BsonDocument("$match",
-    new BsonDocument("estado_pago", "Pagado"));
+    new BsonDocument("estado_pago", "pagado"));
             List<ExamenesPedidos> estadisticaDTO;
             estadisticaDTO = await _pedidos.Aggregate()
                 .AppendStage<dynamic>(unwind)
@@ -2134,6 +2137,127 @@ namespace SISFAHD.Services
                 .AppendStage<dynamic>(group)
                 .AppendStage<dynamic>(projetc)
                 .AppendStage<ExamenesPedidos>(match2).ToListAsync();
+            return estadisticaDTO;
+        }
+        
+        public async Task<List<ExamenesPedidos>> ExamenesNoPagados2()
+        {
+            var unwind = new BsonDocument("$unwind",
+            new BsonDocument
+            {
+                { "path", "$procedimientos" },
+                { "preserveNullAndEmptyArrays", false }
+            });
+            var addfields = new BsonDocument("$addFields",
+                new BsonDocument("procedimientos.id_examen2",
+                new BsonDocument("$toObjectId", "$procedimientos.id_examen")));
+            var lookup = new BsonDocument("$lookup",
+                new BsonDocument
+            {
+                { "from", "examenes" },
+                { "localField", "procedimientos.id_examen2" },
+                { "foreignField", "_id" },
+                { "as", "datosexamen" }
+            });
+            var unwind2 = new BsonDocument("$unwind",
+            new BsonDocument
+            {
+                { "path", "$datosexamen" },
+                { "preserveNullAndEmptyArrays", false }
+            });
+            var group = new BsonDocument("$group",
+                new BsonDocument
+                {
+                    { "_id",
+                        new BsonDocument
+                    {
+                    { "codigo_producto", "$procedimientos.id_examen" },
+                    { "estado_pago", "$procedimientos.estado" },
+                    { "nombre_producto", "$datosexamen.descripcion" }
+                    } },
+                { "cantidad",
+                new BsonDocument("$sum", 1) }});
+            var project = new BsonDocument("$project",
+                new BsonDocument
+                {
+                    { "codigo_producto", "$_id.codigo_producto" },
+                    { "nombre_producto", "$_id.nombre_producto" },
+                    { "estado_pago", "$_id.estado_pago" },
+                    { "cantidad", 1 },
+                    { "_id", 0 }
+                });
+            var match = new BsonDocument("$match",
+                 new BsonDocument("estado_pago", "no pagado"));
+
+            List<ExamenesPedidos> estadisticaDTO;
+            estadisticaDTO = await _ordenes.Aggregate()
+                .AppendStage<dynamic>(unwind)
+                .AppendStage<dynamic>(addfields)
+                .AppendStage<dynamic>(lookup)
+                .AppendStage<dynamic>(unwind2)
+                .AppendStage<dynamic>(group)
+                .AppendStage<dynamic>(project)
+                .AppendStage<ExamenesPedidos>(match).ToListAsync();
+            return estadisticaDTO;
+        }
+        public async Task<List<ExamenesPedidos>> ExamenesPagados2()
+        {
+            var unwind = new BsonDocument("$unwind",
+            new BsonDocument
+            {
+                { "path", "$procedimientos" },
+                { "preserveNullAndEmptyArrays", false }
+            });
+            var addfields = new BsonDocument("$addFields",
+                new BsonDocument("procedimientos.id_examen2",
+                new BsonDocument("$toObjectId", "$procedimientos.id_examen")));
+            var lookup = new BsonDocument("$lookup",
+                new BsonDocument
+            {
+                { "from", "examenes" },
+                { "localField", "procedimientos.id_examen2" },
+                { "foreignField", "_id" },
+                { "as", "datosexamen" }
+            });
+            var unwind2 = new BsonDocument("$unwind",
+            new BsonDocument
+            {
+                { "path", "$datosexamen" },
+                { "preserveNullAndEmptyArrays", false }
+            });
+            var group = new BsonDocument("$group",
+                new BsonDocument
+                {
+                    { "_id",
+                        new BsonDocument
+                    {
+                    { "codigo_producto", "$procedimientos.id_examen" },
+                    { "estado_pago", "$procedimientos.estado" },
+                    { "nombre_producto", "$datosexamen.descripcion" }
+                    } },
+                { "cantidad",
+                new BsonDocument("$sum", 1) }});
+            var project = new BsonDocument("$project",
+                new BsonDocument
+                {
+                    { "codigo_producto", "$_id.codigo_producto" },
+                    { "nombre_producto", "$_id.nombre_producto" },
+                    { "estado_pago", "$_id.estado_pago" },
+                    { "cantidad", 1 },
+                    { "_id", 0 }
+                });
+            var match = new BsonDocument("$match",
+                 new BsonDocument("estado_pago", "pagado"));
+
+            List<ExamenesPedidos> estadisticaDTO;
+            estadisticaDTO = await _ordenes.Aggregate()
+                .AppendStage<dynamic>(unwind)
+                .AppendStage<dynamic>(addfields)
+                .AppendStage<dynamic>(lookup)
+                .AppendStage<dynamic>(unwind2)
+                .AppendStage<dynamic>(group)
+                .AppendStage<dynamic>(project)
+                .AppendStage<ExamenesPedidos>(match).ToListAsync();
             return estadisticaDTO;
         }
         public async Task<List<CitasxEspecialidadFecha>> CitasxEspecialidadHoy()

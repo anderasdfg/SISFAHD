@@ -126,12 +126,12 @@ namespace SISFAHD.Controllers
         [HttpGet("ExamenesPagados")]
         public async Task<ActionResult<List<ExamenesPedidos>>> ExamenesPagados()
         {
-            return await _estadistica.ExamenesPagados();
+            return await _estadistica.ExamenesPagados2();
         }
         [HttpGet("ExamenesNOPagados")]
         public async Task<ActionResult<List<ExamenesPedidos>>> ExamenesNOPagados()
         {
-            return await _estadistica.ExamenesNOPagados();
+            return await _estadistica.ExamenesNoPagados2();
         }
         [HttpGet("Especialidad")]
         public async Task<ActionResult<List<CitasxEspecialidad>>> ECitasxEspecialidad()
