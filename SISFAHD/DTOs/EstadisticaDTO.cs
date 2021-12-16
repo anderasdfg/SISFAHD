@@ -150,4 +150,12 @@ namespace SISFAHD.DTOs
         public string id_usuario { get; set; }
         public string Nombre_medico { get; set; }
     }
+    public class ExamenesPedidosPagadosNopagado
+    {
+        public Int32? total { get; set; }
+        public Int32? pagado { get; set; }
+        public Int32? no_pagado { get; set; }
+        public string codigo { get; set; }
+        public string nombre { get; set; }
+    }
 }

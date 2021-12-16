@@ -2469,5 +2469,75 @@ namespace SISFAHD.Services
 
             return estadisticaDTO;
         }
+        public async Task<List<ExamenesPedidosPagadosNopagado>> ExamenesEstadisticasGenericas()
+        {
+            var unwind = new BsonDocument("$unwind",
+                       new BsonDocument
+                           {
+                                { "path", "$productos" },
+                                { "preserveNullAndEmptyArrays", false }
+                           });
+            var match = new BsonDocument("$match",
+                       new BsonDocument("tipo", "Examenes"));
+            var group = new BsonDocument("$group",
+                            new BsonDocument
+                                {
+                            { "_id",
+                            new BsonDocument
+                                    {
+                                        { "codigo", "$productos.codigo" },
+                                        { "nombre", "$productos.nombre" }
+                                    } },
+                                    { "total",
+                            new BsonDocument("$sum", 1) },
+                                    { "pagado",
+                            new BsonDocument("$sum",
+                            new BsonDocument("$cond",
+                            new BsonDocument
+                                            {
+                                                { "if",
+                            new BsonDocument("$eq",
+                            new BsonArray
+                                                    {
+                                                        "$estado_pago",
+                                                        "pagado"
+                                                    }) },
+                                                { "then", 1 },
+                                                { "else", 0 }
+                                            })) },
+                                    { "no_pagado",
+                            new BsonDocument("$sum",
+                            new BsonDocument("$cond",
+                            new BsonDocument
+                                            {
+                                                { "if",
+                            new BsonDocument("$eq",
+                            new BsonArray
+                                                    {
+                                                        "$estado_pago",
+                                                        "No pagado"
+                                                    }) },
+                                                { "then", 1 },
+                                                { "else", 0 }
+                                            })) }
+                                        });
+            var project = new BsonDocument("$project",
+                             new BsonDocument
+                                 {
+                            { "codigo", "$_id.codigo" },
+                            { "nombre", "$_id.nombre" },
+                            { "total", 1 },
+                            { "pagado", 1 },
+                            { "no_pagado", 1 },
+                            { "_id", 0 }
+                                 });
+            List<ExamenesPedidosPagadosNopagado> estadisticaDTO;
+            estadisticaDTO = await _pedidos.Aggregate()
+                .AppendStage<dynamic>(unwind)
+                .AppendStage<dynamic>(match)
+                .AppendStage<dynamic>(group)
+                .AppendStage<ExamenesPedidosPagadosNopagado>(project).ToListAsync();
+            return estadisticaDTO;
+        }
     }
 }

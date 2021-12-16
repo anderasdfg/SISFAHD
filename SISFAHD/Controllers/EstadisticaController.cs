@@ -175,5 +175,11 @@ namespace SISFAHD.Controllers
                 return await _estadistica.EstadisticasCitasxPacienteyEstadoAtencion(idpaciente, estado);
             }
         }
+
+        [HttpGet("ExamenesPagadosyNoPagados")]
+        public async Task<ActionResult<List<ExamenesPedidosPagadosNopagado>>> ExamenesEstadisticasGenericas()
+        {
+            return await _estadistica.ExamenesEstadisticasGenericas();
+        }
     }
 }
